@@ -60,7 +60,7 @@ void CollectSmap::afterCollect(uv_work_t *, int) {
   sysMem->setCached(_sysMem->cached);
   sysMem->setFree(_sysMem->free);
   sysMem->setTotal(_sysMem->total);
-  YODA_SIXSIX_FLOG_INFO("sys mem: %" PRIi64 " %" PRIi64,
+  YODA_SIXSIX_FLOG("sys mem: %" PRIi64 " %" PRIi64,
                         _sysMem->total, _sysMem->available);
 
   auto memList = memData->getProcMemInfo();
@@ -74,7 +74,7 @@ void CollectSmap::afterCollect(uv_work_t *, int) {
       memList->back().setPrivateDirty(smap->private_dirty);
       memList->back().setSharedClean(smap->shared_clean);
       memList->back().setSharedDirty(smap->shared_dirty);
-      YODA_SIXSIX_FLOG_INFO("pss %d %s: %" PRIi64,
+      YODA_SIXSIX_FLOG("pss %d %s: %" PRIi64,
                             smap->pid,
                             smap->fullname.c_str(),
                             smap->pss

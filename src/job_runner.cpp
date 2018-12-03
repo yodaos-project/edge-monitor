@@ -22,7 +22,7 @@ JobRunner::JobRunner(JobManager *manager) :
 }
 
 JobRunner::~JobRunner() {
-  YODA_SIXSIX_SLOG_INFO("runner exit");
+  YODA_SIXSIX_SLOG("runner exit");
 }
 
 int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
@@ -47,7 +47,7 @@ int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
 
 void JobRunner::run() {
   YODA_SIXSIX_SASSERT(_state == JobState::STOP, "job runner is running");
-  YODA_SIXSIX_FLOG_INFO(
+  YODA_SIXSIX_FLOG(
     "running job %s: timeout %" PRIu64 ", interval: %" PRIu64 ", repeat: %d, loopCount: %d",
     _executor->getName().c_str(),
     _conf->timeout,
@@ -64,7 +64,7 @@ void JobRunner::run() {
 
 int32_t JobRunner::stop() {
   YODA_SIXSIX_SASSERT(_state == JobState::RUNNING, "job runner is stopped");
-  YODA_SIXSIX_FLOG_INFO("stopping job %s", _executor->getName().c_str());
+  YODA_SIXSIX_FLOG("stopping job %s", _executor->getName().c_str());
   _state = JobState::STOP;
   uv_timer_stop(_timer);
   YODA_SIXSIX_SAFE_DELETE(_timer);

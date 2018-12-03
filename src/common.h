@@ -29,23 +29,23 @@
     }\
   } while (0)
 
-#define YODA_SIXSIX_FLOG(fd, type, fmt, ...) \
+#define YODA_SIXSIX_FWRITE(fd, type, fmt, ...) \
   do { \
     fprintf(fd, "[%s][" type "]: " fmt "\n", \
     yoda::Util::getFormattedTime().c_str(), __VA_ARGS__); \
   } while (0)
-#define YODA_SIXSIX_FLOG_INFO(fmt, ...) \
-  YODA_SIXSIX_FLOG(stdout, "info", fmt, __VA_ARGS__)
-#define YODA_SIXSIX_FLOG_ERROR(fmt, ...) \
-  YODA_SIXSIX_FLOG(stderr, "error", fmt, __VA_ARGS__)
+#define YODA_SIXSIX_FLOG(fmt, ...) \
+  YODA_SIXSIX_FWRITE(stdout, "info", fmt, __VA_ARGS__)
+#define YODA_SISIX_FERROR(fmt, ...) \
+  YODA_SIXSIX_FWRITE(stderr, "error", fmt, __VA_ARGS__)
 
-#define YODA_SIXSIX_SLOG(fd, type, str) \
+#define YODA_SIXSIX_SWRITE(fd, type, str) \
   do { \
     fprintf(fd, "[%s][" type "]: %s\n", \
     yoda::Util::getFormattedTime().c_str(), str); \
   } while (0)
-#define YODA_SIXSIX_SLOG_INFO(str) YODA_SIXSIX_SLOG(stdout, "info", str)
-#define YODA_SIXSIX_SLOG_ERROR(str) YODA_SIXSIX_SLOG(stderr, "error", str)
+#define YODA_SIXSIX_SLOG(str) YODA_SIXSIX_SWRITE(stdout, "info", str)
+#define YODA_SIXSIX_SERROR(str) YODA_SIXSIX_SWRITE(stderr, "error", str)
 
 #else
 #define LOG_F

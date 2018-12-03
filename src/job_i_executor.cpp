@@ -16,7 +16,7 @@ IJobExecutor::IJobExecutor(const std::string &name) : _name(name),
 }
 
 IJobExecutor::~IJobExecutor() {
-  YODA_SIXSIX_FLOG_INFO("executor %s exit", _name.c_str());
+  YODA_SIXSIX_FLOG("executor %s exit", _name.c_str());
 }
 
 rokid::CollectDataPtr &IJobExecutor::getCollectData() {

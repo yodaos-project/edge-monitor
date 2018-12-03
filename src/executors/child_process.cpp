@@ -114,9 +114,9 @@ int ChildProcess::stop() {
     }
     if (r) {
       const char *err = uv_err_name(r);
-      YODA_SIXSIX_FLOG_ERROR("stop child process %d error %s", _cp->pid, err);
+      YODA_SISIX_FERROR("stop child process %d error %s", _cp->pid, err);
     } else {
-      YODA_SIXSIX_FLOG_INFO("stop child process %d succeed", _cp->pid);
+      YODA_SIXSIX_FLOG("stop child process %d succeed", _cp->pid);
     }
   }
   return 0;
@@ -125,13 +125,13 @@ int ChildProcess::stop() {
 void ChildProcess::onChildProcessExit(uv_process_t *,
                                       int64_t code,
                                       int32_t signal) {
-  YODA_SIXSIX_FLOG_INFO("process exit: %" PRId64 " %d", code, signal);
+  YODA_SIXSIX_FLOG("process exit: %" PRId64 " %d", code, signal);
   UV_MAKE_CB_WRAP1(_cp, cb, ChildProcess, onUVHandleClosed, uv_handle_t);
   uv_close((uv_handle_t *) _cp, cb);
 }
 
 void ChildProcess::onUVHandleClosed(uv_handle_t *) {
-  YODA_SIXSIX_SLOG_INFO("child process closed");
+  YODA_SIXSIX_SLOG("child process closed");
   YODA_SIXSIX_SAFE_FREE(_cp);
   YODA_SIXSIX_SAFE_FREE(_pipe0);
   YODA_SIXSIX_SAFE_FREE(_pipe1);
@@ -145,9 +145,9 @@ void ChildProcess::onPipeData(uv_stream_t *stm, ssize_t nread,
                               const uv_buf_t *buf) {
   if (nread > 0) {
     if (stm == (uv_stream_t *) _pipe1) {
-      YODA_SIXSIX_FLOG(stdout, "child-info", "%s", buf->base);
+      YODA_SIXSIX_FWRITE(stdout, "child-info", "%s", buf->base);
     } else {
-      YODA_SIXSIX_FLOG(stderr, "child-error", "%s", buf->base);
+      YODA_SIXSIX_FWRITE(stderr, "child-error", "%s", buf->base);
     }
   }
 }

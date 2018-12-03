@@ -5,7 +5,7 @@
 #include "device_info.h"
 
 YODA_NS_BEGIN
-
+//-serverAddress cd-perf-2 -serverPort 9997
 std::string DeviceInfo::sn = "sn-test-001";
 std::string DeviceInfo::imageVersion = "version-test-001";
 
@@ -25,8 +25,8 @@ int32_t DeviceInfo::init() {
                                  line.size() - imageVersionPrefixLen - 1);
     }
   }
-  YODA_SIXSIX_FLOG_INFO("device sn: %s", sn.c_str());
-  YODA_SIXSIX_FLOG_INFO("device image version: %s", imageVersion.c_str());
+  YODA_SIXSIX_FLOG("device sn: %s", sn.c_str());
+  YODA_SIXSIX_FLOG("device image version: %s", imageVersion.c_str());
   return 0;
 }
 

@@ -382,7 +382,7 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir) {
     /* First time here. How many CPUs?
      * There will be at least 1 /proc/stat line with cpu%d
      */
-    YODA_SIXSIX_SLOG_INFO("reading first time");
+    YODA_SIXSIX_SLOG("reading first time");
     cpuTotalJif = std::make_shared<SystemCPUInfo>();
     cpuTotalPrevJif = std::make_shared<SystemCPUInfo>();
     r = readCPUJif(fp, cpuTotalJif);

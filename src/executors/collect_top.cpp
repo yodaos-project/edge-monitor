@@ -29,7 +29,7 @@ void CollectTop::doCollect(uv_work_t *) {
 }
 
 void CollectTop::afterCollect(uv_work_t *, int) {
-  YODA_SIXSIX_SLOG_INFO("========== busy idle iowait sys usr ==========");
+  YODA_SIXSIX_SLOG("========== busy idle iowait sys usr ==========");
   YODA_SIXSIX_SAFE_DELETE(_workReq);
   auto cpuInfos = this->getCollectData()->getCpu();
   cpuInfos->setTimestamp(time(nullptr));
@@ -38,7 +38,7 @@ void CollectTop::afterCollect(uv_work_t *, int) {
   for (auto &pair : _top->processes) {
     if (pair.second->cpuUsagePercent > 0.0f) {
       auto &proc = pair.second;
-      YODA_SIXSIX_FLOG_INFO("process %d %s: %f",
+      YODA_SIXSIX_FLOG("process %d %s: %f",
                             proc->pid,
                             proc->fullname.c_str(),
                             proc->cpuUsagePercent
@@ -59,7 +59,7 @@ void CollectTop::afterCollect(uv_work_t *, int) {
   auto cores = sysCpu->getCores();
   int32_t i = 0;
   for (auto &core : _top->cpu->cores) {
-    YODA_SIXSIX_FLOG_INFO("core: %d %f %f %f %f %f",
+    YODA_SIXSIX_FLOG("core: %d %f %f %f %f %f",
                           i++,
                           core->busyPercent,
                           core->idlePercent,
@@ -76,7 +76,7 @@ void CollectTop::afterCollect(uv_work_t *, int) {
   }
 
   auto total = sysCpu->getTotal();
-  YODA_SIXSIX_FLOG_INFO("total : %f %f %f %f %f",
+  YODA_SIXSIX_FLOG("total : %f %f %f %f %f",
                         _top->cpu->total->busyPercent,
                         _top->cpu->total->idlePercent,
                         _top->cpu->total->iowaitPercent,
