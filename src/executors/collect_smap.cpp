@@ -19,7 +19,6 @@ CollectSmap::CollectSmap() : IJobExecutor("CollectSmap"),
 
 void CollectSmap::execute() {
   YODA_SIXSIX_SASSERT(!_workReq, "CollectSmap is running");
-
   _workReq = new uv_work_t;
   UV_MAKE_CB_WRAP1(_workReq, cb1, CollectSmap, doCollect, uv_work_t);
   UV_MAKE_CB_WRAP2(_workReq, cb2, CollectSmap, afterCollect, uv_work_t, int);
@@ -27,7 +26,14 @@ void CollectSmap::execute() {
 }
 
 int CollectSmap::stop() {
-  return 0;
+  if (!_workReq) {
+    return 0;
+  }
+  int r = uv_cancel((uv_req_t *) _workReq);
+  if (r == 0) {
+    YODA_SIXSIX_SAFE_DELETE(_workReq);
+  }
+  return r;
 }
 
 void CollectSmap::doCollect(uv_work_t *) {
@@ -82,6 +88,7 @@ void CollectSmap::afterCollect(uv_work_t *, int) {
     }
   }
   _smaps.clear();
+  _sysMem.reset();
 
   this->onJobDone();
 }

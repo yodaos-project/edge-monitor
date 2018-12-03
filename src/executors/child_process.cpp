@@ -42,9 +42,6 @@ void ChildProcess::execute() {
 
   auto shellSize = _conf->task->shell->size();
   auto bufSize = shellSize < 256 ? 256 : shellSize;
-  if (bufSize < 256) {
-    bufSize = 256;
-  }
   auto buf = (char *) malloc(bufSize + 1);
   memcpy(buf, _conf->task->shell->c_str(), shellSize);
   buf[shellSize] = '\0';
@@ -107,8 +104,9 @@ void ChildProcess::execute() {
 }
 
 int ChildProcess::stop() {
+  int32_t r = 0;
   if (_cp) {
-    int32_t r = uv_process_kill(_cp, 15 /* SIGTERM */);
+    r = uv_process_kill(_cp, 15 /* SIGTERM */);
     if (r == UV_ESRCH) {
       r = 0;
     }
@@ -119,26 +117,37 @@ int ChildProcess::stop() {
       YODA_SIXSIX_FLOG("stop child process %d succeed", _cp->pid);
     }
   }
-  return 0;
+  return r;
 }
 
 void ChildProcess::onChildProcessExit(uv_process_t *,
                                       int64_t code,
                                       int32_t signal) {
   YODA_SIXSIX_FLOG("process exit: %" PRId64 " %d", code, signal);
-  UV_MAKE_CB_WRAP1(_cp, cb, ChildProcess, onUVHandleClosed, uv_handle_t);
-  uv_close((uv_handle_t *) _cp, cb);
+  UV_CLOSE_HANDLE(_cp, ChildProcess, onUVHandleClosed);
+  UV_CLOSE_HANDLE(_pipe0, ChildProcess, onUVHandleClosed);
+  UV_CLOSE_HANDLE(_pipe1, ChildProcess, onUVHandleClosed);
+  UV_CLOSE_HANDLE(_pipe2, ChildProcess, onUVHandleClosed);
 }
 
-void ChildProcess::onUVHandleClosed(uv_handle_t *) {
+void ChildProcess::onUVHandleClosed(uv_handle_t *handle) {
+  if ((uv_handle_t *) _cp == handle) {
+    YODA_SIXSIX_SAFE_FREE(_cp);
+  } else if ((uv_handle_t *) _pipe0 == handle) {
+    YODA_SIXSIX_SAFE_FREE(_pipe0);
+  } else if ((uv_handle_t *) _pipe1 == handle) {
+    YODA_SIXSIX_SAFE_FREE(_pipe1);
+  } else if ((uv_handle_t *) _pipe2 == handle) {
+    YODA_SIXSIX_SAFE_FREE(_pipe2);
+  }
+  if (_cp || _pipe0 || _pipe1 || _pipe2) {
+    return;
+  }
   YODA_SIXSIX_SLOG("child process closed");
-  YODA_SIXSIX_SAFE_FREE(_cp);
-  YODA_SIXSIX_SAFE_FREE(_pipe0);
-  YODA_SIXSIX_SAFE_FREE(_pipe1);
-  YODA_SIXSIX_SAFE_FREE(_pipe2);
   uv_fs_t unlinkReq;
   uv_fs_unlink(uv_default_loop(), &unlinkReq, _filePath, nullptr);
   uv_fs_req_cleanup(&unlinkReq);
+  this->onJobDone();
 }
 
 void ChildProcess::onPipeData(uv_stream_t *stm, ssize_t nread,

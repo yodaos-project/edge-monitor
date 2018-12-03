@@ -30,7 +30,7 @@ int JobManager::setWs(WebSocketClient *ws) {
   ws->setRecvCallback(std::bind(&JobManager::onWSMessage, this, _1));
   ws->setEventCallback(std::bind(&JobManager::onWSEvent, this, _1));
   _ws = ws;
-  _disableUpload = !!Conf::get<uint32_t>("disableUpload", false);
+  _disableUpload = !!Conf::get<uint32_t>("disableUpload", 0);
   return 0;
 }
 
@@ -69,9 +69,10 @@ void JobManager::addRunnerWithConf(const std::shared_ptr<JobConf> &conf,
                                    bool autoRun) {
   YODA_SIXSIX_FLOG("add job type %d with conf", (int32_t) conf->type);
   auto callback = std::bind(&JobManager::onRunnerResult, this, _1);
-  auto runner = new JobRunner(this);
+  std::shared_ptr<JobRunner> runner(new JobRunner(this));
   runner->setJobCallback(callback);
   _runners.push_back(runner);
+  YODA_SIXSIX_FLOG("runner count %d", (uint32_t) _runners.size());
   runner->initWithConf(conf);
   if (autoRun) {
     runner->run();
@@ -79,19 +80,24 @@ void JobManager::addRunnerWithConf(const std::shared_ptr<JobConf> &conf,
 }
 
 void JobManager::onRunnerResult(JobRunner *runner) {
-  if (runner->getState() == JobState::STOP) {
+  auto state = runner->getState();
+  YODA_SIXSIX_FLOG("runner %s result %d", runner->getJobName().c_str(), state);
+  if (state == JobState::STOP) {
     this->forceRemoveRunner(runner);
   }
 }
 
 void JobManager::forceRemoveRunner(JobRunner *runner) {
+  auto &name = runner->getJobName();
+  auto state = runner->getState();
+  YODA_SIXSIX_FLOG("removing runner %s, state %d", name.c_str(), state);
   for (auto ite = _runners.begin(); ite != _runners.end(); ++ite) {
-    if (*ite == runner) {
-      YODA_SIXSIX_SAFE_DELETE(*ite);
+    if ((*ite).get() == runner) {
       _runners.erase(ite);
       break;
     }
   }
+  YODA_SIXSIX_FLOG("runner left %ld", _runners.size());
 }
 
 void JobManager::endTask(TaskErrorCodes errorCode) {
@@ -117,7 +123,7 @@ void JobManager::endTask(TaskErrorCodes errorCode) {
   } else {
     _task->status = TaskStatus::SUCCEED;
   }
-  YODA_SIXSIX_FLOG("stopping all runners %d", (int32_t)_runners.size());
+  YODA_SIXSIX_FLOG("stopping all runners %d", (int32_t) _runners.size());
   for (auto &runner : _runners) {
     int32_t r = runner->stop();
     YODA_SIXSIX_FLOG("runner %d stop return %d", runner->getType(), r);
@@ -257,12 +263,12 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
 
 void JobManager::onCollectData(uv_timer_t *) {
   YODA_SIXSIX_SLOG("sending collect data");
-  std::shared_ptr<Caps> caps;
-  _collectData->serialize(caps);
   if (_ws) {
     if (_disableUpload) {
       YODA_SIXSIX_SLOG("collect data is disabled to upload");
     } else {
+      std::shared_ptr<Caps> caps;
+      _collectData->serialize(caps);
       _ws->sendMsg(caps, [](SendResult sr, void *) {
         YODA_SIXSIX_FLOG("sent collect data [%u]", sr);
       });
@@ -274,6 +280,7 @@ void JobManager::onCollectData(uv_timer_t *) {
 }
 
 void JobManager::resetCollectData() {
+  _collectData.reset();
   auto sysCpuInfo = std::make_shared<rokid::SysCPUInfo>();
   sysCpuInfo->setTotal(std::make_shared<rokid::SysCPUCoreInfo>());
   sysCpuInfo->setCores(std::make_shared<std::vector<rokid::SysCPUCoreInfo>>());
@@ -293,7 +300,7 @@ void JobManager::resetCollectData() {
   _collectData->setMem(memInfos);
 }
 
-void JobManager::onTaskTimeout(uv_timer_t *timeoutReq) {
+void JobManager::onTaskTimeout(uv_timer_t *) {
   YODA_SIXSIX_SLOG("time timeout");
   this->endTask(TaskErrorCodes::NO_ERROR);
 }
@@ -306,7 +313,7 @@ void JobManager::manuallyStartJobs(
   shellConf->type = JobType::SPAWN_CHILD;
   shellConf->data = shell;
   shellConf->enable = true;
-  shellConf->isRepeat = true;
+  shellConf->isRepeat = false;
   shellConf->timeout = 0;
   shellConf->interval = 0;
   this->addRunnerWithConf(shellConf, true);

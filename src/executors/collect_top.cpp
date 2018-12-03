@@ -89,6 +89,8 @@ void CollectTop::afterCollect(uv_work_t *, int) {
   total->setSysUsage(_top->cpu->total->sysPercent);
   total->setUsrUsage(_top->cpu->total->usrPercent);
 
+  _top.reset();
+
   this->onJobDone();
 }
 

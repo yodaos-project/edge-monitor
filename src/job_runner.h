@@ -35,6 +35,8 @@ public:
 
   void setJobCallback(const RunnerExecuteCallback &cb) { _cb = cb; }
 
+  const std::string &getJobName() { return _name; }
+
 private:
 
   void onExecuteFinish();
@@ -50,6 +52,8 @@ private:
   uint32_t _executeCount;
 
   JobManager *_manager;
+
+  std::string _name;
 };
 
 YODA_NS_END

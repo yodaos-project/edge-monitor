@@ -66,6 +66,12 @@ private:\
     target->funcName(req, arg2, arg3);\
   }
 
+#define UV_CLOSE_HANDLE(p, className, cbName) \
+  if (p && !uv_is_closing((uv_handle_t *) p)) {\
+    UV_MAKE_CB_WRAP1(p, cb_##p, className, cbName, uv_handle_t); \
+    uv_close((uv_handle_t *) p, cb_##p); \
+  }
+
 #define YODA_SIXSIX_SAFE_DELETE(p) \
   do {\
     if (p) { \

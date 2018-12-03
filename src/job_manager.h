@@ -31,8 +31,6 @@ public:
 
 private:
 
-  typedef std::list<JobRunner *> JobRunners;
-
   void onRunnerResult(JobRunner *runner);
 
   void forceRemoveRunner(JobRunner *runner);
@@ -59,7 +57,7 @@ private:
   void onWSDisconnected();
 
   rokid::CollectDataPtr _collectData;
-  JobRunners _runners;
+  std::list<std::shared_ptr<JobRunner>> _runners;
   WebSocketClient *_ws;
   std::shared_ptr<TaskInfo> _task;
   uv_timer_t *_collectTimer;

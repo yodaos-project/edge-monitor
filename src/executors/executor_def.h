@@ -43,7 +43,7 @@ struct ProcessTopInfo {
   uint64_t startTime;
   uint64_t vsz;
   uint64_t rss;
-  int64_t nice;
+  int32_t nice;
   int32_t lastSeenOnCPU;
   uint64_t ticksDelta;
   float cpuUsagePercent;

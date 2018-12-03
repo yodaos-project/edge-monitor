@@ -4,8 +4,6 @@
 
 #include "./job_i_executor.h"
 #include "./job_manager.h"
-#include "job_i_executor.h"
-
 
 YODA_NS_BEGIN
 

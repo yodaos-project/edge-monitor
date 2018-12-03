@@ -17,12 +17,13 @@ JobRunner::JobRunner(JobManager *manager) :
   _timer(nullptr),
   _state(JobState::STOP),
   _executeCount(0),
-  _manager(manager) {
+  _manager(manager),
+  _name("unknown") {
 
 }
 
 JobRunner::~JobRunner() {
-  YODA_SIXSIX_SLOG("runner exit");
+  YODA_SIXSIX_FLOG("runner %s exit", _name.c_str());
 }
 
 int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
@@ -40,6 +41,7 @@ int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
     default:
       YODA_SIXSIX_FASSERT(0, "unknown job type %d", conf->type);
   }
+  _name = _executor->getName();
   _executor->setExecuteCb(std::bind(&JobRunner::onExecuteFinish, this));
   _executor->setManager(_manager);
   return 0;
@@ -48,7 +50,11 @@ int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
 void JobRunner::run() {
   YODA_SIXSIX_SASSERT(_state == JobState::STOP, "job runner is running");
   YODA_SIXSIX_FLOG(
-    "running job %s: timeout %" PRIu64 ", interval: %" PRIu64 ", repeat: %d, loopCount: %d",
+    "running job %s: timeout %"
+    PRIu64
+    ", interval: %"
+    PRIu64
+    ", repeat: %d, loopCount: %d",
     _executor->getName().c_str(),
     _conf->timeout,
     _conf->interval,
@@ -69,13 +75,16 @@ int32_t JobRunner::stop() {
   uv_timer_stop(_timer);
   YODA_SIXSIX_SAFE_DELETE(_timer);
   int r = _executor->stop();
+  YODA_SIXSIX_FLOG("executor stop result %d", r);
+  if (r == 0) {
+    _executor.reset();
+  }
   return r;
 }
 
 void JobRunner::onExecuteFinish() {
-  if (_state == JobState::STOP) {
-    _executor.reset();
-  } else if (!_conf->isRepeat && _executeCount >= _conf->loopCount) {
+  if (_state == JobState::STOP ||
+      (!_conf->isRepeat && _executeCount >= _conf->loopCount)) {
     this->stop();
   }
   if (_cb) {
