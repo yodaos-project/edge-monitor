@@ -1,0 +1,88 @@
+//
+// Created by ximin.chen@rokid.com on 2018/11/19.
+//
+
+#ifndef YODA_SIXSIX_DEF_H
+#define YODA_SIXSIX_DEF_H
+
+#include <string>
+#include <list>
+#include <vector>
+#include <map>
+#include <sstream>
+#include <iostream>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <memory>
+#include <functional>
+#include <fstream>
+#include <cmath>
+#include <regex.h>
+#include <unistd.h>
+//#include <zconf.h>
+#include <sys/time.h>
+#include <sys/stat.h>
+#include <uv.h>
+#include <rapidjson/document.h>
+
+#define YODA_NS_BEGIN namespace yoda {
+#define YODA_NS_END }
+
+#define YODA_SINGLETON_IMPL(class_name)\
+  public:\
+    static class_name* getInstance() {\
+      static class_name *instance = nullptr;\
+      if (!instance) {\
+        instance = new class_name();\
+      }\
+      return instance;\
+    }\
+private:\
+
+#define _1 std::placeholders::_1
+#define _2 std::placeholders::_2
+
+#define UV_MAKE_CB_WRAP1(reqPtr, cbName, className, funcName, reqType) \
+  reqPtr->data = this;\
+  auto cbName = [](reqType *req){\
+    auto target = (className*)req->data;\
+    target->funcName(req);\
+  }
+
+#define UV_MAKE_CB_WRAP2(reqPtr, cbName, className, funcName, reqType, \
+  arg2Type) \
+  reqPtr->data = this;\
+  auto cbName = [](reqType *req, arg2Type arg2){\
+    auto target = (className*)req->data;\
+    target->funcName(req, arg2);\
+  }
+
+#define UV_MAKE_CB_WRAP3(reqPtr, cbName, className, funcName, reqType, \
+  arg2Type, arg3Type) \
+  reqPtr->data = this;\
+  auto cbName = [](reqType *req, arg2Type arg2, arg3Type arg3){\
+    auto target = (className*)req->data;\
+    target->funcName(req, arg2, arg3);\
+  }
+
+#define YODA_SIXSIX_SAFE_DELETE(p) \
+  do {\
+    if (p) { \
+      delete p;\
+      p = nullptr; \
+    } \
+  } while(0)
+
+#define YODA_SIXSIX_SAFE_FREE(p) \
+  do {\
+    if (p) { \
+      free(p);\
+      p = nullptr; \
+    } \
+  } while(0)
+
+#define YODA_SIX_SIX_MALLOC(type) \
+  (type*)malloc(sizeof(type))
+
+#endif //YODA_SIXSIX_DEF_H

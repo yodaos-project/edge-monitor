@@ -1,0 +1,1 @@
+/usr/bin/pulseaudio--system--disallow-exit--disable-shm--exit-idle-time=-1--realtime=false

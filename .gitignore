@@ -1,0 +1,9 @@
+cmake-build-*/
+build-*/
+.idea/
+Makefile
+yoda-sixsix
+deps/libuv-cmake/libuv.a
+CMakeScripts/
+yoda-sixsix.build/
+xcode-cmake/
