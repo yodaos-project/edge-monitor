@@ -28,5 +28,5 @@ Collect and upload system data in real time. Currently supports the following fe
 ./yoda-sixsix -sysroot ./sample -taskJson ./sample/yoda_sisix_conf.json
 ```
 
-##Liscense
+## Liscense
 [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0)
