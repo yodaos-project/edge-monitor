@@ -9,18 +9,27 @@
 
 using namespace rokid;
 
+static const char *version = "v1.0.0\n";
 static const char *helpStr = "Usage: \n"
+                             "[-version] print version\n"
                              "[-sysroot] to specific samples sysroot\n"
-                             "[-taskJson]	 to start task from local json path\n"
+                             "[-taskJson]	to start task from local json path\n"
                              "[-disableUpload] set 1 to disable upload data\n"
                              "[-serverAddress] specific server address\n"
                              "[-serverPort] specific server port\n";
 
 int main(int argc, char **argv) {
-  if (argc >= 2 &&
-      (strcmp(argv[1], "-help") == 0 || strcmp(argv[1], "-h") == 0)) {
-    printf("%s", helpStr);
-    exit(0);
+  if (argc >= 2) {
+    const char *print = nullptr;
+    if (strcmp(argv[1], "-help") == 0) {
+      print = helpStr;
+    } else if (strcmp(argv[1], "-version") == 0) {
+      print = version;
+    }
+    if (print) {
+      printf("%s", print);
+      exit(0);
+    }
   }
   YODA_SIXSIX_SLOG_INFO("starting app");
   yoda::DeviceInfo::init();
