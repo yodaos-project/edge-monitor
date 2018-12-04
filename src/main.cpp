@@ -10,14 +10,15 @@
 using namespace rokid;
 
 static const char *version = "v1.0.0\n";
-static const char *helpStr = "Usage: \n"
-                             "[-version] print version\n"
-                             "[-sysroot] to specific samples sysroot\n"
-                             "[-taskJson] to start task from local json path\n"
-                             "[-disableUpload] set 1 to disable upload data\n"
-                             "[-serverAddress] specific server address\n"
-                             "[-serverPort] specific server port\n"
-                             "[-sn] mock an sn\n";
+static const char *helpStr =
+  "Usage: \n"
+  "[-version] print version\n"
+  "[-sysroot] to specific samples sysroot\n"
+  "[-taskJson] to start task from local json path\n"
+  "[-disableUpload] set none-zero to disable upload data\n"
+  "[-serverAddress] specific server address\n"
+  "[-serverPort] specific server port\n"
+  "[-sn] mock an sn\n";
 
 static void parseExitCmd(int argc, char **argv) {
   if (argc >= 2) {
@@ -56,7 +57,8 @@ int main(int argc, char **argv) {
   wsc.start(svrPath.c_str(), svrPort, urlPath);
 
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
-  uv_loop_close(uv_default_loop());
+  int32_t r = uv_loop_close(uv_default_loop());
+  YODA_SIXSIX_FASSERT(r == 0, "uv loop close error %s", uv_err_name(r));
   wsc.stop();
   YODA_SIXSIX_SLOG("app finished");
   return 0;

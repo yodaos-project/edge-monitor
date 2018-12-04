@@ -43,14 +43,14 @@ private:\
 #define _1 std::placeholders::_1
 #define _2 std::placeholders::_2
 
-#define UV_MAKE_CB_WRAP1(reqPtr, cbName, className, funcName, reqType) \
+#define UV_CB_WRAP1(reqPtr, cbName, className, funcName, reqType) \
   reqPtr->data = this;\
   auto cbName = [](reqType *req){\
     auto target = (className*)req->data;\
     target->funcName(req);\
   }
 
-#define UV_MAKE_CB_WRAP2(reqPtr, cbName, className, funcName, reqType, \
+#define UV_CB_WRAP2(reqPtr, cbName, className, funcName, reqType, \
   arg2Type) \
   reqPtr->data = this;\
   auto cbName = [](reqType *req, arg2Type arg2){\
@@ -58,7 +58,7 @@ private:\
     target->funcName(req, arg2);\
   }
 
-#define UV_MAKE_CB_WRAP3(reqPtr, cbName, className, funcName, reqType, \
+#define UV_CB_WRAP3(reqPtr, cbName, className, funcName, reqType, \
   arg2Type, arg3Type) \
   reqPtr->data = this;\
   auto cbName = [](reqType *req, arg2Type arg2, arg3Type arg3){\
@@ -68,7 +68,7 @@ private:\
 
 #define UV_CLOSE_HANDLE(p, className, cbName) \
   if (p && !uv_is_closing((uv_handle_t *) p)) {\
-    UV_MAKE_CB_WRAP1(p, cb_##p, className, cbName, uv_handle_t); \
+    UV_CB_WRAP1(p, cb_##p, className, cbName, uv_handle_t); \
     uv_close((uv_handle_t *) p, cb_##p); \
   }
 

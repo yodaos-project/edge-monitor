@@ -15,12 +15,16 @@ CollectTop::CollectTop() : IJobExecutor("CollectTop"),
   _scanDir = sysroot + "/proc";
 }
 
+CollectTop::~CollectTop() {
+  YODA_SIXSIX_FASSERT(_workReq == nullptr, "%s work not null", _name.c_str());
+}
+
 void CollectTop::execute() {
   YODA_SIXSIX_SASSERT(!_workReq, "CollectTop is running");
 
   _workReq = new uv_work_t;
-  UV_MAKE_CB_WRAP1(_workReq, cb1, CollectTop, doCollect, uv_work_t);
-  UV_MAKE_CB_WRAP2(_workReq, cb2, CollectTop, afterCollect, uv_work_t, int);
+  UV_CB_WRAP1(_workReq, cb1, CollectTop, doCollect, uv_work_t);
+  UV_CB_WRAP2(_workReq, cb2, CollectTop, afterCollect, uv_work_t, int);
   uv_queue_work(uv_default_loop(), _workReq, cb1, cb2);
 }
 
@@ -44,14 +48,15 @@ void CollectTop::afterCollect(uv_work_t *, int) {
                             proc->cpuUsagePercent
       );
       procList->emplace_back();
-      procList->back().setPid(proc->pid);
-      procList->back().setFullName(proc->fullname.c_str());
-      procList->back().setStatus(proc->state);
-      procList->back().setCpuUsage(proc->cpuUsagePercent);
-      procList->back().setNice(proc->nice);
-      procList->back().setStime(proc->stime);
-      procList->back().setUtime(proc->utime);
-      procList->back().setTicks(proc->ticks);
+      rokid::ProcCPUInfo &procCpu = procList->back();
+      procCpu.setPid(proc->pid);
+      procCpu.setFullName(proc->fullname.c_str());
+      procCpu.setStatus(proc->state);
+      procCpu.setCpuUsage(proc->cpuUsagePercent);
+      procCpu.setNice(proc->nice);
+      procCpu.setStime(proc->stime);
+      procCpu.setUtime(proc->utime);
+      procCpu.setTicks(proc->ticks);
     }
   }
 

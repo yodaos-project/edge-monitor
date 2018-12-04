@@ -13,6 +13,8 @@ class CollectTop : public IJobExecutor {
 public:
   CollectTop();
 
+  ~CollectTop() override;
+
   void execute() override;
 
   int stop() override;

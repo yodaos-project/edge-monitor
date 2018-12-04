@@ -13,6 +13,8 @@ class CollectSmap : public IJobExecutor {
 public:
   CollectSmap();
 
+  ~CollectSmap() override;
+
   void execute() override;
 
   int stop() override;

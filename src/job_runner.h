@@ -33,7 +33,7 @@ public:
 
   JobType getType() { return _conf->type; }
 
-  void setJobCallback(const RunnerExecuteCallback &cb) { _cb = cb; }
+  void setJobCallback(const RunnerExecuteCallback &cb) { _stopCb = cb; }
 
   const std::string &getJobName() { return _name; }
 
@@ -41,9 +41,11 @@ private:
 
   void onExecuteFinish();
 
+  void onUVHandleClosed(uv_handle_t *handle);
+
   void onTimer(uv_timer_t *req);
 
-  RunnerExecuteCallback _cb;
+  RunnerExecuteCallback _stopCb;
   std::shared_ptr<JobConf> _conf;
   std::shared_ptr<IJobExecutor> _executor;
   uv_timer_t *_timer;

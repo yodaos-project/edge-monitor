@@ -17,11 +17,15 @@ CollectSmap::CollectSmap() : IJobExecutor("CollectSmap"),
   _scanDir = sysroot + "/proc";
 }
 
+CollectSmap::~CollectSmap() {
+  YODA_SIXSIX_FASSERT(_workReq == nullptr, "%s work not null", _name.c_str());
+}
+
 void CollectSmap::execute() {
   YODA_SIXSIX_SASSERT(!_workReq, "CollectSmap is running");
   _workReq = new uv_work_t;
-  UV_MAKE_CB_WRAP1(_workReq, cb1, CollectSmap, doCollect, uv_work_t);
-  UV_MAKE_CB_WRAP2(_workReq, cb2, CollectSmap, afterCollect, uv_work_t, int);
+  UV_CB_WRAP1(_workReq, cb1, CollectSmap, doCollect, uv_work_t);
+  UV_CB_WRAP2(_workReq, cb2, CollectSmap, afterCollect, uv_work_t, int);
   uv_queue_work(uv_default_loop(), _workReq, cb1, cb2);
 }
 
@@ -67,23 +71,24 @@ void CollectSmap::afterCollect(uv_work_t *, int) {
   sysMem->setFree(_sysMem->free);
   sysMem->setTotal(_sysMem->total);
   YODA_SIXSIX_FLOG("sys mem: %" PRIi64 " %" PRIi64,
-                        _sysMem->total, _sysMem->available);
+                   _sysMem->total, _sysMem->available);
 
   auto memList = memData->getProcMemInfo();
   for (auto &smap : _smaps) {
     if (smap->pss > 0) {
       memList->emplace_back();
-      memList->back().setPss(smap->pss);
-      memList->back().setFullName(smap->fullname.c_str());
-      memList->back().setPid(smap->pid);
-      memList->back().setPrivateClean(smap->private_clean);
-      memList->back().setPrivateDirty(smap->private_dirty);
-      memList->back().setSharedClean(smap->shared_clean);
-      memList->back().setSharedDirty(smap->shared_dirty);
+      rokid::ProcMemInfo &mem = memList->back();
+      mem.setPss(smap->pss);
+      mem.setFullName(smap->fullname.c_str());
+      mem.setPid(smap->pid);
+      mem.setPrivateClean(smap->private_clean);
+      mem.setPrivateDirty(smap->private_dirty);
+      mem.setSharedClean(smap->shared_clean);
+      mem.setSharedDirty(smap->shared_dirty);
       YODA_SIXSIX_FLOG("pss %d %s: %" PRIi64,
-                            smap->pid,
-                            smap->fullname.c_str(),
-                            smap->pss
+                       smap->pid,
+                       smap->fullname.c_str(),
+                       smap->pss
       );
     }
   }

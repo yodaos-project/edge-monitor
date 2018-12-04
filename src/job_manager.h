@@ -31,7 +31,7 @@ public:
 
 private:
 
-  void onRunnerResult(JobRunner *runner);
+  void onRunnerStop(JobRunner *runner);
 
   void endTask(TaskErrorCodes errorCode);
 
@@ -55,6 +55,8 @@ private:
   void onWSDisconnected();
 
   void sendMsg(std::shared_ptr<Caps> &caps, const char *hint = "");
+
+  void onUVHandleClosed(uv_handle_t *handle);
 
   rokid::CollectDataPtr _collectData;
   std::list<std::shared_ptr<JobRunner>> _runners;

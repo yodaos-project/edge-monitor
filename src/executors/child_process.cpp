@@ -84,16 +84,16 @@ void ChildProcess::execute() {
   options.stdio = io;
   options.stdio_count = 3;
   _cp = (uv_process_t *) malloc(sizeof(uv_process_t));
-  UV_MAKE_CB_WRAP3(_cp, cb, ChildProcess, onChildProcessExit,
+  UV_CB_WRAP3(_cp, cb, ChildProcess, onChildProcessExit,
                    uv_process_t, int64_t, int32_t);
   options.exit_cb = cb;
 
   r = uv_spawn(uv_default_loop(), _cp, &options);
   YODA_SIXSIX_FASSERT(r == 0, "spawn %s error: %s", _filePath, uv_err_name(r));
 //  uv_unref((uv_handle_t*) _cp);
-  UV_MAKE_CB_WRAP3(stream1, cb1, ChildProcess, onPipeData,
+  UV_CB_WRAP3(stream1, cb1, ChildProcess, onPipeData,
                    uv_stream_t, ssize_t, const uv_buf_t *);
-  UV_MAKE_CB_WRAP3(stream2, cb2, ChildProcess, onPipeData,
+  UV_CB_WRAP3(stream2, cb2, ChildProcess, onPipeData,
                    uv_stream_t, ssize_t, const uv_buf_t *);
   r = uv_read_start(stream1, allocUVPipeBuf, cb1);
   YODA_SIXSIX_FASSERT(r == 0, "stdout read error %s", uv_err_name(r));
@@ -104,9 +104,8 @@ void ChildProcess::execute() {
 }
 
 int ChildProcess::stop() {
-  int32_t r = 0;
   if (_cp) {
-    r = uv_process_kill(_cp, 15 /* SIGTERM */);
+    int32_t r = uv_process_kill(_cp, 15 /* SIGTERM */);
     if (r == UV_ESRCH) {
       r = 0;
     }
@@ -116,8 +115,9 @@ int ChildProcess::stop() {
     } else {
       YODA_SIXSIX_FLOG("stop child process %d succeed", _cp->pid);
     }
+    return 1;
   }
-  return r;
+  return 0;
 }
 
 void ChildProcess::onChildProcessExit(uv_process_t *,
@@ -139,6 +139,9 @@ void ChildProcess::onUVHandleClosed(uv_handle_t *handle) {
     YODA_SIXSIX_SAFE_FREE(_pipe1);
   } else if ((uv_handle_t *) _pipe2 == handle) {
     YODA_SIXSIX_SAFE_FREE(_pipe2);
+  } else {
+    YODA_SIXSIX_SLOG("cp receive unknown handle close, free it");
+    YODA_SIXSIX_SAFE_FREE(handle);
   }
   if (_cp || _pipe0 || _pipe1 || _pipe2) {
     return;

@@ -7,3 +7,4 @@ deps/libuv-cmake/libuv.a
 CMakeScripts/
 yoda-sixsix.build/
 xcode-cmake/
+.vscode/

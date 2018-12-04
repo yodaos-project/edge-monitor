@@ -11,7 +11,7 @@
 YODA_NS_BEGIN
 
 JobRunner::JobRunner(JobManager *manager) :
-  _cb(),
+  _stopCb(),
   _conf(nullptr),
   _executor(nullptr),
   _timer(nullptr),
@@ -23,6 +23,7 @@ JobRunner::JobRunner(JobManager *manager) :
 }
 
 JobRunner::~JobRunner() {
+  YODA_SIXSIX_FASSERT(_timer == nullptr, "%s timer is not null", _name.c_str());
   YODA_SIXSIX_FLOG("runner %s exit", _name.c_str());
 }
 
@@ -63,7 +64,7 @@ void JobRunner::run() {
   );
   _state = JobState::RUNNING;
   _timer = new uv_timer_t;
-  UV_MAKE_CB_WRAP1(_timer, cb, JobRunner, onTimer, uv_timer_t);
+  UV_CB_WRAP1(_timer, cb, JobRunner, onTimer, uv_timer_t);
   uv_timer_init(uv_default_loop(), _timer);
   uv_timer_start(_timer, cb, _conf->timeout, _conf->interval);
 }
@@ -73,22 +74,27 @@ int32_t JobRunner::stop() {
   YODA_SIXSIX_FLOG("stopping job %s", _executor->getName().c_str());
   _state = JobState::STOP;
   uv_timer_stop(_timer);
-  YODA_SIXSIX_SAFE_DELETE(_timer);
+  UV_CLOSE_HANDLE(_timer, JobRunner, onUVHandleClosed);
   int r = _executor->stop();
   YODA_SIXSIX_FLOG("executor stop result %d", r);
   if (r == 0) {
     _executor.reset();
   }
-  return r;
+  return 1;
 }
 
 void JobRunner::onExecuteFinish() {
-  if (_state == JobState::STOP ||
-      (!_conf->isRepeat && _executeCount >= _conf->loopCount)) {
+  if (_state == JobState::STOP) {
+    // timer is closing or closed
+    int32_t r = _executor->stop();
+    if (r == 0) {
+      if (!_timer) {
+        _stopCb(this);
+      }
+    }
+  } else if (!_conf->isRepeat && _executeCount >= _conf->loopCount) {
+    // timer is running
     this->stop();
-  }
-  if (_cb) {
-    _cb(this);
   }
 }
 
@@ -96,6 +102,14 @@ void JobRunner::onTimer(uv_timer_t *) {
   YODA_SIXSIX_SASSERT(_state != JobState::STOP, "job runner is stopped");
   ++_executeCount;
   _executor->execute();
+}
+
+void JobRunner::onUVHandleClosed(uv_handle_t *) {
+  YODA_SIXSIX_SAFE_DELETE(_timer);
+  // executor is running or closed
+  if (!_executor) {
+    _stopCb(this);
+  }
 }
 
 YODA_NS_END

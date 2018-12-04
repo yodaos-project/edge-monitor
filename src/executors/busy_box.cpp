@@ -116,7 +116,7 @@ namespace busybox {
 std::shared_ptr<ProcessTopInfo>
 getProcessTop(const std::string &dir, uint32_t pid) {
   std::string buf(yoda::Util::readSmallFile(dir + "/stat"));
-  std::shared_ptr<ProcessTopInfo> stat(new ProcessTopInfo{0});
+  std::shared_ptr<ProcessTopInfo> stat(new ProcessTopInfo);
   stat->pid = pid;
   size_t commStart = buf.find_first_of('(');
   size_t commEnd = buf.find_first_of(')');
@@ -167,33 +167,35 @@ getProcessTop(const std::string &dir, uint32_t pid) {
   return stat;
 }
 
+#define SCAN(S, X) \
+  if ((tp = is_prefixed_with(buf, S)) != nullptr) {         \
+    tp = skip_whitespace(tp);                               \
+    total->X += currec->X = fast_strtoul_10(&tp);           \
+    if (currec->X > 0) {                                    \
+      auto ite = total->sections.find(currec->fullname);   \
+      if (ite == total->sections.end()) {                   \
+        total->sections.insert({currec->fullname, currec});\
+      } else {                                              \
+        ite->second->X += currec->X;                        \
+      }                                                     \
+    }                                                       \
+    continue;                                               \
+  }
+
 std::shared_ptr<ProcessSmapInfo> getProcessSmap(const std::string &dir,
                                                 uint32_t pid) {
-#define SCAN(S, X) \
-    if ((tp = is_prefixed_with(buf, S)) != nullptr) {         \
-      tp = skip_whitespace(tp);                               \
-      total->X += currec->X = fast_strtoul_10(&tp);           \
-      if (currec->X > 0) {                                    \
-        auto ite = total->sections.find(currec->fullname);   \
-        if (ite == total->sections.end()) {                   \
-          total->sections.insert({currec->fullname, currec});\
-        } else {                                              \
-          ite->second->X += currec->X;                        \
-        }                                                     \
-      }                                                       \
-      continue;                                               \
-    }
   std::string filename = dir + "/smaps";
   char buf[PROCPS_BUFSIZE];
 
   FILE *file = fopen_for_read(filename.c_str());
   if (!file) {
+    YODA_SISIX_FERROR("smap file %s not exit", filename.c_str());
     return nullptr;
   }
-  std::shared_ptr<ProcessSmapInfo> total(new ProcessSmapInfo{0});
+  std::shared_ptr<ProcessSmapInfo> total(new ProcessSmapInfo);
   total->pid = pid;
   total->fullname = yoda::Util::readSmallFile(dir + "/cmdline");
-  std::shared_ptr<ProcessSmapInfo> currec(new ProcessSmapInfo{0});
+  std::shared_ptr<ProcessSmapInfo> currec(new ProcessSmapInfo);
 
   while (fgets(buf, PROCPS_BUFSIZE, file)) {
     // Each mapping datum has this form:
@@ -211,7 +213,6 @@ std::shared_ptr<ProcessSmapInfo> getProcessSmap(const std::string &dir,
     SCAN("Private_Clean:", private_clean);
     SCAN("Shared_Dirty:", shared_dirty);
     SCAN("Shared_Clean:", shared_clean);
-#undef SCAN
     tp = strchr(buf, '-');
     if (tp) {
       // We reached next mapping - the line of this form:
@@ -258,14 +259,13 @@ std::shared_ptr<ProcessSmapInfo> getProcessSmap(const std::string &dir,
 }
 
 std::shared_ptr<SystemMemoryInfo> getSystemMemory(const std::string &dir) {
-#define SCAN(S, X)
   static const char *fields =
     "MemTotal\0"
     "MemFree\0"
     "Buffers\0"
     "MemAvailable\0"
     "Cached\0";
-  std::shared_ptr<SystemMemoryInfo> meminfo(new SystemMemoryInfo{0});
+  std::shared_ptr<SystemMemoryInfo> meminfo(new SystemMemoryInfo);
   auto pmeminfo = (uint64_t *) meminfo.get();
   std::string meminfoFile = dir + "/meminfo";
   FILE *f = fopen_for_read(meminfoFile.c_str());
@@ -389,7 +389,7 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir) {
     r = readCPUJif(fp, cpuTotalJif);
     YODA_SIXSIX_FASSERT(r == 0, "read total cpu failed code %d", r);
     while (true) {
-      std::shared_ptr<SystemCPUInfo> cpuCoreJif(new SystemCPUInfo{0});
+      std::shared_ptr<SystemCPUInfo> cpuCoreJif(new SystemCPUInfo);
       r = readCPUJif(fp, cpuCoreJif);
       if (r == 0) {
         cpuCoresJif.emplace_back(cpuCoreJif);

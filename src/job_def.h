@@ -9,6 +9,12 @@
 
 YODA_NS_BEGIN
 
+typedef enum class TaskErrorCodes {
+  NO_ERROR = 0,
+  MULTI_TASK,
+  NO_RESOURCE,
+} TaskErrorCodes;
+
 typedef enum class TaskStatus {
   RUNNING = 0,
   FAILED = 1,
@@ -30,6 +36,7 @@ typedef struct TaskInfo {
   int64_t timestampMs;
   time_t timeoutMs;
   TaskStatus status;
+  TaskErrorCodes errorCode;
 } TaskInfo;
 
 typedef enum class JobType {
@@ -54,12 +61,6 @@ typedef struct JobConf {
   std::shared_ptr<void> data;
   std::shared_ptr<TaskInfo> task;
 } JobConf;
-
-typedef enum class TaskErrorCodes {
-  NO_ERROR = 0,
-  MULTI_TASK,
-  NO_RESOURCE,
-} TaskErrorCodes;
 
 YODA_NS_END
 
