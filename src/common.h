@@ -6,7 +6,7 @@
 #define YODA_SIXSIX_COMMON_H
 
 #include "./util.h"
-#include "./CapsMsg.h"
+#include "./message/MessageCommon.h"
 
 #ifndef ENABLE_LOG
 
