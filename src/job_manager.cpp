@@ -311,8 +311,8 @@ void JobManager::manuallyStartJobs(
   topConf->type = JobType::COLLECT_TOP;
   topConf->enable = true;
   topConf->isRepeat = true;
-  topConf->timeout = 100;
-  topConf->interval = 100;
+  topConf->timeout = 1000;
+  topConf->interval = 1000;
   this->addRunnerWithConf(topConf, true);
 
   std::shared_ptr<JobConf> smapConf(new JobConf);
@@ -320,8 +320,8 @@ void JobManager::manuallyStartJobs(
   smapConf->type = JobType::COLLECT_SMAP;
   smapConf->enable = true;
   smapConf->isRepeat = true;
-  smapConf->timeout = 100;
-  smapConf->interval = 100;
+  smapConf->timeout = 5000;
+  smapConf->interval = 5000;
   this->addRunnerWithConf(smapConf, true);
 }
 
