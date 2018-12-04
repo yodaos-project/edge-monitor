@@ -33,8 +33,6 @@ private:
 
   void onRunnerResult(JobRunner *runner);
 
-  void forceRemoveRunner(JobRunner *runner);
-
   void endTask(TaskErrorCodes errorCode);
 
   void onWSMessage(std::shared_ptr<Caps> &caps);
@@ -55,6 +53,8 @@ private:
   void onWSConnected();
 
   void onWSDisconnected();
+
+  void sendMsg(std::shared_ptr<Caps> &caps, const char *hint = "");
 
   rokid::CollectDataPtr _collectData;
   std::list<std::shared_ptr<JobRunner>> _runners;

@@ -84,7 +84,6 @@ void JobManager::onRunnerResult(JobRunner *runner) {
   YODA_SIXSIX_FLOG("runner %s result %d", runner->getJobName().c_str(), state);
   if (state == JobState::STOP) {
     auto &name = runner->getJobName();
-    auto state = runner->getState();
     YODA_SIXSIX_FLOG("removing runner %s, state %d", name.c_str(), state);
     for (auto ite = _runners.begin(); ite != _runners.end(); ++ite) {
       if ((*ite).get() == runner) {
@@ -137,9 +136,7 @@ void JobManager::endTask(TaskErrorCodes errorCode) {
 
   auto caps = Caps::new_instance();
   taskStatus->serialize(caps);
-  _ws->sendMsg(caps, [](SendResult sr, void *) {
-    YODA_SIXSIX_FLOG("endTask msg send finish[%u]", sr);
-  });
+  this->sendMsg(caps, "end task");
   _task.reset();
 }
 
@@ -185,9 +182,7 @@ void JobManager::onWSConnected() {
   YODA_SIXSIX_FLOG("ws connected, status %d, shell %d", status, shellId);
   std::shared_ptr<Caps> caps;
   deviceStatus->serialize(caps);
-  _ws->sendMsg(caps, [](SendResult sr, void *) {
-    YODA_SIXSIX_FLOG("uploaded device status[%u]", sr);
-  });
+  this->sendMsg(caps, "upload device status");
 }
 
 void JobManager::onWSDisconnected() {
@@ -235,9 +230,7 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
       taskStatus->setMessage(std::make_shared<std::string>(msg));
       auto caps = Caps::new_instance();
       taskStatus->serialize(caps);
-      _ws->sendMsg(caps, [](SendResult sr, void *) {
-        YODA_SIXSIX_FLOG("multi task, msg send finish[%u]", sr);
-      });
+      this->sendMsg(caps, "task error: multi task.");
     } else {
       YODA_SISIX_FERROR("task %d is running, ignore start", task->id);
     }
@@ -268,9 +261,7 @@ void JobManager::onCollectData(uv_timer_t *) {
     } else {
       std::shared_ptr<Caps> caps;
       _collectData->serialize(caps);
-      _ws->sendMsg(caps, [](SendResult sr, void *) {
-        YODA_SIXSIX_FLOG("sent collect data [%u]", sr);
-      });
+      this->sendMsg(caps, "collect data");
     }
   } else {
     YODA_SIXSIX_SERROR("ws is null");
@@ -334,6 +325,16 @@ void JobManager::manuallyStartJobs(
   smapConf->timeout = 5000;
   smapConf->interval = 5000;
   this->addRunnerWithConf(smapConf, true);
+}
+
+void JobManager::sendMsg(std::shared_ptr<Caps> &caps, const char *hint) {
+  if (_ws) {
+    _ws->sendMsg(caps, [hint](SendResult sr, void *) {
+      YODA_SIXSIX_FLOG("send ws %s result %u", hint,  sr);
+    });
+  } else {
+     YODA_SISIX_FERROR("ws is null, send msg error %s", hint);
+  }
 }
 
 YODA_NS_END
