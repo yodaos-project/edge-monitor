@@ -159,6 +159,7 @@ void ChildProcess::onPipeData(uv_stream_t *stm, ssize_t nread,
       YODA_SIXSIX_FWRITE(stderr, "child-error", "%s", buf->base);
     }
   }
+  free(buf->base);
 }
 
 YODA_NS_END

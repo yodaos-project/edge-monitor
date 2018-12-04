@@ -88,10 +88,11 @@ unsigned long fast_strtoul_16(char **endptr) {
   return n;
 }
 
-unsigned long fast_strtoul_10(char **endptr) {
+template<typename T=unsigned long>
+T fast_strtoul_10(char **endptr) {
   char c;
   char *str = *endptr;
-  auto n = (unsigned long) (*str - '0');
+  auto n = (T) (*str - '0');
 
   /* Need to stop on both ' ' and '\n' */
   while ((c = *++str) > ' ')
@@ -101,7 +102,7 @@ unsigned long fast_strtoul_10(char **endptr) {
   return n;
 }
 
-std::map<int32_t , std::shared_ptr<ProcessTopInfo>> processesJif;
+std::map<int32_t, std::shared_ptr<ProcessTopInfo>> processesJif;
 std::shared_ptr<SystemCPUInfo> cpuTotalJif(nullptr);
 std::shared_ptr<SystemCPUInfo> cpuTotalPrevJif(nullptr);
 std::vector<std::shared_ptr<SystemCPUInfo>> cpuCoresJif;
@@ -115,7 +116,7 @@ namespace busybox {
 std::shared_ptr<ProcessTopInfo>
 getProcessTop(const std::string &dir, uint32_t pid) {
   std::string buf(yoda::Util::readSmallFile(dir + "/stat"));
-  auto stat = new ProcessTopInfo{0};
+  std::shared_ptr<ProcessTopInfo> stat(new ProcessTopInfo{0});
   stat->pid = pid;
   size_t commStart = buf.find_first_of('(');
   size_t commEnd = buf.find_first_of(')');
@@ -138,7 +139,7 @@ getProcessTop(const std::string &dir, uint32_t pid) {
   stat->stime = fast_strtoul_10(&cp);
   stat->ticks = stat->utime + stat->stime;
   cp = skip_fields(cp, 3); /* cutime, cstime, priority */
-  stat->nice = (int64_t) fast_strtoul_10(&cp);
+  stat->nice = fast_strtoul_10<int32_t>(&cp);
   cp = skip_fields(cp, 2); /* timeout, it_real_value */
   stat->startTime = fast_strtoul_10(&cp);
   /* vsz is in bytes and we want kb */
@@ -163,7 +164,7 @@ getProcessTop(const std::string &dir, uint32_t pid) {
     stat->state[s_idx] = stat->nice < 0 ? '<' : 'N';
   }
 
-  return std::shared_ptr<ProcessTopInfo>(stat);
+  return stat;
 }
 
 std::shared_ptr<ProcessSmapInfo> getProcessSmap(const std::string &dir,
@@ -329,7 +330,7 @@ std::shared_ptr<SystemTopInfo> getSystemTop(const std::string &dir) {
        * CPU% = s->pcpu/sum(s->pcpu) * busy_cpu_ticks/total_cpu_ticks
        * (pcpu is delta of sys+user time between samples)
       */
-      p->cpuUsagePercent = CAL_PERCENT_1000(p->ticksDelta  * cpup, totalTick);
+      p->cpuUsagePercent = CAL_PERCENT_1000(p->ticksDelta * cpup, totalTick);
     }
   }
   processesJif = top->processes;
