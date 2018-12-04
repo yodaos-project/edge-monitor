@@ -242,7 +242,7 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
   _collectTimer = (uv_timer_t *) malloc(sizeof(uv_timer_t));
   UV_CB_WRAP1(_collectTimer, cb1, JobManager, onCollectData, uv_timer_t);
   uv_timer_init(uv_default_loop(), _collectTimer);
-  uint64_t interval = 100;
+  uint64_t interval = COLLECT_DATA_SEND_INTERVAL;
   uv_timer_start(_collectTimer, cb1, interval, interval);
 
   _taskTimer = (uv_timer_t *) malloc(sizeof(uv_timer_t));
