@@ -83,21 +83,20 @@ void JobManager::onRunnerResult(JobRunner *runner) {
   auto state = runner->getState();
   YODA_SIXSIX_FLOG("runner %s result %d", runner->getJobName().c_str(), state);
   if (state == JobState::STOP) {
-    this->forceRemoveRunner(runner);
-  }
-}
-
-void JobManager::forceRemoveRunner(JobRunner *runner) {
-  auto &name = runner->getJobName();
-  auto state = runner->getState();
-  YODA_SIXSIX_FLOG("removing runner %s, state %d", name.c_str(), state);
-  for (auto ite = _runners.begin(); ite != _runners.end(); ++ite) {
-    if ((*ite).get() == runner) {
-      _runners.erase(ite);
-      break;
+    auto &name = runner->getJobName();
+    auto state = runner->getState();
+    YODA_SIXSIX_FLOG("removing runner %s, state %d", name.c_str(), state);
+    for (auto ite = _runners.begin(); ite != _runners.end(); ++ite) {
+      if ((*ite).get() == runner) {
+        _runners.erase(ite);
+        break;
+      }
+    }
+    YODA_SIXSIX_FLOG("runner left %ld", _runners.size());
+    if (_runners.empty()) {
+      this->endTask(TaskErrorCodes::NO_ERROR);
     }
   }
-  YODA_SIXSIX_FLOG("runner left %ld", _runners.size());
 }
 
 void JobManager::endTask(TaskErrorCodes errorCode) {
