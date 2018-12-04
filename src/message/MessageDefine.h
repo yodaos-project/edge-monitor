@@ -1,7 +1,7 @@
 #ifndef _MESSAGEDEFINE_H
 #define _MESSAGEDEFINE_H
 #include <memory>
-
+#include <assert.h>
 /*
 * 性能平台消息定义
 */
