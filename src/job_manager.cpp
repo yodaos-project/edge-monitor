@@ -6,7 +6,7 @@
 #include "./conf.h"
 #include "./job_runner.h"
 #include "./websocket/WebSocketClient.h"
-#include "./CapsMsg.h"
+#include "./message/MessageCommon.h"
 #include "./device_info.h"
 #include <rapidjson/istreamwrapper.h>
 

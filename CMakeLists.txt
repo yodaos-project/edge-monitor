@@ -16,6 +16,7 @@ add_subdirectory(deps/caps)
 aux_source_directory(src SRC_LIST)
 aux_source_directory(src/executors EXECUTOR_LIST)
 aux_source_directory(src/websocket WEBSOCKETCLIENT)
+aux_source_directory(src/message CAPS_MESSAGE)
 
-add_executable(yoda-sixsix ${SRC_LIST} ${EXECUTOR_LIST} ${WEBSOCKETCLIENT})
+add_executable(yoda-sixsix ${SRC_LIST} ${EXECUTOR_LIST} ${WEBSOCKETCLIENT} ${CAPS_MESSAGE})
 target_link_libraries(yoda-sixsix uv libwebsockets caps)
