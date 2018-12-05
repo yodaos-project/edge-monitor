@@ -88,7 +88,7 @@ private:\
     } \
   } while(0)
 
-#define YODA_SIX_SIX_MALLOC(type) \
+#define YODA_SIXSIX_MALLOC(type) \
   (type*)malloc(sizeof(type))
 
 #endif //YODA_SIXSIX_DEF_H

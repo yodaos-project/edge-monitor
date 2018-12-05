@@ -27,6 +27,8 @@ private:
 
   void onUVHandleClosed(uv_handle_t *handle);
 
+  void onSignal(uv_signal_t * req, int32_t sig);
+
   void onPipeData(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf);
 
   uv_process_t *_cp;

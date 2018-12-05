@@ -41,20 +41,26 @@ int main(int argc, char **argv) {
   yoda::DeviceInfo::init();
   yoda::Conf::parseCmdLine(argc, argv);
 
-  WebSocketClient wsc(uv_default_loop(), 5);
-
   yoda::JobManager manager;
-  manager.setWs(&wsc);
   manager.startTaskFromCmdConf();
 
+  WebSocketClient wsc(uv_default_loop(), 5);
+
   char urlPath[128];
-  auto svrPath = yoda::Conf::get<std::string>("serverAddress", "0.0.0.0");
-  auto svrPort = yoda::Conf::get<uint32_t>("serverPort", 8080);
+  auto svrPath = yoda::Conf::get<std::string>("serverAddress", "unknown");
+  auto svrPort = yoda::Conf::get<uint32_t>("serverPort", 0);
   auto mockSN = yoda::Conf::get<std::string>("sn", "");
   std::string sn = mockSN.empty() ? yoda::DeviceInfo::sn : mockSN;
   sprintf(urlPath, "/websocket/%s", sn.c_str());
-  YODA_SIXSIX_FLOG("ws connect to %s:%d%s", svrPath.c_str(), svrPort, urlPath);
-  wsc.start(svrPath.c_str(), svrPort, urlPath);
+  if (svrPath.empty() || svrPort == 0) {
+    YODA_SIXSIX_FERROR("ws connect error, server: %s, port: %d",
+                       svrPath.c_str(), svrPort);
+  } else {
+    YODA_SIXSIX_FLOG("ws connect to %s:%d%s",
+                     svrPath.c_str(), svrPort, urlPath);
+    manager.setWs(&wsc);
+    wsc.start(svrPath.c_str(), svrPort, urlPath);
+  }
 
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
   int32_t r = uv_loop_close(uv_default_loop());

@@ -56,10 +56,10 @@ void ChildProcess::execute() {
   YODA_SIXSIX_FASSERT(r >= 0, "close %s error: %s", _filePath, uv_err_name(r));
   uv_fs_req_cleanup(&closeReq);
 
-  _pipe1 = YODA_SIX_SIX_MALLOC(uv_pipe_t);
+  _pipe1 = YODA_SIXSIX_MALLOC(uv_pipe_t);
   r = uv_pipe_init(loop, _pipe1, 0);
   YODA_SIXSIX_FASSERT(r >= 0, "pipe1 error: %s", uv_err_name(r));
-  _pipe2 = YODA_SIX_SIX_MALLOC(uv_pipe_t);
+  _pipe2 = YODA_SIXSIX_MALLOC(uv_pipe_t);
   r = uv_pipe_init(loop, _pipe2, 0);
   YODA_SIXSIX_FASSERT(r >= 0, "pipe2 error: %s", uv_err_name(r));
   auto stream1 = (uv_stream_t *) _pipe1;
@@ -100,18 +100,22 @@ void ChildProcess::execute() {
   r = uv_read_start(stream2, allocUVPipeBuf, cb2);
   YODA_SIXSIX_FASSERT(r == 0, "stderr read error %s", uv_err_name(r));
 
+  auto sigterm = YODA_SIXSIX_MALLOC(uv_signal_t);
+  uv_signal_init(uv_default_loop(), sigterm);
+  UV_CB_WRAP2(sigterm, signalCb, ChildProcess, onSignal, uv_signal_t, int32_t);
+  uv_signal_start(sigterm, signalCb, SIGTERM);
   free(buf);
 }
 
 int ChildProcess::stop() {
   if (_cp) {
-    int32_t r = uv_process_kill(_cp, 15 /* SIGTERM */);
+    int32_t r = uv_process_kill(_cp, SIGTERM);
     if (r == UV_ESRCH) {
       r = 0;
     }
     if (r) {
       const char *err = uv_err_name(r);
-      YODA_SISIX_FERROR("stop child process %d error %s", _cp->pid, err);
+      YODA_SIXSIX_FERROR("stop child process %d error %s", _cp->pid, err);
     } else {
       YODA_SIXSIX_FLOG("stop child process %d succeed", _cp->pid);
     }
@@ -163,6 +167,16 @@ void ChildProcess::onPipeData(uv_stream_t *stm, ssize_t nread,
     }
   }
   free(buf->base);
+}
+
+void ChildProcess::onSignal(uv_signal_t *req, int32_t sig) {
+  YODA_SIXSIX_FLOG("signal %d", sig);
+  if (sig == SIGTERM) {
+    if (_cp) {
+      uv_process_kill(_cp, sig);
+      exit(1);
+    }
+  }
 }
 
 YODA_NS_END

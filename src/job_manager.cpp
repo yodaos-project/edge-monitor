@@ -42,13 +42,13 @@ void JobManager::startTaskFromCmdConf() {
   std::ifstream ifs(taskJsonPath);
   rapidjson::IStreamWrapper ifsWrapper(ifs);
   if (!ifs.is_open()) {
-    YODA_SIXSIX_FLOG("cannot load conf from %s", taskJsonPath.c_str());
+    YODA_SIXSIX_FERROR("cannot load conf from %s", taskJsonPath.c_str());
     return;
   }
   rapidjson::Document doc;
   doc.ParseStream(ifsWrapper);
   if (doc.HasParseError()) {
-    YODA_SISIX_FERROR("load conf error from %s", taskJsonPath.c_str());
+    YODA_SIXSIX_FERROR("load conf error from %s", taskJsonPath.c_str());
     return;
   }
   std::shared_ptr<yoda::TaskInfo> task(new yoda::TaskInfo{0});
@@ -145,7 +145,7 @@ void JobManager::onWSMessage(std::shared_ptr<Caps> &caps) {
       this->onTaskCommand(caps);
       break;
     default:
-      YODA_SISIX_FERROR("unknown ws message type %d, ignored", type);
+      YODA_SIXSIX_FERROR("unknown ws message type %d, ignored", type);
       break;
   }
 }
@@ -159,7 +159,7 @@ void JobManager::onWSEvent(EventCode code) {
       this->onWSConnected();
       break;
     default:
-      YODA_SISIX_FERROR("unhandled ws event code %d, ignored", code);
+      YODA_SIXSIX_FERROR("unhandled ws event code %d, ignored", code);
       break;
   }
 }
@@ -218,7 +218,7 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
     if (_task->id != task->id) {
       char msg[256] = {0};
       sprintf(msg, "end task with code: %d", TaskErrorCodes::NO_RESOURCE);
-      YODA_SISIX_FERROR("multi task %d %d", task->id, _task->id);
+      YODA_SIXSIX_FERROR("multi task %d %d", task->id, _task->id);
       this->endTask(TaskErrorCodes::MULTI_TASK);
       auto taskStatus = rokid::TaskStatus::create();
       taskStatus->setTaskId(task->id);
@@ -230,7 +230,7 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
       taskStatus->serialize(caps);
       this->sendMsg(caps, "task error: multi task.");
     } else {
-      YODA_SISIX_FERROR("task %d is running, ignore start", task->id);
+      YODA_SIXSIX_FERROR("task %d is running, ignore start", task->id);
     }
     return;
   }
@@ -331,7 +331,7 @@ void JobManager::sendMsg(std::shared_ptr<Caps> &caps, const char *hint) {
       YODA_SIXSIX_FLOG("send ws %s result %u", hint, sr);
     });
   } else {
-    YODA_SISIX_FERROR("ws is null, send msg error %s", hint);
+    YODA_SIXSIX_FERROR("ws is null, send msg error %s", hint);
   }
 }
 

@@ -124,7 +124,7 @@ int WebSocketClient::callback_ws(struct lws *wsi, enum lws_callback_reasons reas
         if (wsc->funcRecvCb)
           wsc->funcRecvCb(caps);
       } else
-        YODA_SISIX_FERROR("recv msg, caps parse error:%d\n", parseResult);
+        YODA_SIXSIX_FERROR("recv msg, caps parse error:%d\n", parseResult);
       break;
     case LWS_CALLBACK_CLIENT_WRITEABLE: {
       if (wsc->msgList.size() > 0) {
@@ -139,7 +139,7 @@ int WebSocketClient::callback_ws(struct lws *wsi, enum lws_callback_reasons reas
                d.userdata
           );
         if (write != d.data.size() - LWS_SEND_BUFFER_PRE_PADDING)
-          YODA_SISIX_FERROR("write ws error:%d/%ld\n", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
+          YODA_SIXSIX_FERROR("write ws error:%d/%ld\n", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
         else
           YODA_SIXSIX_FLOG("write ws success:%d/%ld\n", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
       }

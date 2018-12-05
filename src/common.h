@@ -36,7 +36,7 @@
   } while (0)
 #define YODA_SIXSIX_FLOG(fmt, ...) \
   YODA_SIXSIX_FWRITE(stdout, "info", fmt, __VA_ARGS__)
-#define YODA_SISIX_FERROR(fmt, ...) \
+#define YODA_SIXSIX_FERROR(fmt, ...) \
   YODA_SIXSIX_FWRITE(stderr, "error", fmt, __VA_ARGS__)
 
 #define YODA_SIXSIX_SWRITE(fd, type, str) \

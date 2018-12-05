@@ -116,14 +116,16 @@ namespace busybox {
 std::shared_ptr<ProcessTopInfo>
 getProcessTop(const std::string &dir, uint32_t pid) {
   std::string buf(yoda::Util::readSmallFile(dir + "/stat"));
+  if (buf.empty()) {
+    return std::shared_ptr<ProcessTopInfo>(nullptr);
+  }
   std::shared_ptr<ProcessTopInfo> stat(new ProcessTopInfo);
   stat->pid = pid;
   size_t commStart = buf.find_first_of('(');
   size_t commEnd = buf.find_first_of(')');
   stat->comm = buf.substr(commStart + 1, commEnd - commStart - 1);
   stat->cmdline = yoda::Util::readSmallFile(dir + "/cmdline");
-//  stat->fullname = stat->comm + " " + stat->cmdline;
-  stat->fullname = stat->cmdline;
+  stat->fullname = stat->cmdline.empty() ? stat->comm : stat->cmdline;
   yoda::Util::replaceChar(stat->fullname, "\r\n", ' ');
   stat->state[0] = buf.at(commEnd + 2);
 
@@ -189,12 +191,14 @@ std::shared_ptr<ProcessSmapInfo> getProcessSmap(const std::string &dir,
 
   FILE *file = fopen_for_read(filename.c_str());
   if (!file) {
-    YODA_SISIX_FERROR("smap file %s not exit", filename.c_str());
+    YODA_SIXSIX_FERROR("smap file %s not exit", filename.c_str());
     return nullptr;
   }
   std::shared_ptr<ProcessSmapInfo> total(new ProcessSmapInfo);
   total->pid = pid;
-  total->fullname = yoda::Util::readSmallFile(dir + "/cmdline");
+  total->comm = yoda::Util::readSmallFile(dir + "/comm");
+  total->cmdline = yoda::Util::readSmallFile(dir + "/cmdline");
+  total->fullname = total->cmdline.empty() ? total->comm : total->cmdline;
   std::shared_ptr<ProcessSmapInfo> currec(new ProcessSmapInfo);
 
   while (fgets(buf, PROCPS_BUFSIZE, file)) {
@@ -304,6 +308,9 @@ std::shared_ptr<SystemTopInfo> getSystemTop(const std::string &dir) {
       pidDir += "/" + file;
       if (yoda::Util::isDir(pidDir)) {
         std::shared_ptr<ProcessTopInfo> process(getProcessTop(pidDir, pid));
+        if (!process) {
+          continue;
+        }
         top->processes.insert({process->pid, process});
         auto ite = processesJif.find(process->pid);
         if (ite != processesJif.end()) {

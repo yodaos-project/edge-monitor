@@ -76,9 +76,10 @@ int32_t JobRunner::stop() {
   uv_timer_stop(_timer);
   UV_CLOSE_HANDLE(_timer, JobRunner, onUVHandleClosed);
   int r = _executor->stop();
-  YODA_SIXSIX_FLOG("executor stop result %d", r);
   if (r == 0) {
     _executor.reset();
+  } else {
+    YODA_SIXSIX_FLOG("executor stop result error %s", uv_err_name(r));
   }
   return 1;
 }

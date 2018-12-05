@@ -9,6 +9,8 @@
 
 struct ProcessSmapInfo {
   uint32_t pid = 0;
+  std::string comm;
+  std::string cmdline;
   std::string fullname;
   uint64_t rw = 0;
   uint64_t ro = 0;
