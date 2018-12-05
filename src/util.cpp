@@ -56,27 +56,17 @@ std::vector<std::string> Util::getFileList(const std::string &path) {
 }
 
 std::string Util::readSmallFile(const std::string &path) {
+  static const uint32_t maxSize = 1 * 1024;
+  char tmp[maxSize + 1];
   std::string str;
   FILE *file = fopen(path.c_str(), "rb");
   if (!file) {
     return str;
   }
-  int32_t r;
-  r = fseek(file, 0, SEEK_END);
-  if (r != 0) {
-    fclose(file);
-    return str;
-  }
-  auto size = ftell(file);
-  r = fseek(file, 0, SEEK_SET);
-  if (r != 0) {
-    fclose(file);
-    return str;
-  }
-  str.assign(size, '\0');
-  size_t readSize = fread(&str[0], 1, size, file);
-  if (readSize != size) {
-    str.clear();
+  size_t readSize = fread(tmp, sizeof(char), maxSize, file);
+  if (readSize == maxSize || feof(file)) {
+    tmp[readSize] = '\0';
+    str = tmp;
   }
   fclose(file);
   return str;

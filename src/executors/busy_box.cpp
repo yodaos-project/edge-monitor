@@ -117,7 +117,7 @@ std::shared_ptr<ProcessTopInfo>
 getProcessTop(const std::string &dir, uint32_t pid) {
   std::string buf(yoda::Util::readSmallFile(dir + "/stat"));
   if (buf.empty()) {
-    return std::shared_ptr<ProcessTopInfo>(nullptr);
+    return nullptr;
   }
   std::shared_ptr<ProcessTopInfo> stat(new ProcessTopInfo);
   stat->pid = pid;
@@ -191,7 +191,6 @@ std::shared_ptr<ProcessSmapInfo> getProcessSmap(const std::string &dir,
 
   FILE *file = fopen_for_read(filename.c_str());
   if (!file) {
-    YODA_SIXSIX_FERROR("smap file %s not exit", filename.c_str());
     return nullptr;
   }
   std::shared_ptr<ProcessSmapInfo> total(new ProcessSmapInfo);
