@@ -21,7 +21,7 @@ std::string Util::getFormattedTime() {
   int32_t sec = tm->tm_sec;
   auto ms = int32_t(curTime.tv_usec / 1000);
   sprintf(&buf[0],
-          "%d-%d-%d %02d:%02d:%02d:%03d",
+          "%d-%02d-%02d %02d:%02d:%02d:%03d",
           year, mon, day, hour, min, sec, ms
   );
   return buf;
@@ -56,12 +56,29 @@ std::vector<std::string> Util::getFileList(const std::string &path) {
 }
 
 std::string Util::readSmallFile(const std::string &path) {
-  std::ifstream ifs(path);
-  if (!ifs.is_open()) {
-    return "";
+  std::string str;
+  FILE *file = fopen(path.c_str(), "rb");
+  if (!file) {
+    return str;
   }
-  std::string str((std::istreambuf_iterator<char>(ifs)),
-                  std::istreambuf_iterator<char>());
+  int32_t r;
+  r = fseek(file, 0, SEEK_END);
+  if (r != 0) {
+    fclose(file);
+    return str;
+  }
+  auto size = ftell(file);
+  r = fseek(file, 0, SEEK_SET);
+  if (r != 0) {
+    fclose(file);
+    return str;
+  }
+  str.assign(size, '\0');
+  size_t readSize = fread(&str[0], 1, size, file);
+  if (readSize != size) {
+    str.clear();
+  }
+  fclose(file);
   return str;
 }
 
