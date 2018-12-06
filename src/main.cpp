@@ -36,6 +36,7 @@ static void parseExitCmd(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
+  setpriority(PRIO_PGRP, 0, 19);
   parseExitCmd(argc, argv);
   YODA_SIXSIX_SLOG("starting app");
   yoda::DeviceInfo::init();

@@ -8,3 +8,4 @@ CMakeScripts/
 yoda-sixsix.build/
 xcode-cmake/
 .vscode/
+*.swp

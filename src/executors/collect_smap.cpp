@@ -52,6 +52,7 @@ void CollectSmap::doCollect(uv_work_t *) {
           _smaps.emplace_back(smap);
         }
       }
+      usleep(50 * 1000);
     }
   });
 

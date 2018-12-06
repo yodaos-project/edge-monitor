@@ -192,14 +192,14 @@ getProcessTop(const std::string &dir, uint32_t pid) {
   if ((tp = is_prefixed_with(buf, S)) != nullptr) {         \
     tp = skip_whitespace(tp);                               \
     total->X += currec->X = fast_strtoul_10(&tp);           \
-    if (currec->X > 0) {                                    \
+    /*if (currec->X > 0) {                                    \
       auto ite = total->sections.find(currec->fullname);   \
       if (ite == total->sections.end()) {                   \
         total->sections.insert({currec->fullname, currec});\
       } else {                                              \
         ite->second->X += currec->X;                        \
       }                                                     \
-    }                                                       \
+    } */                                                     \
     continue;                                               \
   }
 

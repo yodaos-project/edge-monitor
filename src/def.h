@@ -20,9 +20,9 @@
 #include <cmath>
 #include <regex.h>
 #include <unistd.h>
-//#include <zconf.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <sys/resource.h>
 #include <uv.h>
 #include <rapidjson/document.h>
 

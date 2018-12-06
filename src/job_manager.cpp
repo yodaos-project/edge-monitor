@@ -311,7 +311,7 @@ void JobManager::manuallyStartJobs(
   topConf->type = JobType::COLLECT_TOP;
   topConf->enable = true;
   topConf->isRepeat = true;
-  topConf->timeout = 1000;
+  topConf->timeout = 500;
   topConf->interval = 1000;
   this->addRunnerWithConf(topConf, true);
 
@@ -320,8 +320,8 @@ void JobManager::manuallyStartJobs(
   smapConf->type = JobType::COLLECT_SMAP;
   smapConf->enable = true;
   smapConf->isRepeat = true;
-  smapConf->timeout = 5000;
-  smapConf->interval = 5000;
+  smapConf->timeout = 1000;
+  smapConf->interval = 60 * 1000;
   this->addRunnerWithConf(smapConf, true);
 }
 
