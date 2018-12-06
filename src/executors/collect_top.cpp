@@ -73,11 +73,12 @@ void CollectTop::afterCollect(uv_work_t *, int) {
                           core->usrPercent
     );
     cores->emplace_back();
-    cores->back().setBusyUsage(core->busyPercent);
-    cores->back().setIdleUsage(core->idlePercent);
-    cores->back().setIoUsage(core->iowaitPercent);
-    cores->back().setSysUsage(core->sysPercent);
-    cores->back().setUsrUsage(core->usrPercent);
+    auto &coreData = cores->back();
+    coreData.setBusyUsage(core->busyPercent);
+    coreData.setIdleUsage(core->idlePercent);
+    coreData.setIoUsage(core->iowaitPercent);
+    coreData.setSysUsage(core->sysPercent);
+    coreData.setUsrUsage(core->usrPercent);
   }
 
   auto total = sysCpu->getTotal();

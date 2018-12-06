@@ -146,6 +146,7 @@ getProcessTop(const std::string &dir, uint32_t pid) {
   stat->cmdline = parseCmdline(dir + "/cmdline");
   stat->fullname = stat->cmdline.empty() ? stat->comm : stat->cmdline;
   yoda::Util::replaceChar(stat->fullname, "\r\n", ' ');
+  memset(stat->state  , '\0', sizeof(stat->state));
   stat->state[0] = buf.at(commEnd + 2);
 
   char *cp = &buf[0] + commEnd + 4;
