@@ -66,7 +66,7 @@ void JobRunner::run() {
   _timer = new uv_timer_t;
   UV_CB_WRAP1(_timer, cb, JobRunner, onTimer, uv_timer_t);
   uv_timer_init(uv_default_loop(), _timer);
-  uv_timer_start(_timer, cb, _conf->timeout, _conf->interval);
+  uv_timer_start(_timer, cb, _conf->timeout, 0);
 }
 
 int32_t JobRunner::stop() {
@@ -96,6 +96,9 @@ void JobRunner::onExecuteFinish() {
   } else if (!_conf->isRepeat && _executeCount >= _conf->loopCount) {
     // timer is running
     this->stop();
+  } else {
+    UV_CB_WRAP1(_timer, cb, JobRunner, onTimer, uv_timer_t);
+    uv_timer_start(_timer, cb, _conf->interval, 0);
   }
 }
 
