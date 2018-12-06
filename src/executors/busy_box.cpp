@@ -9,6 +9,25 @@
 
 namespace {
 
+std::string parseCmdline(const std::string &cmdlinePath) {
+  std::string cmdline = yoda::Util::readSmallFile(cmdlinePath);
+  std::string output;
+  bool ignore0 = false;
+  for (auto &c : cmdline) {
+    if (c == '\0') {
+      // skip consecutive '\0'
+      if (!ignore0) {
+        ignore0 = true;
+        output.push_back(' ');
+      }
+    } else {
+      ignore0 = false;
+      output.push_back(c);
+    }
+  }
+  return output;
+}
+
 int index_in_strings(const char *strings, const char *key) {
   int idx = 0;
 
@@ -124,7 +143,7 @@ getProcessTop(const std::string &dir, uint32_t pid) {
   size_t commStart = buf.find_first_of('(');
   size_t commEnd = buf.find_first_of(')');
   stat->comm = buf.substr(commStart + 1, commEnd - commStart - 1);
-  stat->cmdline = yoda::Util::readSmallFile(dir + "/cmdline");
+  stat->cmdline = parseCmdline(dir + "/cmdline");
   stat->fullname = stat->cmdline.empty() ? stat->comm : stat->cmdline;
   yoda::Util::replaceChar(stat->fullname, "\r\n", ' ');
   stat->state[0] = buf.at(commEnd + 2);
@@ -196,7 +215,7 @@ std::shared_ptr<ProcessSmapInfo> getProcessSmap(const std::string &dir,
   std::shared_ptr<ProcessSmapInfo> total(new ProcessSmapInfo);
   total->pid = pid;
   total->comm = yoda::Util::readSmallFile(dir + "/comm");
-  total->cmdline = yoda::Util::readSmallFile(dir + "/cmdline");
+  total->cmdline = parseCmdline(dir + "/cmdline");
   total->fullname = total->cmdline.empty() ? total->comm : total->cmdline;
   std::shared_ptr<ProcessSmapInfo> currec(new ProcessSmapInfo);
 
@@ -271,10 +290,12 @@ std::shared_ptr<SystemMemoryInfo> getSystemMemory(const std::string &dir) {
   std::shared_ptr<SystemMemoryInfo> meminfo(new SystemMemoryInfo);
   auto pmeminfo = (uint64_t *) meminfo.get();
   std::string meminfoFile = dir + "/meminfo";
-  FILE *f = fopen_for_read(meminfoFile.c_str());
-  YODA_SIXSIX_FASSERT(f, "cannot open %s", meminfoFile.c_str());
+  FILE *file = fopen_for_read(meminfoFile.c_str());
+  if (!file) {
+    return nullptr;
+  }
   char buf[60]; /* actual lines we expect are ~30 chars or less */
-  while (fgets(buf, sizeof(buf), f)) {
+  while (fgets(buf, sizeof(buf), file)) {
     char *c = strchr(buf, ':');
     if (!c) {
       continue;
@@ -285,7 +306,7 @@ std::shared_ptr<SystemMemoryInfo> getSystemMemory(const std::string &dir) {
       pmeminfo[index] = strtoul(c + 1, nullptr, 10);
     }
   }
-  fclose(f);
+  fclose(file);
   return meminfo;
 }
 
@@ -346,8 +367,23 @@ std::shared_ptr<SystemTopInfo> getSystemTop(const std::string &dir) {
 
 static int32_t
 readCPUJif(FILE *fp, const std::shared_ptr<SystemCPUInfo> &coreJif) {
-  static const char fmt[] = "cp%*s %" PRIu64 " %" PRIu64 " %" PRIu64 \
-    " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64;
+  static const char fmt[] = "cp%*s %"
+  PRIu64
+  " %"
+  PRIu64
+  " %"
+  PRIu64 \
+
+  " %"
+  PRIu64
+  " %"
+  PRIu64
+  " %"
+  PRIu64
+  " %"
+  PRIu64
+  " %"
+  PRIu64;
 
   /* not "cpu" */
   if (!fgets(line_buf, LINE_BUF_SIZE, fp) || line_buf[0] != 'c') {

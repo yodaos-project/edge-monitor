@@ -65,8 +65,7 @@ std::string Util::readSmallFile(const std::string &path) {
   }
   size_t readSize = fread(tmp, sizeof(char), maxSize, file);
   if (readSize == maxSize || feof(file)) {
-    tmp[readSize] = '\0';
-    str = tmp;
+    str.append(tmp, readSize);
   }
   fclose(file);
   return str;
