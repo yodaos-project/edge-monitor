@@ -250,6 +250,7 @@ void JobManager::manuallyStartJobs(
   shellConf->data = shell;
   shellConf->enable = true;
   shellConf->isRepeat = false;
+  shellConf->loopCount = 0;
   shellConf->timeout = 0;
   shellConf->interval = 0;
   this->addRunnerWithConf(shellConf, true);
@@ -259,6 +260,7 @@ void JobManager::manuallyStartJobs(
   topConf->type = JobType::COLLECT_TOP;
   topConf->enable = true;
   topConf->isRepeat = true;
+  topConf->loopCount = 0;
   topConf->timeout = 500;
   topConf->interval = 1000;
   this->addRunnerWithConf(topConf, true);
@@ -268,6 +270,7 @@ void JobManager::manuallyStartJobs(
   smapConf->type = JobType::COLLECT_SMAP;
   smapConf->enable = true;
   smapConf->isRepeat = true;
+  smapConf->loopCount = 0;
   smapConf->timeout = 1000;
   smapConf->interval = 60 * 1000;
   this->addRunnerWithConf(smapConf, true);
