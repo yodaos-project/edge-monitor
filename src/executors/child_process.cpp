@@ -34,6 +34,11 @@ void ChildProcess::execute() {
   uv_fs_t openReq;
   int32_t r;
   auto loop = uv_default_loop();
+
+  uv_fs_t unlinkReq;
+  uv_fs_unlink(uv_default_loop(), &unlinkReq, _filePath, nullptr);
+  uv_fs_req_cleanup(&unlinkReq);
+
   // fd
   int32_t openFlags = O_WRONLY | O_CREAT | S_IWUSR | S_IRUSR;
   r = uv_fs_open(loop, &openReq, _filePath, openFlags, 0777, nullptr);
@@ -152,9 +157,6 @@ void ChildProcess::onUVHandleClosed(uv_handle_t *handle) {
     return;
   }
   YODA_SIXSIX_SLOG("child process closed");
-  uv_fs_t unlinkReq;
-  uv_fs_unlink(uv_default_loop(), &unlinkReq, _filePath, nullptr);
-  uv_fs_req_cleanup(&unlinkReq);
   this->onJobDone();
 }
 
