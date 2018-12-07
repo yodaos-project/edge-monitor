@@ -35,7 +35,7 @@ public:
 
 protected:
 
-  rokid::CollectDataPtr &getCollectData();
+  void sendData(std::shared_ptr<Caps> &caps, const char *hint);
 
   void onJobDone();
 

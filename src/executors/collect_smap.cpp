@@ -59,40 +59,52 @@ void CollectSmap::doCollect(uv_work_t *) {
   _sysMem = busybox::getSystemMemory(_scanDir);
 }
 
-void CollectSmap::afterCollect(uv_work_t *, int) {
-  YODA_SIXSIX_SAFE_DELETE(_workReq);
-  auto collectData = this->getCollectData();
-  auto memData = collectData->getMem();
-  memData->setTimestamp(time(nullptr));
+void CollectSmap::afterCollect(uv_work_t *, int status) {
+  if (status == 0) {
+    rokid::MemInfosPtr data(new rokid::MemInfos);
+    data->setTimestamp(time(nullptr));
 
-  auto sysMem = memData->getSysMem();
-  sysMem->setAvailable(_sysMem->available);
-  sysMem->setBuffers(_sysMem->buffers);
-  sysMem->setCached(_sysMem->cached);
-  sysMem->setFree(_sysMem->free);
-  sysMem->setTotal(_sysMem->total);
-  YODA_SIXSIX_FLOG("sys mem: %" PRIi64 " %" PRIi64,
-                   _sysMem->total, _sysMem->available);
+    rokid::SysMemInfoPtr sysMem(new rokid::SysMemInfo);
+    sysMem->setAvailable(_sysMem->available);
+    sysMem->setBuffers(_sysMem->buffers);
+    sysMem->setCached(_sysMem->cached);
+    sysMem->setFree(_sysMem->free);
+    sysMem->setTotal(_sysMem->total);
+    YODA_SIXSIX_FLOG("sys mem: %" PRIi64 " %" PRIi64,
+                     _sysMem->total, _sysMem->available);
+    data->setSysMem(sysMem);
 
-  auto memList = memData->getProcMemInfo();
-  for (auto &smap : _smaps) {
-    if (smap->pss > 0) {
-      memList->emplace_back();
-      rokid::ProcMemInfo &mem = memList->back();
-      mem.setPss(smap->pss);
-      mem.setFullName(smap->fullname.c_str());
-      mem.setPid(smap->pid);
-      mem.setPrivateClean(smap->private_clean);
-      mem.setPrivateDirty(smap->private_dirty);
-      mem.setSharedClean(smap->shared_clean);
-      mem.setSharedDirty(smap->shared_dirty);
-      YODA_SIXSIX_FLOG("pss %d %s: %" PRIi64,
-                       smap->pid,
-                       smap->fullname.c_str(),
-                       smap->pss
-      );
+    std::shared_ptr<std::vector<rokid::ProcMemInfo>> procMems(
+      new std::vector<rokid::ProcMemInfo>()
+    );
+    for (auto &smap : _smaps) {
+      if (smap->pss > 0) {
+        procMems->emplace_back();
+        rokid::ProcMemInfo &mem = procMems->back();
+        mem.setPss(smap->pss);
+        mem.setFullName(smap->fullname.c_str());
+        mem.setPid(smap->pid);
+        mem.setPrivateClean(smap->private_clean);
+        mem.setPrivateDirty(smap->private_dirty);
+        mem.setSharedClean(smap->shared_clean);
+        mem.setSharedDirty(smap->shared_dirty);
+        YODA_SIXSIX_FLOG("pss %d %s: %" PRIi64,
+                         smap->pid,
+                         smap->fullname.c_str(),
+                         smap->pss
+        );
+      }
     }
+    data->setProcMemInfo(procMems);
+
+    std::shared_ptr<Caps> caps;
+    data->serialize(caps);
+    this->sendData(caps, "smap data");
+  } else {
+    YODA_SIXSIX_FERROR("smap collect error status: %d", status);
   }
+
+  YODA_SIXSIX_SAFE_DELETE(_workReq);
   _smaps.clear();
   _sysMem.reset();
 

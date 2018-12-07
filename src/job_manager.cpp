@@ -12,14 +12,10 @@
 
 YODA_NS_BEGIN
 
-#define COLLECT_DATA_SEND_INTERVAL 5000
-
 JobManager::JobManager() :
-  _collectData(),
   _runners(),
   _ws(nullptr),
   _task(nullptr),
-  _collectTimer(nullptr),
   _taskTimer(nullptr),
   _disableUpload(false) {
 
@@ -95,10 +91,6 @@ void JobManager::onRunnerStop(JobRunner *runner) {
     YODA_SIXSIX_SLOG("stopping task timer");
     uv_timer_stop(_taskTimer);
     UV_CLOSE_HANDLE(_taskTimer, JobManager, onUVHandleClosed);
-
-    YODA_SIXSIX_SLOG("stopping collect timer");
-    uv_timer_stop(_collectTimer);
-    UV_CLOSE_HANDLE(_collectTimer, JobManager, onUVHandleClosed);
 
     char msg[256] = {0};
     sprintf(msg, "end task with code: %d", _task->errorCode);
@@ -235,15 +227,8 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
     return;
   }
   _task = task;
-  this->resetCollectData();
 
   this->manuallyStartJobs(task->shell, task->shellId);
-
-  _collectTimer = (uv_timer_t *) malloc(sizeof(uv_timer_t));
-  UV_CB_WRAP1(_collectTimer, cb1, JobManager, onCollectData, uv_timer_t);
-  uv_timer_init(uv_default_loop(), _collectTimer);
-  uint64_t interval = COLLECT_DATA_SEND_INTERVAL;
-  uv_timer_start(_collectTimer, cb1, interval, interval);
 
   _taskTimer = (uv_timer_t *) malloc(sizeof(uv_timer_t));
   UV_CB_WRAP1(_taskTimer, cb2, JobManager, onTaskTimeout, uv_timer_t);
@@ -251,45 +236,8 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
   uv_timer_start(_taskTimer, cb2, (uint64_t) _task->timeoutMs, 0);
 }
 
-void JobManager::onCollectData(uv_timer_t *) {
-  YODA_SIXSIX_SLOG("sending collect data");
-  if (_ws) {
-    if (_disableUpload) {
-      YODA_SIXSIX_SLOG("collect data is disabled to upload");
-    } else {
-      std::shared_ptr<Caps> caps;
-      _collectData->serialize(caps);
-      this->sendMsg(caps, "collect data");
-    }
-  } else {
-    YODA_SIXSIX_SERROR("ws is null");
-  }
-  this->resetCollectData();
-}
-
-void JobManager::resetCollectData() {
-  _collectData.reset();
-  auto sysCpuInfo = std::make_shared<rokid::SysCPUInfo>();
-  sysCpuInfo->setTotal(std::make_shared<rokid::SysCPUCoreInfo>());
-  sysCpuInfo->setCores(std::make_shared<std::vector<rokid::SysCPUCoreInfo>>());
-  auto cpuInfos = std::make_shared<rokid::CPUInfos>();
-  cpuInfos->setSysCpu(sysCpuInfo);
-  cpuInfos->setProcCpuList(std::make_shared<std::vector<rokid::ProcCPUInfo>>());
-  cpuInfos->setTimestamp((time(nullptr)));
-
-  auto memInfos = std::make_shared<rokid::MemInfos>();
-  memInfos->setSysMem(std::make_shared<rokid::SysMemInfo>());
-  memInfos->setProcMemInfo(std::make_shared<std::vector<rokid::ProcMemInfo>>());
-  memInfos->setTimestamp(time(nullptr));
-
-  _collectData = rokid::CollectData::create();
-  _collectData->setTimestamp(time(nullptr));
-  _collectData->setCpu(cpuInfos);
-  _collectData->setMem(memInfos);
-}
-
 void JobManager::onTaskTimeout(uv_timer_t *) {
-  YODA_SIXSIX_SLOG("time timeout");
+  YODA_SIXSIX_SLOG("task time timeout");
   this->endTask(TaskErrorCodes::NO_ERROR);
 }
 
@@ -325,21 +273,25 @@ void JobManager::manuallyStartJobs(
   this->addRunnerWithConf(smapConf, true);
 }
 
+void JobManager::sendCollectData(std::shared_ptr<Caps> &caps, const char *hint){
+  if (!_disableUpload) {
+    this->sendMsg(caps, hint);
+  }
+}
+
 void JobManager::sendMsg(std::shared_ptr<Caps> &caps, const char *hint) {
   if (_ws) {
     _ws->sendMsg(caps, [hint](SendResult sr, void *) {
       YODA_SIXSIX_FLOG("send ws %s result %u", hint, sr);
     });
   } else {
-    YODA_SIXSIX_FERROR("ws is null, send msg error %s", hint);
+    YODA_SIXSIX_FERROR("ws is null, send %s error", hint);
   }
 }
 
 void JobManager::onUVHandleClosed(uv_handle_t *handle) {
   if ((uv_handle_t *) _taskTimer == handle) {
     YODA_SIXSIX_SAFE_FREE(_taskTimer);
-  } else if ((uv_handle_t *) _collectTimer == handle) {
-    YODA_SIXSIX_SAFE_FREE(_collectTimer);
   } else {
     YODA_SIXSIX_SLOG("manager receive unknown handle close, free it");
     YODA_SIXSIX_SAFE_FREE(handle);
@@ -347,4 +299,3 @@ void JobManager::onUVHandleClosed(uv_handle_t *handle) {
 }
 
 YODA_NS_END
-

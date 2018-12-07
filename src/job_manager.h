@@ -27,7 +27,7 @@ public:
 
   void startNewTask(const std::shared_ptr<TaskInfo> &task);
 
-  rokid::CollectDataPtr& getCollectData() { return _collectData; }
+  void sendCollectData(std::shared_ptr<Caps> &caps, const char *hint = "");
 
 private:
 
@@ -46,10 +46,6 @@ private:
   void manuallyStartJobs(
     const std::shared_ptr<std::string> &shell, int32_t shellId);
 
-  void onCollectData(uv_timer_t *);
-
-  void resetCollectData();
-
   void onWSConnected();
 
   void onWSDisconnected();
@@ -58,11 +54,9 @@ private:
 
   void onUVHandleClosed(uv_handle_t *handle);
 
-  rokid::CollectDataPtr _collectData;
   std::list<std::shared_ptr<JobRunner>> _runners;
   WebSocketClient *_ws;
   std::shared_ptr<TaskInfo> _task;
-  uv_timer_t *_collectTimer;
   uv_timer_t *_taskTimer;
   bool _disableUpload;
 };

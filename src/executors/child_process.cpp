@@ -35,7 +35,8 @@ void ChildProcess::execute() {
   int32_t r;
   auto loop = uv_default_loop();
   // fd
-  r = uv_fs_open(loop, &openReq, _filePath, O_WRONLY | O_CREAT | S_IWUSR | S_IRUSR, 0777, nullptr);
+  int32_t openFlags = O_WRONLY | O_CREAT | S_IWUSR | S_IRUSR;
+  r = uv_fs_open(loop, &openReq, _filePath, openFlags, 0777, nullptr);
   YODA_SIXSIX_FASSERT(r >= 0, "open %s error: %s", _filePath, uv_err_name(r));
   uv_fs_req_cleanup(&openReq);
   auto fd = (uv_file) openReq.result;
@@ -169,7 +170,7 @@ void ChildProcess::onPipeData(uv_stream_t *stm, ssize_t nread,
   free(buf->base);
 }
 
-void ChildProcess::onSignal(uv_signal_t *req, int32_t sig) {
+void ChildProcess::onSignal(uv_signal_t *, int32_t sig) {
   YODA_SIXSIX_FLOG("signal %d", sig);
   if (sig == SIGTERM) {
     if (_cp) {

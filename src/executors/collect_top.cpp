@@ -32,69 +32,84 @@ void CollectTop::doCollect(uv_work_t *) {
   _top = busybox::getSystemTop(_scanDir);
 }
 
-void CollectTop::afterCollect(uv_work_t *, int) {
+void CollectTop::afterCollect(uv_work_t *, int32_t status) {
   YODA_SIXSIX_SLOG("========== busy idle iowait sys usr ==========");
-  YODA_SIXSIX_SAFE_DELETE(_workReq);
-  auto cpuInfos = this->getCollectData()->getCpu();
-  cpuInfos->setTimestamp(time(nullptr));
+  if (status == 0) {
+    rokid::CPUInfosPtr data(new rokid::CPUInfos);
+    data->setTimestamp(time(nullptr));
 
-  auto procList = cpuInfos->getProcCpuList();
-  for (auto &pair : _top->processes) {
-    if (pair.second->cpuUsagePercent > 0.0f) {
-      auto &proc = pair.second;
-      YODA_SIXSIX_FLOG("process %d %s: %f",
-                            proc->pid,
-                            proc->fullname.c_str(),
-                            proc->cpuUsagePercent
-      );
-      procList->emplace_back();
-      rokid::ProcCPUInfo &procCpu = procList->back();
-      procCpu.setPid(proc->pid);
-      procCpu.setFullName(proc->fullname.c_str());
-      procCpu.setStatus(proc->state);
-      procCpu.setCpuUsage(proc->cpuUsagePercent);
-      procCpu.setNice(proc->nice);
-      procCpu.setStime(proc->stime);
-      procCpu.setUtime(proc->utime);
-      procCpu.setTicks(proc->ticks);
-    }
-  }
-
-  auto sysCpu = cpuInfos->getSysCpu();
-  auto cores = sysCpu->getCores();
-  int32_t i = 0;
-  for (auto &core : _top->cpu->cores) {
-    YODA_SIXSIX_FLOG("core: %d %f %f %f %f %f",
-                          i++,
-                          core->busyPercent,
-                          core->idlePercent,
-                          core->iowaitPercent,
-                          core->sysPercent,
-                          core->usrPercent
+    std::shared_ptr<std::vector<rokid::ProcCPUInfo>> procList(
+      new std::vector<rokid::ProcCPUInfo>()
     );
-    cores->emplace_back();
-    auto &coreData = cores->back();
-    coreData.setBusyUsage(core->busyPercent);
-    coreData.setIdleUsage(core->idlePercent);
-    coreData.setIoUsage(core->iowaitPercent);
-    coreData.setSysUsage(core->sysPercent);
-    coreData.setUsrUsage(core->usrPercent);
+    for (auto &pair : _top->processes) {
+      if (pair.second->cpuUsagePercent > 0.0f) {
+        auto &proc = pair.second;
+        YODA_SIXSIX_FLOG("process %d %s: %f",
+                         proc->pid,
+                         proc->fullname.c_str(),
+                         proc->cpuUsagePercent
+        );
+        procList->emplace_back();
+        rokid::ProcCPUInfo &procCpu = procList->back();
+        procCpu.setPid(proc->pid);
+        procCpu.setFullName(proc->fullname.c_str());
+        procCpu.setStatus(proc->state);
+        procCpu.setCpuUsage(proc->cpuUsagePercent);
+        procCpu.setNice(proc->nice);
+        procCpu.setStime(proc->stime);
+        procCpu.setUtime(proc->utime);
+        procCpu.setTicks(proc->ticks);
+      }
+    }
+    data->setProcCpuList(procList);
+
+    std::shared_ptr<rokid::SysCPUInfo> sysCpuInfo(new rokid::SysCPUInfo);
+    std::shared_ptr<std::vector<rokid::SysCPUCoreInfo>> coresInfo(
+      new std::vector<rokid::SysCPUCoreInfo>()
+    );
+    int32_t i = 0;
+    for (auto &core : _top->cpu->cores) {
+      YODA_SIXSIX_FLOG("core: %d %f %f %f %f %f",
+                       i++,
+                       core->busyPercent,
+                       core->idlePercent,
+                       core->iowaitPercent,
+                       core->sysPercent,
+                       core->usrPercent
+      );
+      coresInfo->emplace_back();
+      auto &coreData = coresInfo->back();
+      coreData.setBusyUsage(core->busyPercent);
+      coreData.setIdleUsage(core->idlePercent);
+      coreData.setIoUsage(core->iowaitPercent);
+      coreData.setSysUsage(core->sysPercent);
+      coreData.setUsrUsage(core->usrPercent);
+    }
+    sysCpuInfo->setCores(coresInfo);
+
+    std::shared_ptr<rokid::SysCPUCoreInfo> total(new rokid::SysCPUCoreInfo);
+    YODA_SIXSIX_FLOG("total : %f %f %f %f %f",
+                     _top->cpu->total->busyPercent,
+                     _top->cpu->total->idlePercent,
+                     _top->cpu->total->iowaitPercent,
+                     _top->cpu->total->sysPercent,
+                     _top->cpu->total->usrPercent
+    );
+    total->setBusyUsage(_top->cpu->total->busyPercent);
+    total->setIdleUsage(_top->cpu->total->idlePercent);
+    total->setIoUsage(_top->cpu->total->iowaitPercent);
+    total->setSysUsage(_top->cpu->total->sysPercent);
+    total->setUsrUsage(_top->cpu->total->usrPercent);
+    sysCpuInfo->setTotal(total);
+
+    data->setSysCpu(sysCpuInfo);
+
+    std::shared_ptr<Caps> caps;
+    data->serialize(caps);
+    this->sendData(caps, "cpu data");
   }
 
-  auto total = sysCpu->getTotal();
-  YODA_SIXSIX_FLOG("total : %f %f %f %f %f",
-                        _top->cpu->total->busyPercent,
-                        _top->cpu->total->idlePercent,
-                        _top->cpu->total->iowaitPercent,
-                        _top->cpu->total->sysPercent,
-                        _top->cpu->total->usrPercent
-  );
-  total->setBusyUsage(_top->cpu->total->busyPercent);
-  total->setIdleUsage(_top->cpu->total->idlePercent);
-  total->setIoUsage(_top->cpu->total->iowaitPercent);
-  total->setSysUsage(_top->cpu->total->sysPercent);
-  total->setUsrUsage(_top->cpu->total->usrPercent);
-
+  YODA_SIXSIX_SAFE_DELETE(_workReq);
   _top.reset();
 
   this->onJobDone();

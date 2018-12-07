@@ -17,9 +17,8 @@ IJobExecutor::~IJobExecutor() {
   YODA_SIXSIX_FLOG("executor %s exit", _name.c_str());
 }
 
-rokid::CollectDataPtr &IJobExecutor::getCollectData() {
-  YODA_SIXSIX_FASSERT(_manager, "manager from %s is null", _name.c_str());
-  return _manager->getCollectData();
+void IJobExecutor::sendData(std::shared_ptr<Caps> &caps, const char *hint) {
+  _manager->sendCollectData(caps, hint);
 }
 
 void IJobExecutor::onJobDone() {
