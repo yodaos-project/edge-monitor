@@ -111,7 +111,7 @@ template<typename T=unsigned long>
 T fast_strtoul_10(char **endptr) {
   char c;
   char *str = *endptr;
-  auto n = (T) (*str - '0');
+  T n = *str - '0';
 
   /* Need to stop on both ' ' and '\n' */
   while ((c = *++str) > ' ')
@@ -161,7 +161,7 @@ getProcessTop(const std::string &dir, uint32_t pid) {
   stat->stime = fast_strtoul_10(&cp);
   stat->ticks = stat->utime + stat->stime;
   cp = skip_fields(cp, 3); /* cutime, cstime, priority */
-  stat->nice = fast_strtoul_10<int32_t>(&cp);
+  stat->nice = (*cp == '-' ? ++cp, -1 : 1) * fast_strtoul_10(&cp);
   cp = skip_fields(cp, 2); /* timeout, it_real_value */
   stat->startTime = fast_strtoul_10(&cp);
   /* vsz is in bytes and we want kb */
@@ -368,23 +368,8 @@ std::shared_ptr<SystemTopInfo> getSystemTop(const std::string &dir) {
 
 static int32_t
 readCPUJif(FILE *fp, const std::shared_ptr<SystemCPUInfo> &coreJif) {
-  static const char fmt[] = "cp%*s %"
-  PRIu64
-  " %"
-  PRIu64
-  " %"
-  PRIu64 \
-
-  " %"
-  PRIu64
-  " %"
-  PRIu64
-  " %"
-  PRIu64
-  " %"
-  PRIu64
-  " %"
-  PRIu64;
+  static const char fmt[] = "cp%*s %" PRIu64 " %" PRIu64 " %" PRIu64 \
+      " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64;
 
   /* not "cpu" */
   if (!fgets(line_buf, LINE_BUF_SIZE, fp) || line_buf[0] != 'c') {

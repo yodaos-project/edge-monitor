@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
   WebSocketClient wsc(uv_default_loop(), 5);
 
   char urlPath[128];
-  auto svrPath = yoda::Conf::get<std::string>("serverAddress", "unknown");
+  auto svrPath = yoda::Conf::get<std::string>("serverAddress", "");
   auto svrPort = yoda::Conf::get<uint32_t>("serverPort", 0);
   auto mockSN = yoda::Conf::get<std::string>("sn", "");
   std::string sn = mockSN.empty() ? yoda::DeviceInfo::sn : mockSN;

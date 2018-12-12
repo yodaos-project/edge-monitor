@@ -44,10 +44,11 @@ void CollectTop::afterCollect(uv_work_t *, int32_t status) {
     for (auto &pair : _top->processes) {
       if (pair.second->cpuUsagePercent > 0.0f) {
         auto &proc = pair.second;
-        YODA_SIXSIX_FLOG("process %d %s: %f",
+        YODA_SIXSIX_FLOG("process %d %s: %f, nice %d",
                          proc->pid,
                          proc->fullname.c_str(),
-                         proc->cpuUsagePercent
+                         proc->cpuUsagePercent,
+                         proc->nice
         );
         procList->emplace_back();
         rokid::ProcCPUInfo &procCpu = procList->back();

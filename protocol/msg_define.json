@@ -1,0 +1,341 @@
+{
+  "NameSpace": "rokid",
+  "Comment": "collect data define",
+  "Message": [
+    {
+      "MsgName": "ProcCPUInfo",
+      "Comment": "process cpu usage",
+      "Fields": [
+        {
+          "Name": "pid",
+          "Type": "uint32",
+          "Comment": "process id",
+          "Default": 0
+        },
+        {
+          "Name": "status",
+          "Type": "string",
+          "Comment": "process status",
+          "Default": "sss"
+        },{
+          "Name": "full_name",
+          "Type": "string",
+          "Comment": "process command line"
+        },
+        {
+          "Name": "utime",
+          "Type": "int64",
+          "Comment": "cpu jiffy in user mode"
+        },
+        {
+          "Name": "stime",
+          "Type": "int64",
+          "Comment": "cpu jiffy in kernel mode"
+        },
+        {
+          "Name": "ticks",
+          "Type": "int64",
+          "Comment": "jiffy summary"
+        },
+        {
+          "Name": "nice",
+          "Type": "int32",
+          "Comment": "nice value"
+        },
+        {
+          "Name": "cpu_usage",
+          "Type": "float",
+          "Comment": "cpu usage percent"
+        }
+      ]
+    },
+    {
+      "MsgName": "ProcMemInfo",
+      "Comment": "process memory info",
+      "Fields": [
+        {
+          "Name": "pid",
+          "Type": "uint32",
+          "Comment": "process id"
+        },
+        {
+          "Name": "full_name",
+          "Type": "string",
+          "Comment": "process command line"
+        },
+        {
+          "Name": "shared_clean",
+          "Type": "int64",
+          "Comment": "shared clean memory"
+        },
+        {
+          "Name": "shared_dirty",
+          "Type": "int64",
+          "Comment": "shared dirty memory"
+        },
+        {
+          "Name": "private_clean",
+          "Type": "int64",
+          "Comment": "private clean memory"
+        },
+        {
+          "Name": "private_dirty",
+          "Type": "int64",
+          "Comment": "private dirty memory"
+        },
+        {
+          "Name": "pss",
+          "Type": "int64",
+          "Comment": "proportional set size"
+        },
+        {
+          "Name": "rss",
+          "Type": "int64",
+          "Comment": "resident set size"
+        }
+      ]
+    },
+    {
+      "MsgName": "SysCPUCoreInfo",
+      "Comment": "cpu core info",
+      "Fields": [
+        {
+          "Name": "usr_usage",
+          "Type": "float",
+          "Comment": "jiffy in user mode"
+        },
+        {
+          "Name": "sys_usage",
+          "Type": "float",
+          "Comment": "jiffy in kernel mode"
+        },
+        {
+          "Name": "idle_usage",
+          "Type": "float",
+          "Comment": "idle percent"
+        },
+        {
+          "Name": "io_usage",
+          "Type": "float",
+          "Comment": "iowait percent"
+        },
+        {
+          "Name": "busy_usage",
+          "Type": "float",
+          "Comment": "busy percent"
+        }
+      ]
+    },
+    {
+      "MsgName": "SysCPUInfo",
+      "Comment": "system cpu info",
+      "Fields": [
+        {
+          "Name": "total",
+          "Type": "SysCPUCoreInfo",
+          "Comment": "cpu info"
+        },
+        {
+          "Name": "cores",
+          "Type": "SysCPUCoreInfo",
+          "repeated": true,
+          "Comment": "cpu info per core"
+        }
+      ]
+    },
+    {
+      "MsgName": "SysMemInfo",
+      "Comment": "system memory info",
+      "Fields": [
+        {
+          "Name": "total",
+          "Type": "int64",
+          "Comment": "total memory"
+        },
+        {
+          "Name": "free",
+          "Type": "int64",
+          "Comment": "free memory"
+        },
+        {
+          "Name": "buffers",
+          "Type": "int64",
+          "Comment": "buffers memory"
+        },
+        {
+          "Name": "cached",
+          "Type": "int64",
+          "Comment": "cached memory"
+        },
+        {
+          "Name": "available",
+          "Type": "int64",
+          "Comment": "available memory"
+        }
+      ]
+    },
+    {
+      "MsgName": "CPUInfos",
+      "Comment": "cpu info",
+      "Fields": [
+        {
+          "Name": "proc_cpu_list",
+          "Type": "ProcCPUInfo",
+          "Repeated": true,
+          "Comment": "processes cpu infos"
+        },
+        {
+          "Name": "sys_cpu",
+          "Type": "SysCPUInfo",
+          "Comment": "system cpu infos"
+        },
+        {
+          "Name": "timestamp",
+          "Type": "int64",
+          "Comment": "collect time"
+        }
+      ]
+    },
+    {
+      "MsgName": "MemInfos",
+      "Comment": "memory infos",
+      "Fields": [
+        {
+          "Name": "proc_mem_info",
+          "Type": "ProcMemInfo",
+          "Repeated": true,
+          "Comment": "processes memory info"
+        },
+        {
+          "Name": "sys_mem",
+          "Type": "SysMemInfo",
+          "Comment": "system memory info"
+        },
+        {
+          "Name": "timestamp",
+          "Type": "int64",
+          "Comment": "collect time"
+        }
+      ]
+    },
+    {
+      "MsgName": "CollectData",
+      "Comment": "collected data",
+      "Fields": [
+        {
+          "Name": "cpu",
+          "Type": "CPUInfos",
+          "Comment": "cpu infos"
+        },
+        {
+          "Name": "mem",
+          "Type": "MemInfos",
+          "Comment": "memory infos"
+        },
+        {
+          "Name": "timestamp",
+          "Type": "int64",
+          "Comment": "collect time"
+        }
+      ]
+    },
+    {
+      "MsgName": "TaskCommand",
+      "Comment": "任务下发(平台->设备)",
+      "Fields": [
+        {
+          "Name": "task_id",
+          "Type": "int32",
+          "Comment": "任务id"
+        },
+        {
+          "Name": "task_type",
+          "Type": "string",
+          "Comment": "任务类型"
+        },
+        {
+          "Name": "shell_id",
+          "Type": "uint32",
+          "Comment": "脚本id"
+        },
+        {
+          "Name": "shell_type",
+          "Type": "string",
+          "Comment": "脚本类型"
+        },
+        {
+          "Name": "shell_content",
+          "Type": "string",
+          "Comment": "脚本内容"
+        },
+        {
+          "Name": "timestamp",
+          "Type": "int64",
+          "Comment": "命令时间"
+        }
+      ]
+    },
+    {
+      "MsgName": "TaskStatus",
+      "Comment": "任务状态（设备->平台）",
+      "Fields": [
+        {
+          "Name": "task_id",
+          "Type": "int32",
+          "Comment": "设备sn"
+        },
+        {
+          "Name": "status",
+          "Type": "int32",
+          "Comment": "任务状态：0-运行中, 1-执行失败, 2-正常结束, 3-准备中"
+        },
+        {
+          "Name": "message",
+          "Type": "string",
+          "Comment": "状态描述"
+        },
+        {
+          "Name": "shell_id",
+          "Type": "int32",
+          "Comment": "脚本id"
+        },
+        {
+          "Name": "timestamp",
+          "Type": "int64",
+          "Comment": "采集时间"
+        }
+      ]
+    },
+    {
+      "MsgName": "DeviceStatus",
+      "Comment": "设备状态（设备->平台）",
+      "Fields": [
+        {
+          "Name": "sn",
+          "Type": "string",
+          "Comment": "设备sn"
+        },
+        {
+          "Name": "version",
+          "Type": "string",
+          "Comment": "设备版本"
+        },
+        {
+          "Name": "status",
+          "Type": "int32",
+          "Comment": "设备状态：0-idle，1-exe"
+        },
+        {
+          "Name": "shell_id",
+          "Type": "int32",
+          "Comment": "脚本id"
+        },
+        {
+          "Name": "timestamp",
+          "Type": "int64",
+          "Comment": "采集时间"
+        }
+      ]
+    }
+  ]
+}

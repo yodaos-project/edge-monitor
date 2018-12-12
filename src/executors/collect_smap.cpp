@@ -70,7 +70,7 @@ void CollectSmap::afterCollect(uv_work_t *, int status) {
     sysMem->setCached(_sysMem->cached);
     sysMem->setFree(_sysMem->free);
     sysMem->setTotal(_sysMem->total);
-    YODA_SIXSIX_FLOG("sys mem: %" PRIi64 " %" PRIi64,
+    YODA_SIXSIX_FLOG("sys mem: total %" PRIi64 " available %" PRIi64,
                      _sysMem->total, _sysMem->available);
     data->setSysMem(sysMem);
 
