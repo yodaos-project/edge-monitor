@@ -359,6 +359,11 @@ std::shared_ptr<SystemTopInfo> getSystemTop(const std::string &dir) {
        * (pcpu is delta of sys+user time between samples)
       */
       p->cpuUsagePercent = CAL_PERCENT_1000(p->ticksDelta * cpup, totalTick);
+      if (p->cpuUsagePercent >= 100) {
+        p->cpuUsagePercent = 100.0f;
+        YODA_SIXSIX_FERROR("cpu usage error: %" PRIu64 " %f %" PRIu64,
+          p->ticksDelta, cpup, totalTick);
+      }
     }
   }
   processesJif = top->processes;

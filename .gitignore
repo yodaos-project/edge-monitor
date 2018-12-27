@@ -1,5 +1,5 @@
 cmake-build-*/
-build-*/
+build*/
 .idea/
 Makefile
 yoda-sixsix
