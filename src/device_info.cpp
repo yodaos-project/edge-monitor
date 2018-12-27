@@ -9,30 +9,30 @@ YODA_NS_BEGIN
 std::string DeviceInfo::sn = "sn-test-001";
 std::string DeviceInfo::imageVersion = "version-test-001";
 std::string DeviceInfo::hardware = "hardware-test-001";
+const char *key_sn = "ro.boot.serialno";
+const char *key_imageVersion = "ro.build.version.release";
+const char *key_hardware = "ro.boot.hardware";
 
 int32_t DeviceInfo::init() {
-  const char *snPrefix = "[ro.boot.serialno]: [";
-  const char *versionPrefix = "[ro.build.version.release]: [";
-  const char *hardwarePrefix = "[ro.boot.hardware]: [";
-  size_t versionPrefixLen = strlen(versionPrefix);
-  size_t snPrefixLen = strlen(snPrefix);
-  size_t hardwarePrefixLen = strlen(hardwarePrefix);
+  size_t key_len_sn = strlen(key_sn);
+  size_t key_len_imageVersion = strlen(key_imageVersion);
+  size_t key_len_hardware = strlen(key_hardware);
 
   std::istringstream ss(Util::exec("getprop"));
   std::string line;
+
+  #define READ_PROP(name) \
+    if (line.find(key_##name) == 1 /* skip first '[' */) { \
+      name = line.substr(key_len_##name + 5, len - key_len_##name - 1); \
+      YODA_SIXSIX_FLOG("device " #name ": %s", name.c_str()); \
+      continue; \
+    }
   while (std::getline(ss, line)) {
     auto len = line.size();
-    if (line.find(snPrefix) == 0) {
-      sn = line.substr(snPrefixLen, len - snPrefixLen - 1);
-    } else if (line.find(versionPrefix) == 0) {
-      imageVersion = line.substr(versionPrefixLen, len - versionPrefixLen - 1);
-    } else if (line.find(hardwarePrefix) == 0) {
-      hardware = line.substr(hardwarePrefixLen, len - hardwarePrefixLen - 1);
-    }
+    READ_PROP(sn)
+    READ_PROP(imageVersion)
+    READ_PROP(hardware)
   }
-  YODA_SIXSIX_FLOG("device sn: %s", sn.c_str());
-  YODA_SIXSIX_FLOG("device image version: %s", imageVersion.c_str());
-  YODA_SIXSIX_FLOG("hardware: %s", hardware.c_str());
   return 0;
 }
 

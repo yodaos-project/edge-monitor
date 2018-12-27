@@ -18,7 +18,7 @@ static const char *helpStr =
   "[-disableUpload] set none-zero to disable upload data\n"
   "[-serverAddress] specific server address\n"
   "[-serverPort] specific server port\n"
-  "[-sn] mock an sn\n";
+  "[-sn] mock an sn\n"
   "[-hardware] mock a hardware\n";
 
 static void parseExitCmd(int argc, char **argv) {
@@ -48,23 +48,23 @@ int main(int argc, char **argv) {
 
   WebSocketClient wsc(uv_default_loop(), 5);
 
-  char urlPath[128];
-  auto svrPath = yoda::Conf::get<std::string>("serverAddress", "");
-  auto svrPort = yoda::Conf::get<uint32_t>("serverPort", 0);
+  char path[128];
+  auto serverAddress = yoda::Conf::get<std::string>("serverAddress", "");
+  auto serverPort = yoda::Conf::get<uint32_t>("serverPort", 0);
   auto mockSN = yoda::Conf::get<std::string>("sn", "");
   auto mockHardware = yoda::Conf::get<std::string>("hardware", "");
   std::string sn = mockSN.empty() ? yoda::DeviceInfo::sn : mockSN;
   std::string hardware = mockHardware.empty() ? 
     yoda::DeviceInfo::hardware : mockHardware;
-  sprintf(urlPath, "/websocket?sn=%s&hardware=%s", sn.c_str(), hardware.c_str());
-  if (svrPath.empty() || svrPort == 0) {
+  sprintf(path, "/websocket?sn=%s&hardware=%s", sn.c_str(), hardware.c_str());
+  if (serverAddress.empty() || serverPort == 0) {
     YODA_SIXSIX_FERROR("ws connect error, server: %s, port: %d",
-                       svrPath.c_str(), svrPort);
+                       serverAddress.c_str(), serverPort);
   } else {
     YODA_SIXSIX_FLOG("ws connect to %s:%d%s",
-                     svrPath.c_str(), svrPort, urlPath);
+                     serverAddress.c_str(), serverPort, path);
     manager.setWs(&wsc);
-    wsc.start(svrPath.c_str(), svrPort, urlPath);
+    wsc.start(serverAddress.c_str(), serverPort, path);
   }
 
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
