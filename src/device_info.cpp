@@ -23,7 +23,8 @@ int32_t DeviceInfo::init() {
 
   #define READ_PROP(name) \
     if (line.find(key_##name) == 1 /* skip first '[' */) { \
-      name = line.substr(key_len_##name + 5, len - key_len_##name - 1); \
+      size_t prefixLen = key_len_##name + 5; \
+      name = line.substr(prefixLen, len - prefixLen - 1); \
       YODA_SIXSIX_FLOG("device " #name ": %s", name.c_str()); \
       continue; \
     }

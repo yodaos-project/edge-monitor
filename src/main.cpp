@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
   std::string sn = mockSN.empty() ? yoda::DeviceInfo::sn : mockSN;
   std::string hardware = mockHardware.empty() ? 
     yoda::DeviceInfo::hardware : mockHardware;
-  sprintf(path, "/websocket?sn=%s&hardware=%s", sn.c_str(), hardware.c_str());
+  sprintf(path, "/websocket/%s/%s", sn.c_str(), hardware.c_str());
   if (serverAddress.empty() || serverPort == 0) {
     YODA_SIXSIX_FERROR("ws connect error, server: %s, port: %d",
                        serverAddress.c_str(), serverPort);
