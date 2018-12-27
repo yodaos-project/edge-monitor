@@ -438,7 +438,7 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir) {
       auto coreJif = cpuCoresJif.at(i);
       auto corePrevJif = cpuCoresPrevJif.at(i);
       r = readCPUJif(fp, coreJif);
-      YODA_SIXSIX_FASSERT(r == 0, "read cpu %ld failed code %d", i, r);
+      YODA_SIXSIX_FASSERT(r == 0, "read cpu %zu failed code %d", i, r);
       CAL_CPU_USAGE_PERCENT(coreJif, corePrevJif);
     }
   }

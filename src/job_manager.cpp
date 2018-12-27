@@ -86,7 +86,7 @@ void JobManager::onRunnerStop(JobRunner *runner) {
       break;
     }
   }
-  YODA_SIXSIX_FLOG("runner left %ld", _runners.size());
+  YODA_SIXSIX_FLOG("runner left %zu", _runners.size());
   if (_runners.empty()) {
     YODA_SIXSIX_SLOG("stopping task timer");
     uv_timer_stop(_taskTimer);

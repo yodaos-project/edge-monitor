@@ -139,9 +139,9 @@ int WebSocketClient::callback_ws(struct lws *wsi, enum lws_callback_reasons reas
                d.userdata
           );
         if (write != d.data.size() - LWS_SEND_BUFFER_PRE_PADDING)
-          YODA_SIXSIX_FERROR("write ws error:%d/%ld\n", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
+          YODA_SIXSIX_FERROR("write ws error:%d/%zu\n", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
         else
-          YODA_SIXSIX_FLOG("write ws success:%d/%ld\n", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
+          YODA_SIXSIX_FLOG("write ws success:%d/%zu\n", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
       }
       break;
     }

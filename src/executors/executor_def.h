@@ -66,7 +66,7 @@ struct SystemCPUInfo {
   uint64_t steal = 0;
   uint64_t total = 0;
   uint64_t totalDelta = 0;
-  uint64_t busy = 9;
+  uint64_t busy = 0;
   uint64_t busyDelta = 0;
   uint64_t processTickTotal = 0;
   float busyPercent = 0;
