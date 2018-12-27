@@ -3,7 +3,7 @@
 //
 
 #include "./collect_top.h"
-#include "../conf.h"
+#include "../options.h"
 #include "./busy_box.h"
 
 YODA_NS_BEGIN
@@ -11,7 +11,7 @@ YODA_NS_BEGIN
 CollectTop::CollectTop() : IJobExecutor("CollectTop"),
                            _workReq(nullptr),
                            _top(nullptr) {
-  auto sysroot = Conf::get<std::string>("sysroot", "");
+  auto sysroot = Options::get<std::string>("sysroot", "");
   _scanDir = sysroot + "/proc";
 }
 

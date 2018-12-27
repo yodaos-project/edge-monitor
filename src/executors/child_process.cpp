@@ -3,6 +3,7 @@
 //
 
 #include "./child_process.h"
+#include "../options.h"
 
 YODA_NS_BEGIN
 
@@ -23,7 +24,9 @@ ChildProcess::ChildProcess(const std::shared_ptr<JobConf> &conf) :
   _pipe2(nullptr) {
   auto task = conf->task;
   YODA_SIXSIX_SASSERT(task, "conf task is empty");
-  sprintf(_filePath, "/tmp/yoda-sixsix-%d-%d.sh", task->id, task->shellId);
+  auto unzipRoot = Options::get<std::string>("unzipRoot", "/tmp");
+  sprintf(_filePath, "%s/yoda-sixsix-%d-%d.sh",
+    unzipRoot.c_str(), task->id, task->shellId);
 }
 
 ChildProcess::~ChildProcess() {

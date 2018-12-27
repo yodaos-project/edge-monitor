@@ -2,7 +2,7 @@
 // Created by ximin.chen@rokid.com on 2018/11/19.
 //
 #include "./job_manager.h"
-#include "./conf.h"
+#include "./options.h"
 #include "./websocket/WebSocketClient.h"
 #include "./message/MessageCommon.h"
 #include "./device_info.h"
@@ -19,7 +19,8 @@ static const char *helpStr =
   "[-serverAddress] specific server address\n"
   "[-serverPort] specific server port\n"
   "[-sn] mock an sn\n"
-  "[-hardware] mock a hardware\n";
+  "[-hardware] mock a hardware\n"
+  "[-unzipRoot] setup task files unzip path\n";
 
 static void parseExitCmd(int argc, char **argv) {
   if (argc >= 2) {
@@ -41,7 +42,7 @@ int main(int argc, char **argv) {
   parseExitCmd(argc, argv);
   YODA_SIXSIX_SLOG("starting app");
   yoda::DeviceInfo::init();
-  yoda::Conf::parseCmdLine(argc, argv);
+  yoda::Options::parseCmdLine(argc, argv);
 
   yoda::JobManager manager;
   manager.startTaskFromCmdConf();
@@ -49,10 +50,10 @@ int main(int argc, char **argv) {
   WebSocketClient wsc(uv_default_loop(), 5);
 
   char path[128];
-  auto serverAddress = yoda::Conf::get<std::string>("serverAddress", "");
-  auto serverPort = yoda::Conf::get<uint32_t>("serverPort", 0);
-  auto mockSN = yoda::Conf::get<std::string>("sn", "");
-  auto mockHardware = yoda::Conf::get<std::string>("hardware", "");
+  auto serverAddress = yoda::Options::get<std::string>("serverAddress", "");
+  auto serverPort = yoda::Options::get<uint32_t>("serverPort", 0);
+  auto mockSN = yoda::Options::get<std::string>("sn", "");
+  auto mockHardware = yoda::Options::get<std::string>("hardware", "");
   std::string sn = mockSN.empty() ? yoda::DeviceInfo::sn : mockSN;
   std::string hardware = mockHardware.empty() ? 
     yoda::DeviceInfo::hardware : mockHardware;

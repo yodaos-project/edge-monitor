@@ -4,7 +4,7 @@
 
 #include "./collect_smap.h"
 #include "./busy_box.h"
-#include "../conf.h"
+#include "../options.h"
 
 YODA_NS_BEGIN
 
@@ -13,7 +13,7 @@ CollectSmap::CollectSmap() : IJobExecutor("CollectSmap"),
                              _workReq(nullptr),
                              _smaps(),
                              _sysMem(nullptr) {
-  auto sysroot = Conf::get<std::string>("sysroot", "");
+  auto sysroot = Options::get<std::string>("sysroot", "");
   _scanDir = sysroot + "/proc";
 }
 

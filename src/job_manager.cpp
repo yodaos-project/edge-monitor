@@ -3,7 +3,7 @@
 //
 
 #include "./job_manager.h"
-#include "./conf.h"
+#include "./options.h"
 #include "./job_runner.h"
 #include "./websocket/WebSocketClient.h"
 #include "./message/MessageCommon.h"
@@ -26,12 +26,12 @@ int JobManager::setWs(WebSocketClient *ws) {
   ws->setRecvCallback(std::bind(&JobManager::onWSMessage, this, _1));
   ws->setEventCallback(std::bind(&JobManager::onWSEvent, this, _1));
   _ws = ws;
-  _disableUpload = Conf::get<uint32_t>("disableUpload", 0) != 0;
+  _disableUpload = Options::get<uint32_t>("disableUpload", 0) != 0;
   return 0;
 }
 
 void JobManager::startTaskFromCmdConf() {
-  auto taskJsonPath = Conf::get<std::string>("taskJson", "");
+  auto taskJsonPath = Options::get<std::string>("taskJson", "");
   if (taskJsonPath.empty()) {
     return;
   }

@@ -2,8 +2,8 @@
 // Created by ximin.chen@rokid.com on 2018/11/15.
 //
 
-#ifndef YODA_SIXSIX_CONF_H
-#define YODA_SIXSIX_CONF_H
+#ifndef YODA_SIXSIX_OPTIONS_H
+#define YODA_SIXSIX_OPTIONS_H
 
 #include "./common.h"
 
@@ -11,7 +11,7 @@ YODA_NS_BEGIN
 
 struct JobConf;
 
-class Conf {
+class Options {
 public:
   static void parseCmdLine(int32_t argc, char **argv);
 
@@ -33,4 +33,4 @@ public:
 
 YODA_NS_END
 
-#endif //YODA_SIXSIX_CONF_H
+#endif //YODA_SIXSIX_OPTIONS_H

@@ -2,13 +2,13 @@
 // Created by ximin.chen@rokid.com on 2018/11/15.
 //
 
-#include "./conf.h"
+#include "./options.h"
 
 YODA_NS_BEGIN
 
-std::map<std::string, std::string> Conf::cmdArgs;
+std::map<std::string, std::string> Options::cmdArgs;
 
-void Conf::parseCmdLine(int32_t argc, char **argv) {
+void Options::parseCmdLine(int32_t argc, char **argv) {
   if (argc % 2 != 1) {
     YODA_SIXSIX_SLOG("cmdline argc should be paired");
     exit(1);
