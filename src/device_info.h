@@ -14,6 +14,7 @@ public:
   static int32_t init();
   static std::string sn;
   static std::string imageVersion;
+  static std::string hardware;
 };
 
 YODA_NS_END

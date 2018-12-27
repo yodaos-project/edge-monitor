@@ -19,6 +19,7 @@ static const char *helpStr =
   "[-serverAddress] specific server address\n"
   "[-serverPort] specific server port\n"
   "[-sn] mock an sn\n";
+  "[-hardware] mock a hardware\n";
 
 static void parseExitCmd(int argc, char **argv) {
   if (argc >= 2) {
@@ -51,8 +52,11 @@ int main(int argc, char **argv) {
   auto svrPath = yoda::Conf::get<std::string>("serverAddress", "");
   auto svrPort = yoda::Conf::get<uint32_t>("serverPort", 0);
   auto mockSN = yoda::Conf::get<std::string>("sn", "");
+  auto mockHardware = yoda::Conf::get<std::string>("hardware", "");
   std::string sn = mockSN.empty() ? yoda::DeviceInfo::sn : mockSN;
-  sprintf(urlPath, "/websocket/%s", sn.c_str());
+  std::string hardware = mockHardware.empty() ? 
+    yoda::DeviceInfo::hardware : mockHardware;
+  sprintf(urlPath, "/websocket?sn=%s&hardware=%s", sn.c_str(), hardware.c_str());
   if (svrPath.empty() || svrPort == 0) {
     YODA_SIXSIX_FERROR("ws connect error, server: %s, port: %d",
                        svrPath.c_str(), svrPort);
