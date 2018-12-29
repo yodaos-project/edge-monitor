@@ -28,6 +28,7 @@ The above builds an executable `yoda-sixsix` in your CMake build directory.
 | `-serverAddress` | specific server address |
 | `-serverPort`    | specific server port |
 | `-sn`            | mock sn |
+| `-unzipRoot`     | setup task files unzip path |
 
 ## Test
 
