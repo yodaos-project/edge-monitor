@@ -13,6 +13,8 @@ CollectTop::CollectTop() : IJobExecutor("CollectTop"),
                            _top(nullptr) {
   auto sysroot = Options::get<std::string>("sysroot", "");
   _scanDir = sysroot + "/proc";
+  // generate data first time
+  busybox::getSystemTop(_scanDir);
 }
 
 CollectTop::~CollectTop() {

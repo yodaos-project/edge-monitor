@@ -26,6 +26,7 @@ protected:
   void afterCollect(uv_work_t *req, int code);
 
   std::string _scanDir;
+  uint64_t _usleepTime;
   uv_work_t *_workReq;
   std::list<std::shared_ptr<ProcessSmapInfo>> _smaps;
   std::shared_ptr<SystemMemoryInfo> _sysMem;

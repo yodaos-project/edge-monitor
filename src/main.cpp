@@ -12,15 +12,19 @@ using namespace rokid;
 static const char *version = "v1.0.0\n";
 static const char *helpStr =
   "Usage: \n"
-  "[-version] print version\n"
-  "[-sysroot] to specific samples sysroot\n"
-  "[-taskJson] to start task from local json path\n"
-  "[-disableUpload] set none-zero to disable upload data\n"
-  "[-serverAddress] specific server address\n"
-  "[-serverPort] specific server port\n"
-  "[-sn] mock an sn\n"
-  "[-hardware] mock a hardware\n"
-  "[-unzipRoot] setup task files unzip path\n";
+  "[-version]         print version\n"
+  "[-sysroot]         specific sysroot\n"
+  "[-taskJson]        start task from local json path\n"
+  "[-disableUpload]   set none-zero to disable upload data\n"
+  "[-serverAddress]   set server address\n"
+  "[-serverPort]      set server port\n"
+  "[-sn]              mock an sn\n"
+  "[-hardware]        mock a hardware\n"
+  "[-unzipRoot]       set task files unzip path\n"
+  "[-smapInterval]    set smap collect interval in millisecond"
+                      ", default is 300 * 1000ms\n"
+  "[-smapSleep]       set usleep time after collected a process in millisecond"
+                      ", default is 1 * 1000ms\n";
 
 static void parseExitCmd(int argc, char **argv) {
   if (argc >= 2) {
@@ -55,7 +59,7 @@ int main(int argc, char **argv) {
   auto mockSN = yoda::Options::get<std::string>("sn", "");
   auto mockHardware = yoda::Options::get<std::string>("hardware", "");
   std::string sn = mockSN.empty() ? yoda::DeviceInfo::sn : mockSN;
-  std::string hardware = mockHardware.empty() ? 
+  std::string hardware = mockHardware.empty() ?
     yoda::DeviceInfo::hardware : mockHardware;
   sprintf(path, "/websocket/%s/%s", sn.c_str(), hardware.c_str());
   if (serverAddress.empty() || serverPort == 0) {

@@ -272,7 +272,8 @@ void JobManager::manuallyStartJobs(
   smapConf->isRepeat = true;
   smapConf->loopCount = 0;
   smapConf->timeout = 1000;
-  smapConf->interval = 60 * 1000;
+  smapConf->interval = Options::get<uint64_t>("smapInterval", 300 * 1000);
+  YODA_SIXSIX_FLOG("smap interval %" PRIu64 "ms", smapConf->interval);
   this->addRunnerWithConf(smapConf, true);
 }
 
@@ -288,7 +289,7 @@ void JobManager::sendMsg(std::shared_ptr<Caps> &caps, const char *hint) {
       YODA_SIXSIX_FLOG("send ws %s result %u", hint, sr);
     });
   } else {
-    YODA_SIXSIX_FERROR("ws is null, send %s error", hint);
+    YODA_SIXSIX_FERROR("ws is null, drop %s data", hint);
   }
 }
 

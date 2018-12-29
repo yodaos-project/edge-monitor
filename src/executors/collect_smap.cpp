@@ -12,9 +12,11 @@ CollectSmap::CollectSmap() : IJobExecutor("CollectSmap"),
                              _scanDir(),
                              _workReq(nullptr),
                              _smaps(),
-                             _sysMem(nullptr) {
-  auto sysroot = Options::get<std::string>("sysroot", "");
-  _scanDir = sysroot + "/proc";
+                             _sysMem(nullptr),
+                             _usleepTime(0) {
+  _scanDir = Options::get<std::string>("sysroot", "") + "/proc";
+  _usleepTime = (Options::get<uint64_t>("smapSleep", 1000)) * 1000;
+  YODA_SIXSIX_FLOG("smap sleep time %" PRIu64 "us", _usleepTime);
 }
 
 CollectSmap::~CollectSmap() {
@@ -52,7 +54,7 @@ void CollectSmap::doCollect(uv_work_t *) {
           _smaps.emplace_back(smap);
         }
       }
-      usleep(50 * 1000);
+      usleep(_usleepTime);
     }
   });
 
