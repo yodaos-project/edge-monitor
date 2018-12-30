@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
-#include "../common.h"
+#include "common.h"
 
 #define RX_BUFFER_BYTES (50000)
 

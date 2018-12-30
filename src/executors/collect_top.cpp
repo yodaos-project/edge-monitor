@@ -2,9 +2,9 @@
 // Created by ximin.chen@rokid.com on 2018/11/20.
 //
 
-#include "./collect_top.h"
-#include "../options.h"
-#include "./busy_box.h"
+#include "collect_top.h"
+#include "options.h"
+#include "busy_box.h"
 
 YODA_NS_BEGIN
 

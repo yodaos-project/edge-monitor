@@ -2,7 +2,7 @@
 // Created by ximin.chen@rokid.com on 2018/11/15.
 //
 
-#include "./options.h"
+#include "options.h"
 
 YODA_NS_BEGIN
 

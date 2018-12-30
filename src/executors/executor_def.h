@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_EXECUTOR_DEF_H
 #define YODA_SIXSIX_EXECUTOR_DEF_H
 
-#include "../job_i_executor.h"
+#include "job_i_executor.h"
 
 struct ProcessSmapInfo {
   uint32_t pid = 0;

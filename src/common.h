@@ -5,8 +5,8 @@
 #ifndef YODA_SIXSIX_COMMON_H
 #define YODA_SIXSIX_COMMON_H
 
-#include "./util.h"
-#include "./message/MessageCommon.h"
+#include "util.h"
+#include "MessageCommon.h"
 
 #ifndef ENABLE_LOG
 

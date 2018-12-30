@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_JOB_MANAGER_H
 #define YODA_SIXSIX_JOB_MANAGER_H
 
-#include "./job_def.h"
+#include "job_def.h"
 
 class WebSocketClient;
 enum class EventCode;

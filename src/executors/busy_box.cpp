@@ -2,7 +2,7 @@
 // Created by ximin.chen@rokid.com on 2018/11/22.
 //
 
-#include "./busy_box.h"
+#include "busy_box.h"
 
 #define PROCPS_BUFSIZE 1024
 #define LINE_BUF_SIZE 512

@@ -1,11 +1,11 @@
 //
 // Created by ximin.chen@rokid.com on 2018/11/19.
 //
-#include "./job_manager.h"
-#include "./options.h"
-#include "./websocket/WebSocketClient.h"
-#include "./message/MessageCommon.h"
-#include "./device_info.h"
+#include "job_manager.h"
+#include "options.h"
+#include "WebSocketClient.h"
+#include "MessageCommon.h"
+#include "device_info.h"
 
 using namespace rokid;
 
@@ -13,7 +13,7 @@ static const char *version = "v1.0.0\n";
 static const char *helpStr =
   "Usage: \n"
   "[-version]         print version\n"
-  "[-sysroot]         specific sysroot\n"
+  "[-sysroot]         set sysroot\n"
   "[-taskJson]        start task from local json path\n"
   "[-disableUpload]   set none-zero to disable upload data\n"
   "[-serverAddress]   set server address\n"
@@ -22,9 +22,13 @@ static const char *helpStr =
   "[-hardware]        mock a hardware\n"
   "[-unzipRoot]       set task files unzip path\n"
   "[-smapInterval]    set smap collect interval in millisecond"
-                      ", default is 300 * 1000ms\n"
+                      ", default is 3001000ms\n"
   "[-smapSleep]       set usleep time after collected a process in millisecond"
-                      ", default is 1 * 1000ms\n";
+                      ", default is 1000ms\n"
+  "\n\n"
+  "Hints: it is appropriate to set smapSleep to 200 for Rokid Glass\n"
+  "                            set smapSleep to 500 for A113\n"
+  "                            set smapSleep to 1000 for Rokid Kamino\n";
 
 static void parseExitCmd(int argc, char **argv) {
   if (argc >= 2) {

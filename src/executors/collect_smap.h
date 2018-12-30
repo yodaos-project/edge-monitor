@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_COLLECT_SMAP_H
 #define YODA_SIXSIX_COLLECT_SMAP_H
 
-#include "./executor_def.h"
+#include "executor_def.h"
 
 YODA_NS_BEGIN
 

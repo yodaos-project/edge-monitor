@@ -2,11 +2,11 @@
 // Created by ximin.chen@rokid.com on 2018/11/19.
 //
 
-#include "./job_runner.h"
-#include "./job_manager.h"
-#include "./executors/collect_top.h"
-#include "./executors/collect_smap.h"
-#include "./executors/child_process.h"
+#include "job_runner.h"
+#include "job_manager.h"
+#include "collect_top.h"
+#include "collect_smap.h"
+#include "child_process.h"
 
 YODA_NS_BEGIN
 

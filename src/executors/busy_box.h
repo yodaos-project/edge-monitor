@@ -5,8 +5,8 @@
 #ifndef YODA_SIXSIX_BUSY_BOX_H
 #define YODA_SIXSIX_BUSY_BOX_H
 
-#include "../common.h"
-#include "./executor_def.h"
+#include "common.h"
+#include "executor_def.h"
 
 // from https://github.com/mirror/busybox
 namespace busybox {

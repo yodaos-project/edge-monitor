@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_CHILD_PROCESS_H
 #define YODA_SIXSIX_CHILD_PROCESS_H
 
-#include "./executor_def.h"
+#include "executor_def.h"
 
 YODA_NS_BEGIN
 

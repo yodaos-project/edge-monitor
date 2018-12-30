@@ -2,9 +2,9 @@
 // Created by ximin.chen@rokid.com on 2018/11/22.
 //
 
-#include "./collect_smap.h"
-#include "./busy_box.h"
-#include "../options.h"
+#include "collect_smap.h"
+#include "busy_box.h"
+#include "options.h"
 
 YODA_NS_BEGIN
 

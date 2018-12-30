@@ -2,8 +2,8 @@
 // Created by ximin.chen@rokid.com on 2018/11/19.
 //
 
-#include "./job_i_executor.h"
-#include "./job_manager.h"
+#include "job_i_executor.h"
+#include "job_manager.h"
 
 YODA_NS_BEGIN
 

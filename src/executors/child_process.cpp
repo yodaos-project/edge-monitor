@@ -2,8 +2,8 @@
 // Created by ximin.chen@rokid.com on 2018-11-28.
 //
 
-#include "./child_process.h"
-#include "../options.h"
+#include "child_process.h"
+#include "options.h"
 
 YODA_NS_BEGIN
 

@@ -2,7 +2,7 @@
 // Created by ximin.chen@rokid.com on 2018/11/19.
 //
 
-#include "./util.h"
+#include "util.h"
 #include "util.h"
 #include <random>
 

@@ -2,12 +2,12 @@
 // Created by ximin.chen@rokid.com on 2018/11/19.
 //
 
-#include "./job_manager.h"
-#include "./options.h"
-#include "./job_runner.h"
-#include "./websocket/WebSocketClient.h"
-#include "./message/MessageCommon.h"
-#include "./device_info.h"
+#include "job_manager.h"
+#include "options.h"
+#include "job_runner.h"
+#include "WebSocketClient.h"
+#include "MessageCommon.h"
+#include "device_info.h"
 #include <rapidjson/istreamwrapper.h>
 
 YODA_NS_BEGIN

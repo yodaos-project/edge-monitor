@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_UTIL_H
 #define YODA_SIXSIX_UTIL_H
 
-#include "./def.h"
+#include "def.h"
 
 YODA_NS_BEGIN
 

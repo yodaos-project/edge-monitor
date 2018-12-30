@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_OPTIONS_H
 #define YODA_SIXSIX_OPTIONS_H
 
-#include "./common.h"
+#include "common.h"
 
 YODA_NS_BEGIN
 
