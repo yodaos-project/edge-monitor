@@ -65,6 +65,7 @@ WebSocketClient::WebSocketClient(uv_loop_t *uv, uint32_t maxBufferSize) : uv(uv)
 
 //  uv_timer_init(uv, &timerHandle);
   timerHandle.data = this;
+  uv_timer_init(uv, &timerHandle);
 }
 
 bool WebSocketClient::start(const char *address, int port, const char *path) {
@@ -178,6 +179,8 @@ void WebSocketClient::stop() {
 WebSocketClient::~WebSocketClient() {
   if (foreign_loops)
     delete[] foreign_loops;
+  uv_timer_stop(&timerHandle);
+  uv_close((uv_handle_t *)&timerHandle, nullptr);
 }
 
 bool WebSocketClient::connect() {
@@ -189,14 +192,13 @@ void WebSocketClient::reconnectTimerCb(uv_timer_t *handle) {
   printf("reconnect timer in\n");
   auto wsc = reinterpret_cast<WebSocketClient *>(handle->data);
   wsc->connect();
-  uv_timer_stop(handle);
   printf("reconnect timer out\n");
+  //uv_timer_stop(handle);
 }
 
 void WebSocketClient::reconnect() {
   printf("reconnect timer start\n");
-  uv_timer_init(uv, &timerHandle);
-  uv_timer_start(&timerHandle, WebSocketClient::reconnectTimerCb, 5000, 5000);
+  uv_timer_start(&timerHandle, WebSocketClient::reconnectTimerCb, 5000, 0);
 }
 
 void WebSocketClient::setRecvCallback(const std::function<void(shared_ptr<Caps> &)> &cb) {

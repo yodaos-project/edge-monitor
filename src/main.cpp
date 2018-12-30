@@ -25,6 +25,8 @@ static const char *helpStr =
                       ", default is 3001000ms\n"
   "[-smapSleep]       set usleep time after collected a process in millisecond"
                       ", default is 1000ms\n"
+  ", default is 1000ms\n"
+  "[-bufferCount]      set max count of websocket message list, 100 by default\n"
   "\n\n"
   "Hints: it is appropriate to set smapSleep to 200 for Rokid Glass\n"
   "                            set smapSleep to 500 for A113\n"
@@ -55,7 +57,8 @@ int main(int argc, char **argv) {
   yoda::JobManager manager;
   manager.startTaskFromCmdConf();
 
-  WebSocketClient wsc(uv_default_loop(), 5);
+  auto bufferCount = yoda::Options::get<uint32_t>("bufferCount", 100);
+  WebSocketClient wsc(uv_default_loop(), bufferCount);
 
   char path[128];
   auto serverAddress = yoda::Options::get<std::string>("serverAddress", "");
