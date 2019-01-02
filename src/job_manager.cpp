@@ -21,31 +21,26 @@ JobManager::JobManager() :
 
 }
 
-int JobManager::setWs(WebSocketClient *ws) {
-  YODA_SIXSIX_SLOG("JobManager inited");
+int JobManager::initWithWS(WebSocketClient *ws) {
+  _ws = ws;
   ws->setRecvCallback(std::bind(&JobManager::onWSMessage, this, _1));
   ws->setEventCallback(std::bind(&JobManager::onWSEvent, this, _1));
-  _ws = ws;
   _disableUpload = Options::get<uint32_t>("disableUpload", 0) != 0;
-  return 0;
-}
-
-void JobManager::startTaskFromCmdConf() {
   auto taskJsonPath = Options::get<std::string>("taskJson", "");
   if (taskJsonPath.empty()) {
-    return;
+    return 1;
   }
   std::ifstream ifs(taskJsonPath);
   rapidjson::IStreamWrapper ifsWrapper(ifs);
   if (!ifs.is_open()) {
     YODA_SIXSIX_FERROR("cannot load conf from %s", taskJsonPath.c_str());
-    return;
+    return 2;
   }
   rapidjson::Document doc;
   doc.ParseStream(ifsWrapper);
   if (doc.HasParseError()) {
     YODA_SIXSIX_FERROR("load conf error from %s", taskJsonPath.c_str());
-    return;
+    return 3;
   }
   std::shared_ptr<yoda::TaskInfo> task(new yoda::TaskInfo{0});
   task->id = doc["id"].GetInt();
@@ -59,6 +54,7 @@ void JobManager::startTaskFromCmdConf() {
     task->timestampMs = Util::getTimeMS() + task->timeoutMs;
   }
   this->startNewTask(task);
+  return 0;
 }
 
 void JobManager::addRunnerWithConf(const std::shared_ptr<JobConf> &conf,

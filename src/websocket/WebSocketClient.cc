@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <vector>
 #include "common.h"
+#include "options.h"
+#include "device_info.h"
 
 #define RX_BUFFER_BYTES (50000)
 
@@ -57,7 +59,7 @@ void WebSocketClient::sendMsg(vector<shared_ptr<Caps>> &msgs, SendCallback cb, v
     lws_callback_on_writable(web_socket);
 }
 
-WebSocketClient::WebSocketClient(uv_loop_t *uv, uint32_t maxBufferSize) : uv(uv), maxBufferSize(maxBufferSize) {
+WebSocketClient::WebSocketClient() : uv(uv_default_loop()){
   if (foreign_loops == nullptr)
     foreign_loops = new void *[1];
   foreign_loops[0] = uv;
@@ -66,6 +68,26 @@ WebSocketClient::WebSocketClient(uv_loop_t *uv, uint32_t maxBufferSize) : uv(uv)
 //  uv_timer_init(uv, &timerHandle);
   timerHandle.data = this;
   uv_timer_init(uv, &timerHandle);
+}
+
+int WebSocketClient::init() {
+  maxBufferSize = yoda::Options::get<uint32_t>("bufferCount", 100);
+  char path[128];
+  auto serverAddress = yoda::Options::get<std::string>("serverAddress", "");
+  auto serverPort = yoda::Options::get<uint32_t>("serverPort", 0);
+  auto mockSN = yoda::Options::get<std::string>("sn", "");
+  auto mockHardware = yoda::Options::get<std::string>("hardware", "");
+  std::string sn = mockSN.empty() ? yoda::DeviceInfo::sn : mockSN;
+  std::string hardware = mockHardware.empty() ?
+    yoda::DeviceInfo::hardware : mockHardware;
+  sprintf(path, "/websocket/%s/%s", sn.c_str(), hardware.c_str());
+  YODA_SIXSIX_FLOG("ws: [%s:%d%s]", serverAddress.c_str(), serverPort, path);
+  if (!serverAddress.empty() && serverPort != 0) {
+    this->start(serverAddress.c_str(), serverPort, path);
+    return 0;
+  } else {
+    return 1;
+  }
 }
 
 bool WebSocketClient::start(const char *address, int port, const char *path) {
@@ -174,13 +196,13 @@ int WebSocketClient::callback_ws(struct lws *wsi, enum lws_callback_reasons reas
 
 void WebSocketClient::stop() {
   lws_context_destroy(context);
+  uv_timer_stop(&timerHandle);
+  uv_close((uv_handle_t *)&timerHandle, nullptr);
 }
 
 WebSocketClient::~WebSocketClient() {
   if (foreign_loops)
     delete[] foreign_loops;
-  uv_timer_stop(&timerHandle);
-  uv_close((uv_handle_t *)&timerHandle, nullptr);
 }
 
 bool WebSocketClient::connect() {

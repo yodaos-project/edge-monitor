@@ -64,9 +64,11 @@ private:
     bool connect();
 
 public:
-    WebSocketClient(uv_loop_t *uv, uint32_t maxBufferSize);
+    WebSocketClient();
 
     ~WebSocketClient();
+
+    int32_t init();
 
     void sendMsg(shared_ptr<Caps> &msg, SendCallback cb = nullptr, void *cbData = nullptr);
 

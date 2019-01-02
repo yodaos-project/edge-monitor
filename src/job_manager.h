@@ -18,12 +18,10 @@ class JobManager {
 public:
   JobManager();
 
-  int setWs(WebSocketClient *ws);
+  int initWithWS(WebSocketClient *ws);
 
   void addRunnerWithConf(const std::shared_ptr<JobConf> &conf,
                          bool autoRun = false);
-
-  void startTaskFromCmdConf();
 
   void startNewTask(const std::shared_ptr<TaskInfo> &task);
 

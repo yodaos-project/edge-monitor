@@ -9,7 +9,31 @@
 
 using namespace rokid;
 
-static const char *version = "v1.0.0\n";
+static void parseExitCmd(int argc, char **argv);
+static void makeUVHappy();
+
+int main(int argc, char **argv) {
+  setpriority(PRIO_PGRP, 0, 19);
+  parseExitCmd(argc, argv);
+  YODA_SIXSIX_SLOG("starting app");
+  yoda::DeviceInfo::init();
+  yoda::Options::parseCmdLine(argc, argv);
+
+  WebSocketClient wsc;
+  wsc.init();
+  yoda::JobManager manager;
+  manager.initWithWS(&wsc);
+
+  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+
+  wsc.stop();
+
+  makeUVHappy();
+
+  YODA_SIXSIX_SLOG("all tasks have been completed, app exit");
+  return 0;
+}
+
 static const char *helpStr =
   "Usage: \n"
   "[-version]         print version\n"
@@ -25,64 +49,34 @@ static const char *helpStr =
                       ", default is 3001000ms\n"
   "[-smapSleep]       set usleep time after collected a process in millisecond"
                       ", default is 1000ms\n"
-  ", default is 1000ms\n"
   "[-bufferCount]      set max count of websocket message list, 100 by default\n"
   "\n\n"
-  "Hints: it is appropriate to set smapSleep to 200 for Rokid Glass\n"
-  "                            set smapSleep to 500 for A113\n"
-  "                            set smapSleep to 1000 for Rokid Kamino\n";
+  "Hints: it is recommend to set smapSleep to 200 for Rokid Glass\n"
+  "                          set smapSleep to 500 for A113\n"
+  "                          set smapSleep to 1000 for Rokid Kamino\n";
 
-static void parseExitCmd(int argc, char **argv) {
+void parseExitCmd(int argc, char **argv) {
   if (argc >= 2) {
     const char *print = nullptr;
-    if (strcmp(argv[1], "-help") == 0) {
+    if (strcmp(argv[1], "-help") == 0 || strcmp(argv[1], "-h") == 0) {
       print = helpStr;
     } else if (strcmp(argv[1], "-version") == 0) {
       print = version;
     }
     if (print) {
-      printf("%s", print);
+      printf("%s\n", print);
       exit(0);
     }
   }
 }
 
-int main(int argc, char **argv) {
-  setpriority(PRIO_PGRP, 0, 19);
-  parseExitCmd(argc, argv);
-  YODA_SIXSIX_SLOG("starting app");
-  yoda::DeviceInfo::init();
-  yoda::Options::parseCmdLine(argc, argv);
-
-  yoda::JobManager manager;
-  manager.startTaskFromCmdConf();
-
-  auto bufferCount = yoda::Options::get<uint32_t>("bufferCount", 100);
-  WebSocketClient wsc(uv_default_loop(), bufferCount);
-
-  char path[128];
-  auto serverAddress = yoda::Options::get<std::string>("serverAddress", "");
-  auto serverPort = yoda::Options::get<uint32_t>("serverPort", 0);
-  auto mockSN = yoda::Options::get<std::string>("sn", "");
-  auto mockHardware = yoda::Options::get<std::string>("hardware", "");
-  std::string sn = mockSN.empty() ? yoda::DeviceInfo::sn : mockSN;
-  std::string hardware = mockHardware.empty() ?
-    yoda::DeviceInfo::hardware : mockHardware;
-  sprintf(path, "/websocket/%s/%s", sn.c_str(), hardware.c_str());
-  if (serverAddress.empty() || serverPort == 0) {
-    YODA_SIXSIX_FERROR("ws connect error, server: %s, port: %d",
-                       serverAddress.c_str(), serverPort);
-  } else {
-    YODA_SIXSIX_FLOG("ws connect to %s:%d%s",
-                     serverAddress.c_str(), serverPort, path);
-    manager.setWs(&wsc);
-    wsc.start(serverAddress.c_str(), serverPort, path);
-  }
-
+void makeUVHappy() {
+  uv_walk(uv_default_loop(), [](uv_handle_t* handle, void* arg) {
+    if (!uv_is_closing(handle)) {
+      uv_close(handle, NULL);
+    }
+  }, nullptr);
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
-  int32_t r = uv_loop_close(uv_default_loop());
-  YODA_SIXSIX_FASSERT(r == 0, "uv loop close error %s", uv_err_name(r));
-  wsc.stop();
-  YODA_SIXSIX_SLOG("app finished");
-  return 0;
+  int r = uv_loop_close(uv_default_loop());
+  YODA_SIXSIX_FASSERT(r == 0, "uv close error: %s", uv_err_name(r));
 }
