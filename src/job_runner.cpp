@@ -7,6 +7,7 @@
 #include "collect_top.h"
 #include "collect_smap.h"
 #include "child_process.h"
+#include "crash_reporter.h"
 
 YODA_NS_BEGIN
 
@@ -38,6 +39,9 @@ int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
       break;
     case JobType::SPAWN_CHILD:
       _executor = std::shared_ptr<IJobExecutor>(new ChildProcess(conf));
+      break;
+    case JobType::CRASH_REPORTER:
+      _executor = std::shared_ptr<IJobExecutor>(new CrashReporter());
       break;
     default:
       YODA_SIXSIX_FASSERT(0, "unknown job type %d", conf->type);

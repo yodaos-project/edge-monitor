@@ -1,0 +1,14 @@
+{
+  "serverPort": 9997,
+  "serverAddress": "cd-perf-2",
+  "sysroot": "./sample",
+  "coredumpDir": "/data",
+  "task" :{
+    "id": 123,
+    "type": "type-001",
+    "shellId": 456,
+    "shell": "echo 'hello world'",
+    "shellType": "shellType-001",
+    "timestamp": 0
+  }
+}

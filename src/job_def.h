@@ -43,6 +43,7 @@ typedef enum class JobType {
   COLLECT_TOP = 0,
   COLLECT_SMAP = 1,
   SPAWN_CHILD = 2,
+  CRASH_REPORTER = 3,
 } JobType;
 
 typedef enum class JobState {

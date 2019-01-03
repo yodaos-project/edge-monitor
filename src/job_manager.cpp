@@ -26,29 +26,31 @@ int JobManager::initWithWS(WebSocketClient *ws) {
   ws->setRecvCallback(std::bind(&JobManager::onWSMessage, this, _1));
   ws->setEventCallback(std::bind(&JobManager::onWSEvent, this, _1));
   _disableUpload = Options::get<uint32_t>("disableUpload", 0) != 0;
-  auto taskJsonPath = Options::get<std::string>("taskJson", "");
-  if (taskJsonPath.empty()) {
-    return 1;
+  std::string confpath = Options::get<std::string>("conf", "");
+  if (confpath.empty()) {
+    return 0;
   }
-  std::ifstream ifs(taskJsonPath);
+  std::ifstream ifs(confpath);
+  YODA_SIXSIX_FASSERT(ifs.is_open(),
+                      "cannot load conf from %s",
+                      confpath.c_str());
   rapidjson::IStreamWrapper ifsWrapper(ifs);
-  if (!ifs.is_open()) {
-    YODA_SIXSIX_FERROR("cannot load conf from %s", taskJsonPath.c_str());
-    return 2;
-  }
   rapidjson::Document doc;
   doc.ParseStream(ifsWrapper);
-  if (doc.HasParseError()) {
-    YODA_SIXSIX_FERROR("load conf error from %s", taskJsonPath.c_str());
-    return 3;
+  YODA_SIXSIX_FASSERT(!doc.HasParseError(),
+                      "conf parse error %s",
+                      confpath.c_str());
+  if (!doc.HasMember("task")) {
+    return 0;
   }
+  auto &obj = doc["task"];
   std::shared_ptr<yoda::TaskInfo> task(new yoda::TaskInfo{0});
-  task->id = doc["id"].GetInt();
-  task->type = std::make_shared<std::string>(doc["type"].GetString());
-  task->shellId = doc["shellId"].GetUint();
-  task->shell = std::make_shared<std::string>(doc["shell"].GetString());
-  task->shellType = std::make_shared<std::string>(doc["shellType"].GetString());
-  task->timestampMs = doc["timestamp"].GetInt64();
+  task->id = obj["id"].GetInt();
+  task->type = std::make_shared<std::string>(obj["type"].GetString());
+  task->shellId = obj["shellId"].GetUint();
+  task->shell = std::make_shared<std::string>(obj["shell"].GetString());
+  task->shellType = std::make_shared<std::string>(obj["shellType"].GetString());
+  task->timestampMs = obj["timestamp"].GetInt64();
   if (task->timestampMs == 0) {
     task->timeoutMs = 86400 * 1000;
     task->timestampMs = Util::getTimeMS() + task->timeoutMs;
@@ -271,6 +273,16 @@ void JobManager::manuallyStartJobs(
   smapConf->interval = Options::get<uint64_t>("smapInterval", 300 * 1000);
   YODA_SIXSIX_FLOG("smap interval %" PRIu64 "ms", smapConf->interval);
   this->addRunnerWithConf(smapConf, true);
+
+  std::shared_ptr<JobConf> crashReporterConf(new JobConf);
+  crashReporterConf->task = _task;
+  crashReporterConf->type = JobType::CRASH_REPORTER;
+  crashReporterConf->enable = true;
+  crashReporterConf->isRepeat = true;
+  crashReporterConf->loopCount = 0;
+  crashReporterConf->timeout = 1000;
+  crashReporterConf->interval = 1000;
+  this->addRunnerWithConf(crashReporterConf, true);
 }
 
 void JobManager::sendCollectData(std::shared_ptr<Caps> &caps, const char *hint){

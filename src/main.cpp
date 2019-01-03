@@ -49,7 +49,8 @@ static const char *helpStr =
                       ", default is 3001000ms\n"
   "[-smapSleep]       set usleep time after collected a process in millisecond"
                       ", default is 1000ms\n"
-  "[-bufferCount]      set max count of websocket message list, 100 by default\n"
+  "[-bufferCount]     set max count of websocket message list, 100 by default\n"
+  "[-coredumpDir]     set coredump output directory, use commas to separate\n"
   "\n\n"
   "Hints: it is recommend to set smapSleep to 200 for Rokid Glass\n"
   "                          set smapSleep to 500 for A113\n"
@@ -71,9 +72,9 @@ void parseExitCmd(int argc, char **argv) {
 }
 
 void makeUVHappy() {
-  uv_walk(uv_default_loop(), [](uv_handle_t* handle, void* arg) {
+  uv_walk(uv_default_loop(), [](uv_handle_t *handle, void *) {
     if (!uv_is_closing(handle)) {
-      uv_close(handle, NULL);
+      uv_close(handle, nullptr);
     }
   }, nullptr);
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);

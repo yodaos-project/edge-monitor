@@ -28,6 +28,9 @@ public:
     return p;
   }
 
+private:
+  static void parseConf(const char *confpath);
+
   static std::map<std::string, std::string> cmdArgs;
 };
 
