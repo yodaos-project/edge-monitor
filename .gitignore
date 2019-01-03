@@ -9,3 +9,4 @@ yoda-sixsix.build/
 xcode-cmake/
 .vscode/
 *.swp
+*.core

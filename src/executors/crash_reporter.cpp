@@ -17,11 +17,11 @@ std::vector<std::string> coredumpPrefix = {
 CrashReporter::CrashReporter() :
   IMultiThreadExecutor("CrashReporter"),
   _scanDir(),
-  _postURL() {
+  _uploadURL() {
   auto serverAddress = Options::get<std::string>("serverAddress", "");
   auto serverPort = Options::get<std::string>("serverPort", "0");
-  _postURL = serverAddress + ":" + serverPort + "/upload";
-  YODA_SIXSIX_FLOG("coredump upload: %s", _postURL.c_str());
+  _uploadURL = serverAddress + ":" + serverPort + "/upload";
+  YODA_SIXSIX_FLOG("coredump upload: %s", _uploadURL.c_str());
   auto sysroot = Options::get<std::string>("sysroot", "");
   auto coredumpDir = Options::get<std::string>("coredumpDir", "");
   if (!coredumpDir.empty()) {
@@ -57,7 +57,7 @@ void CrashReporter::compressAndUpload(const std::string &dir,
     return;
   }
   do {
-    if (zip_entry_open(zip, filepath) != 0) {
+    if (zip_entry_open(zip, filename.c_str()) != 0) {
       YODA_SIXSIX_FERROR("open zip entry %s error", zippath);
       break;
     }
@@ -87,20 +87,17 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   ifs.read(&buf[0], size);
   ifs.close();
 
-  RestClient::Connection *conn = new RestClient::Connection(_postURL);
+  RestClient::Connection *conn = new RestClient::Connection(_uploadURL);
   conn->AppendHeader("Content-Type", "application/zip");
   conn->AppendHeader("Content-Length", std::to_string(size));
-  // RestClient::Response res = conn->post("/upload", buf);
-  RestClient::Response res;
-  res.code = 200;
-  res.body = "hello world";
-  if (res.code != 200) {
+  RestClient::Response res = conn->post("/upload", buf);
+  if (200 <= res.code && res.code < 300) {
     YODA_SIXSIX_FERROR(
       "upload error: %s %d %s", zippath, res.code, res.body.c_str()
     );
   } else {
     YODA_SIXSIX_FLOG("uploaded %s", filepath);
-    // unlink(filepath);
+    unlink(filepath);
   }
   unlink(zippath);
 }
