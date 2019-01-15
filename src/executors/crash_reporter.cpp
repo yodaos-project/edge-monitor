@@ -7,16 +7,17 @@
 #include "restclient-cpp/restclient.h"
 #include "restclient-cpp/connection.h"
 #include "options.h"
+#include "device_info.h"
 
 YODA_NS_BEGIN
 
-std::vector<std::string> coredumpPrefix = {
-  "coredump",
+std::vector<std::string> coredumpSuffix = {
+  "core",
 };
 
 CrashReporter::CrashReporter() :
   IMultiThreadExecutor("CrashReporter"),
-  _scanDir(),
+  _scanDir({"/data"}),
   _uploadURL() {
   auto serverAddress = Options::get<std::string>("serverAddress", "");
   auto serverPort = Options::get<std::string>("serverPort", "0");
@@ -35,9 +36,16 @@ CrashReporter::~CrashReporter() {
 void CrashReporter::doExecute(uv_work_t *) {
   for (auto &dir : _scanDir) {
     Util::scanDir(dir, [this, &dir](const char *filename) {
-      for (auto &prefix : coredumpPrefix) {
-        if (strncmp(prefix.c_str(), filename, prefix.size()) == 0) {
+      size_t namelength = strlen(filename);
+      for (auto &suffix : coredumpSuffix) {
+        size_t suffixlen = suffix.size();
+        if (namelength < suffixlen) {
+          continue;
+        }
+        const char *fileSuffix = filename + namelength - suffixlen;
+        if (strcmp(fileSuffix, suffix.c_str()) == 0) {
           this->compressAndUpload(dir, filename);
+          sleep(1);
         }
       }
     });
@@ -87,19 +95,47 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   ifs.read(&buf[0], size);
   ifs.close();
 
+  static const int32_t fieldsCount = 6;
+  char coredumpFields[fieldsCount][64] = { '\0' };
+  int tokCount = 0;
+  const char *sep = ".";
+  char *p = const_cast<char*>(filename.c_str());
+  p = strtok(p, sep);
+  while (p && tokCount < fieldsCount) {
+    strcpy(coredumpFields[tokCount++], p);
+    p = strtok(nullptr, sep);
+  }
+  char *prefix = coredumpFields[0];
+  char *binName = coredumpFields[1];
+  char *reportTime = coredumpFields[2];
+  char *appPid = coredumpFields[3];
+  char *unknownField = coredumpFields[4];
+  char *suffix = coredumpFields[5];
+  if (tokCount != fieldsCount) {
+    strcpy(binName, "unknownApp");
+    strcpy(reportTime, std::to_string(time(nullptr)).c_str());
+    strcpy(appPid, "0");
+  }
+
   RestClient::Connection *conn = new RestClient::Connection(_uploadURL);
   conn->AppendHeader("Content-Type", "application/zip");
   conn->AppendHeader("Content-Length", std::to_string(size));
+  conn->AppendHeader("Device-SN", DeviceInfo::sn);
+  conn->AppendHeader("Report-Time", reportTime);
+  conn->AppendHeader("Report-Type", std::to_string(0));
+  conn->AppendHeader("APP-Fullname", binName);
+  conn->AppendHeader("APP-PID", appPid);
   RestClient::Response res = conn->post("/upload", buf);
   if (200 <= res.code && res.code < 300) {
+    YODA_SIXSIX_FLOG("uploaded %s", filepath);
+    unlink(filepath);
+  } else {
     YODA_SIXSIX_FERROR(
       "upload error: %s %d %s", zippath, res.code, res.body.c_str()
     );
-  } else {
-    YODA_SIXSIX_FLOG("uploaded %s", filepath);
-    unlink(filepath);
   }
   unlink(zippath);
+  delete conn;
 }
 
 void CrashReporter::afterExecute(uv_work_t *, int status) {

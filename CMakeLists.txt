@@ -28,4 +28,4 @@ aux_source_directory(src/websocket WEBSOCKETCLIENT)
 aux_source_directory(src/message CAPS_MESSAGE)
 
 add_executable(yoda-sixsix ${SRC_LIST} ${EXECUTOR_LIST} ${WEBSOCKETCLIENT} ${CAPS_MESSAGE})
-target_link_libraries(yoda-sixsix uv libwebsockets caps zip restclient-cpp)
+target_link_libraries(yoda-sixsix uv libwebsockets caps zip restclient-cpp curl)
