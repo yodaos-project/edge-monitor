@@ -19,7 +19,7 @@ include_directories(./src/websocket/)
 add_subdirectory(deps/libuv-cmake)
 add_subdirectory(deps/libwebsockets)
 add_subdirectory(deps/caps)
-add_subdirectory(deps/zip)
+add_subdirectory(deps/mini-zip)
 add_subdirectory(deps/restclient-cpp)
 
 aux_source_directory(src SRC_LIST)
