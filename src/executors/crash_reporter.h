@@ -24,7 +24,7 @@ protected:
   void compressAndUpload(const std::string &dir, const std::string &filename);
 
   std::vector<std::string> _scanDir;
-  std::string _postURL;
+  std::string _uploadURL;
 };
 
 YODA_NS_END
