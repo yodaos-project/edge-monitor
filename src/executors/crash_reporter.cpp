@@ -9,6 +9,8 @@
 #include "options.h"
 #include "device_info.h"
 
+#define UPLOAD_PATH "/server/coredump/put"
+
 YODA_NS_BEGIN
 
 std::vector<std::string> coredumpSuffix = {
@@ -19,9 +21,7 @@ CrashReporter::CrashReporter() :
   IMultiThreadExecutor("CrashReporter"),
   _scanDir({"/data"}),
   _uploadURL() {
-  auto serverAddress = Options::get<std::string>("serverAddress", "");
-  auto serverPort = Options::get<std::string>("serverPort", "0");
-  _uploadURL = serverAddress + ":" + serverPort + "/upload";
+  _uploadURL = Options::get<std::string>("uploadUrl", "");
   YODA_SIXSIX_FLOG("coredump upload: %s", _uploadURL.c_str());
   auto sysroot = Options::get<std::string>("sysroot", "");
   auto coredumpDir = Options::get<std::string>("coredumpDir", "");
@@ -82,21 +82,26 @@ void CrashReporter::compressAndUpload(const std::string &dir,
     return;
   }
   zip_close(zip);
-  std::ifstream ifs(zippath, std::ios::binary);
-  if (!ifs.is_open()) {
+  FILE *zipfile = fopen(zippath, "r");
+  if (!zipfile) {
     YODA_SIXSIX_FERROR("open zip file %s error", zippath);
     unlink(zippath);
     return;
   }
-  ifs.seekg(0, std::ios::end);
-  size_t size = ifs.tellg();
+  fseek(zipfile, 0, SEEK_END);
+  long size = ftell(zipfile);
   std::string buf(size, '\0');
-  ifs.seekg(0);
-  ifs.read(&buf[0], size);
-  ifs.close();
+  fseek(zipfile, 0, SEEK_SET);
+  int r = fread(&buf[0], 1, size, zipfile);
+  fclose(zipfile);
+  unlink(zippath);
+  if (r != size) {
+    YODA_SIXSIX_FERROR("read zip file %s error", zippath);
+    return;
+  }
 
   static const int32_t fieldsCount = 6;
-  char coredumpFields[fieldsCount][64] = { '\0' };
+  char coredumpFields[fieldsCount][64] = {'\0'};
   int tokCount = 0;
   const char *sep = ".";
   char *p = const_cast<char*>(filename.c_str());
@@ -125,16 +130,15 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   conn->AppendHeader("Report-Type", std::to_string(0));
   conn->AppendHeader("APP-Fullname", binName);
   conn->AppendHeader("APP-PID", appPid);
-  RestClient::Response res = conn->post("/upload", buf);
+  RestClient::Response res = conn->post(UPLOAD_PATH, buf);
   if (200 <= res.code && res.code < 300) {
-    YODA_SIXSIX_FLOG("uploaded %s", filepath);
+    YODA_SIXSIX_FLOG("uploaded %s %s", filepath, res.body.c_str());
     unlink(filepath);
   } else {
     YODA_SIXSIX_FERROR(
       "upload error: %s %d %s", zippath, res.code, res.body.c_str()
     );
   }
-  unlink(zippath);
   delete conn;
 }
 
