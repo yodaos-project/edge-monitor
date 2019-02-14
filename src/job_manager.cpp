@@ -281,7 +281,7 @@ void JobManager::manuallyStartJobs(
   crashReporterConf->isRepeat = true;
   crashReporterConf->loopCount = 0;
   crashReporterConf->timeout = 1000;
-  crashReporterConf->interval = 1000;
+  crashReporterConf->interval = 60 * 1000;
   this->addRunnerWithConf(crashReporterConf, true);
 }
 

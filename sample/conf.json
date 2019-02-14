@@ -1,6 +1,7 @@
 {
   "serverPort": 9997,
-  "serverAddress": "cd-perf-2",
+  "uploadUrl": "http://perf.rokid-inc.com:9999",
+  "serverAddress": "perf.rokid-inc.com",
   "sysroot": "./sample",
   "coredumpDir": "/data",
   "task" :{
