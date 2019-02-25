@@ -52,7 +52,7 @@ int JobManager::initWithWS(WebSocketClient *ws) {
   task->shellType = std::make_shared<std::string>(obj["shellType"].GetString());
   task->timestampMs = obj["timestamp"].GetInt64();
   if (task->timestampMs == 0) {
-    task->timeoutMs = 86400 * 1000;
+    task->timeoutMs = (time_t) 30 * 86400 * 1000; // run a month by default
     task->timestampMs = Util::getTimeMS() + task->timeoutMs;
   }
   this->startNewTask(task);
@@ -232,6 +232,8 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
   UV_CB_WRAP1(_taskTimer, cb2, JobManager, onTaskTimeout, uv_timer_t);
   uv_timer_init(uv_default_loop(), _taskTimer);
   uv_timer_start(_taskTimer, cb2, (uint64_t) _task->timeoutMs, 0);
+  float timeoutHours = (float) _task->timeoutMs / 1000 / 3600;
+  YODA_SIXSIX_FLOG("task timeout after %.2f hours", timeoutHours);
 }
 
 void JobManager::onTaskTimeout(uv_timer_t *) {
