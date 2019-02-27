@@ -82,6 +82,8 @@ void CrashReporter::compressAndUpload(const std::string &dir,
     return;
   }
   zip_close(zip);
+  YODA_SIXSIX_FLOG("zip file path: %s", zippath);
+  YODA_SIXSIX_FLOG("coredump file path: %s", filepath);
   FILE *zipfile = fopen(zippath, "r");
   if (!zipfile) {
     YODA_SIXSIX_FERROR("open zip file %s error", zippath);
@@ -92,7 +94,7 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   long size = ftell(zipfile);
   std::string buf(size, '\0');
   fseek(zipfile, 0, SEEK_SET);
-  int r = fread(&buf[0], 1, size, zipfile);
+  size_t r = fread(&buf[0], 1, size, zipfile);
   fclose(zipfile);
   unlink(zippath);
   if (r != size) {
@@ -100,7 +102,8 @@ void CrashReporter::compressAndUpload(const std::string &dir,
     return;
   }
 
-  static const int32_t fieldsCount = 6;
+  YODA_SIXSIX_FLOG("zip size: %ld, read size: %zu", size, r);
+  static const int32_t fieldsCount = 5;
   char coredumpFields[fieldsCount][64] = {'\0'};
   int tokCount = 0;
   const char *sep = ".";
@@ -110,18 +113,17 @@ void CrashReporter::compressAndUpload(const std::string &dir,
     strcpy(coredumpFields[tokCount++], p);
     p = strtok(nullptr, sep);
   }
-  char *prefix = coredumpFields[0];
-  char *binName = coredumpFields[1];
-  char *reportTime = coredumpFields[2];
-  char *appPid = coredumpFields[3];
-  char *unknownField = coredumpFields[4];
-  char *suffix = coredumpFields[5];
+  char *binName = coredumpFields[0];
+  char *reportTime = coredumpFields[1];
+  char *appPid = coredumpFields[2];
+  char *unknownField = coredumpFields[3];
+  char *suffix = coredumpFields[4];
   if (tokCount != fieldsCount) {
     strcpy(binName, "unknownApp");
     strcpy(reportTime, std::to_string(time(nullptr)).c_str());
     strcpy(appPid, "0");
   }
-
+  YODA_SIXSIX_FLOG("%s %s %s %s %s\n", binName, reportTime, appPid, unknownField, suffix);
   RestClient::Connection *conn = new RestClient::Connection(_uploadURL);
   conn->AppendHeader("Content-Type", "application/zip");
   conn->AppendHeader("Content-Length", std::to_string(size));
