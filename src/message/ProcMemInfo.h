@@ -6,7 +6,7 @@
 #include "caps.h"
 namespace rokid {
   /*
-   * 单个进程内存信息
+   * process memory info
    */
   class ProcMemInfo {
   private:
@@ -23,103 +23,103 @@ namespace rokid {
       return std::make_shared<ProcMemInfo>();
     }
     /*
-    * getter 进程id
+    * getter process id
     */
     inline uint32_t getPid() const {
       return pid;
     }
     /*
-    * getter 进程名
+    * getter process command line
     */
     inline const std::shared_ptr<std::string> getFullName() const {
       return fullName;
     }
     /*
-    * getter shared_clean
+    * getter shared clean memory
     */
     inline int64_t getSharedClean() const {
       return sharedClean;
     }
     /*
-    * getter shared_dirty
+    * getter shared dirty memory
     */
     inline int64_t getSharedDirty() const {
       return sharedDirty;
     }
     /*
-    * getter private_clean
+    * getter private clean memory
     */
     inline int64_t getPrivateClean() const {
       return privateClean;
     }
     /*
-    * getter private_dirty
+    * getter private dirty memory
     */
     inline int64_t getPrivateDirty() const {
       return privateDirty;
     }
     /*
-    * getter pss
+    * getter proportional set size
     */
     inline int64_t getPss() const {
       return pss;
     }
     /*
-    * getter rss
+    * getter resident set size
     */
     inline int64_t getRss() const {
       return rss;
     }
     /*
-    * setter 进程id
+    * setter process id
     */
     inline void setPid(uint32_t v) {
       pid = v;
     }
     /*
-    * setter 进程名
+    * setter process command line
     */
     inline void setFullName(const std::shared_ptr<std::string> &v) {
       fullName = v;
     }
     /*
-    * setter 进程名
+    * setter process command line
     */
     inline void setFullName(const char* v) {
       if (!fullName)    fullName = std::make_shared<std::string>();  *fullName = v;
     }
     /*
-    * setter shared_clean
+    * setter shared clean memory
     */
     inline void setSharedClean(int64_t v) {
       sharedClean = v;
     }
     /*
-    * setter shared_dirty
+    * setter shared dirty memory
     */
     inline void setSharedDirty(int64_t v) {
       sharedDirty = v;
     }
     /*
-    * setter private_clean
+    * setter private clean memory
     */
     inline void setPrivateClean(int64_t v) {
       privateClean = v;
     }
     /*
-    * setter private_dirty
+    * setter private dirty memory
     */
     inline void setPrivateDirty(int64_t v) {
       privateDirty = v;
     }
     /*
-    * setter pss
+    * setter proportional set size
     */
     inline void setPss(int64_t v) {
       pss = v;
     }
     /*
-    * setter rss
+    * setter resident set size
     */
     inline void setRss(int64_t v) {
       rss = v;

@@ -321,6 +321,16 @@
           "Comment": "设备版本"
         },
         {
+          "Name": "vspVersion",
+          "Type": "string",
+          "Comment": "VSP 版本"
+        },
+        {
+          "Name": "turenVersion",
+          "Type": "string",
+          "Comment": "土人版本"
+        },
+        {
           "Name": "status",
           "Type": "int32",
           "Comment": "设备状态：0-idle，1-exe"

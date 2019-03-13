@@ -80,7 +80,10 @@ int32_t MemInfos::deserialize(void* buf, uint32_t bufSize) {
   int32_t arraySizeProcMemInfo = 0;
   int32_t rRstProcMemInfo = caps->read(arraySizeProcMemInfo);
   if (rRstProcMemInfo != CAPS_SUCCESS) return rRstProcMemInfo;
-  procMemInfo->clear();
+  if (!procMemInfo)
+    procMemInfo = std::make_shared<std::vector<ProcMemInfo>>();
+  else
+    procMemInfo->clear();
   for(int32_t i = 0; i < arraySizeProcMemInfo;++i) {
     std::shared_ptr<Caps> c;
     if (caps->read(c) == CAPS_SUCCESS && c) {
@@ -106,7 +109,10 @@ int32_t MemInfos::deserialize(std::shared_ptr<Caps> &caps) {
   int32_t arraySizeProcMemInfo = 0;
   int32_t rRstProcMemInfo = caps->read(arraySizeProcMemInfo);
   if (rRstProcMemInfo != CAPS_SUCCESS) return rRstProcMemInfo;
-  procMemInfo->clear();
+  if (!procMemInfo)
+    procMemInfo = std::make_shared<std::vector<ProcMemInfo>>();
+  else
+    procMemInfo->clear();
   for(int32_t i = 0; i < arraySizeProcMemInfo;++i) {
     std::shared_ptr<Caps> c;
     if (caps->read(c) == CAPS_SUCCESS && c) {
@@ -165,7 +171,10 @@ int32_t MemInfos::deserializeForCapsObj(std::shared_ptr<Caps> &caps) {
   int32_t arraySizeProcMemInfo = 0;
   int32_t rRstProcMemInfo = caps->read(arraySizeProcMemInfo);
   if (rRstProcMemInfo != CAPS_SUCCESS) return rRstProcMemInfo;
-  procMemInfo->clear();
+  if (!procMemInfo)
+    procMemInfo = std::make_shared<std::vector<ProcMemInfo>>();
+  else
+    procMemInfo->clear();
   for(int32_t i = 0; i < arraySizeProcMemInfo;++i) {
     std::shared_ptr<Caps> c;
     if (caps->read(c) == CAPS_SUCCESS && c) {

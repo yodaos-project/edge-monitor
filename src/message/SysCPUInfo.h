@@ -8,7 +8,7 @@
 #include "SysCPUCoreInfo.h"
 namespace rokid {
   /*
-   * 系统CPU信息
+   * system cpu info
    */
   class SysCPUInfo {
   private:
@@ -19,25 +19,25 @@ namespace rokid {
       return std::make_shared<SysCPUInfo>();
     }
     /*
-    * getter 总cpu信息
+    * getter cpu info
     */
     inline const std::shared_ptr<SysCPUCoreInfo> & getTotal() const {
       return total;
     }
     /*
-    * getter CPU核心信息
+    * getter cpu info per core
     */
     inline const std::shared_ptr<std::vector<SysCPUCoreInfo>> getCores() const {
       return cores;
     }
     /*
-    * setter 总cpu信息
+    * setter cpu info
     */
     inline void setTotal(const std::shared_ptr<SysCPUCoreInfo> &v) {
       total = v;
     }
     /*
-    * setter CPU核心信息
+    * setter cpu info per core
     */
     inline void setCores(const std::shared_ptr<std::vector<SysCPUCoreInfo>> &v) {
       this->cores = v;

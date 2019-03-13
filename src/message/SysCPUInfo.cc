@@ -82,7 +82,10 @@ int32_t SysCPUInfo::deserialize(void* buf, uint32_t bufSize) {
   int32_t arraySizeCores = 0;
   int32_t rRstCores = caps->read(arraySizeCores);
   if (rRstCores != CAPS_SUCCESS) return rRstCores;
-  cores->clear();
+  if (!cores)
+    cores = std::make_shared<std::vector<SysCPUCoreInfo>>();
+  else
+    cores->clear();
   for(int32_t i = 0; i < arraySizeCores;++i) {
     std::shared_ptr<Caps> c;
     if (caps->read(c) == CAPS_SUCCESS && c) {
@@ -106,7 +109,10 @@ int32_t SysCPUInfo::deserialize(std::shared_ptr<Caps> &caps) {
   int32_t arraySizeCores = 0;
   int32_t rRstCores = caps->read(arraySizeCores);
   if (rRstCores != CAPS_SUCCESS) return rRstCores;
-  cores->clear();
+  if (!cores)
+    cores = std::make_shared<std::vector<SysCPUCoreInfo>>();
+  else
+    cores->clear();
   for(int32_t i = 0; i < arraySizeCores;++i) {
     std::shared_ptr<Caps> c;
     if (caps->read(c) == CAPS_SUCCESS && c) {
@@ -161,7 +167,10 @@ int32_t SysCPUInfo::deserializeForCapsObj(std::shared_ptr<Caps> &caps) {
   int32_t arraySizeCores = 0;
   int32_t rRstCores = caps->read(arraySizeCores);
   if (rRstCores != CAPS_SUCCESS) return rRstCores;
-  cores->clear();
+  if (!cores)
+    cores = std::make_shared<std::vector<SysCPUCoreInfo>>();
+  else
+    cores->clear();
   for(int32_t i = 0; i < arraySizeCores;++i) {
     std::shared_ptr<Caps> c;
     if (caps->read(c) == CAPS_SUCCESS && c) {

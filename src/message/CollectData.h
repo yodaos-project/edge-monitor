@@ -8,7 +8,7 @@
 #include "MemInfos.h"
 namespace rokid {
   /*
-   * 采集到的信息
+   * collected data
    */
   class CollectData {
   private:
@@ -20,37 +20,37 @@ namespace rokid {
       return std::make_shared<CollectData>();
     }
     /*
-    * getter CPU信息，包括系统CPU和进程CPU
+    * getter cpu infos
     */
     inline const std::shared_ptr<CPUInfos> & getCpu() const {
       return cpu;
     }
     /*
-    * getter 内存信息，包括系统内存和进程内存
+    * getter memory infos
     */
     inline const std::shared_ptr<MemInfos> & getMem() const {
       return mem;
     }
     /*
-    * getter 采集时间
+    * getter collect time
     */
     inline int64_t getTimestamp() const {
       return timestamp;
     }
     /*
-    * setter CPU信息，包括系统CPU和进程CPU
+    * setter cpu infos
     */
     inline void setCpu(const std::shared_ptr<CPUInfos> &v) {
       cpu = v;
     }
     /*
-    * setter 内存信息，包括系统内存和进程内存
+    * setter memory infos
     */
     inline void setMem(const std::shared_ptr<MemInfos> &v) {
       mem = v;
     }
     /*
-    * setter 采集时间
+    * setter collect time
     */
     inline void setTimestamp(int64_t v) {
       timestamp = v;

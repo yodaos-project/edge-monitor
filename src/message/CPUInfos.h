@@ -8,7 +8,7 @@
 #include "SysCPUInfo.h"
 namespace rokid {
   /*
-   * 采集到的CPU信息
+   * cpu info
    */
   class CPUInfos {
   private:
@@ -20,37 +20,37 @@ namespace rokid {
       return std::make_shared<CPUInfos>();
     }
     /*
-    * getter 进程cpu信息列表
+    * getter processes cpu infos
     */
     inline const std::shared_ptr<std::vector<ProcCPUInfo>> getProcCpuList() const {
       return procCpuList;
     }
     /*
-    * getter 系统CPU状态
+    * getter system cpu infos
     */
     inline const std::shared_ptr<SysCPUInfo> & getSysCpu() const {
       return sysCpu;
     }
     /*
-    * getter 采集时间
+    * getter collect time
     */
     inline int64_t getTimestamp() const {
       return timestamp;
     }
     /*
-    * setter 进程cpu信息列表
+    * setter processes cpu infos
     */
     inline void setProcCpuList(const std::shared_ptr<std::vector<ProcCPUInfo>> &v) {
       this->procCpuList = v;
     }
     /*
-    * setter 系统CPU状态
+    * setter system cpu infos
     */
     inline void setSysCpu(const std::shared_ptr<SysCPUInfo> &v) {
       sysCpu = v;
     }
     /*
-    * setter 采集时间
+    * setter collect time
     */
     inline void setTimestamp(int64_t v) {
       timestamp = v;

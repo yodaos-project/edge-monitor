@@ -6,7 +6,7 @@
 #include "caps.h"
 namespace rokid {
   /*
-   * 系统CPU核心信息
+   * cpu core info
    */
   class SysCPUCoreInfo {
   private:
@@ -20,61 +20,61 @@ namespace rokid {
       return std::make_shared<SysCPUCoreInfo>();
     }
     /*
-    * getter 用户态cpu占用百分比
+    * getter jiffy in user mode
     */
     inline float getUsrUsage() const {
       return usrUsage;
     }
     /*
-    * getter 内核态cpu占用百分比
+    * getter jiffy in kernel mode
     */
     inline float getSysUsage() const {
       return sysUsage;
     }
     /*
-    * getter 空闲cpu占用百分比
+    * getter idle percent
     */
     inline float getIdleUsage() const {
       return idleUsage;
     }
     /*
-    * getter io等待百分比
+    * getter iowait percent
     */
     inline float getIoUsage() const {
       return ioUsage;
     }
     /*
-    * getter cpu使用率
+    * getter busy percent
     */
     inline float getBusyUsage() const {
       return busyUsage;
     }
     /*
-    * setter 用户态cpu占用百分比
+    * setter jiffy in user mode
     */
     inline void setUsrUsage(float v) {
       usrUsage = v;
     }
     /*
-    * setter 内核态cpu占用百分比
+    * setter jiffy in kernel mode
     */
     inline void setSysUsage(float v) {
       sysUsage = v;
     }
     /*
-    * setter 空闲cpu占用百分比
+    * setter idle percent
     */
     inline void setIdleUsage(float v) {
       idleUsage = v;
     }
     /*
-    * setter io等待百分比
+    * setter iowait percent
     */
     inline void setIoUsage(float v) {
       ioUsage = v;
     }
     /*
-    * setter cpu使用率
+    * setter busy percent
     */
     inline void setBusyUsage(float v) {
       busyUsage = v;

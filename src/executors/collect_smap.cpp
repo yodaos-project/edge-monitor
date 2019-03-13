@@ -11,9 +11,9 @@ YODA_NS_BEGIN
 CollectSmap::CollectSmap() : IJobExecutor("CollectSmap"),
                              _scanDir(),
                              _workReq(nullptr),
+                             _usleepTime(0),
                              _smaps(),
-                             _sysMem(nullptr),
-                             _usleepTime(0) {
+                             _sysMem(nullptr) {
   _scanDir = Options::get<std::string>("sysroot", "") + "/proc";
   _usleepTime = (Options::get<uint64_t>("smapSleep", 1000)) * 1000;
   YODA_SIXSIX_FLOG("smap sleep time %" PRIu64 "us", _usleepTime);

@@ -159,6 +159,8 @@ void JobManager::onWSConnected() {
   deviceStatus->setTimestamp(Util::getTimeMS());
   deviceStatus->setSn(DeviceInfo::sn.c_str());
   deviceStatus->setVersion(DeviceInfo::imageVersion.c_str());
+  deviceStatus->setVspVersion(DeviceInfo::vspVersion.c_str());
+  deviceStatus->setTurenVersion(DeviceInfo::turenVersion.c_str());
   DeviceStatus status = DeviceStatus::IDLE;
   int32_t shellId = 0;
   if (_task) {

@@ -6,7 +6,7 @@
 #include "caps.h"
 namespace rokid {
   /*
-   * 系统内存信息
+   * system memory info
    */
   class SysMemInfo {
   private:
@@ -20,61 +20,61 @@ namespace rokid {
       return std::make_shared<SysMemInfo>();
     }
     /*
-    * getter 总内存
+    * getter total memory
     */
     inline int64_t getTotal() const {
       return total;
     }
     /*
-    * getter free内存
+    * getter free memory
     */
     inline int64_t getFree() const {
       return free;
     }
     /*
-    * getter buffers内存
+    * getter buffers memory
     */
     inline int64_t getBuffers() const {
       return buffers;
     }
     /*
-    * getter cached
+    * getter cached memory
     */
     inline int64_t getCached() const {
       return cached;
     }
     /*
-    * getter available
+    * getter available memory
     */
     inline int64_t getAvailable() const {
       return available;
     }
     /*
-    * setter 总内存
+    * setter total memory
     */
     inline void setTotal(int64_t v) {
       total = v;
     }
     /*
-    * setter free内存
+    * setter free memory
     */
     inline void setFree(int64_t v) {
       free = v;
     }
     /*
-    * setter buffers内存
+    * setter buffers memory
     */
     inline void setBuffers(int64_t v) {
       buffers = v;
     }
     /*
-    * setter cached
+    * setter cached memory
     */
     inline void setCached(int64_t v) {
       cached = v;
     }
     /*
-    * setter available
+    * setter available memory
     */
     inline void setAvailable(int64_t v) {
       available = v;

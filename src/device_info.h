@@ -15,6 +15,8 @@ public:
   static std::string sn;
   static std::string imageVersion;
   static std::string hardware;
+  static std::string turenVersion;
+  static std::string vspVersion;
 };
 
 YODA_NS_END

@@ -12,6 +12,8 @@ namespace rokid {
   private:
     std::shared_ptr<std::string> sn = nullptr;
     std::shared_ptr<std::string> version = nullptr;
+    std::shared_ptr<std::string> vspVersion = nullptr;
+    std::shared_ptr<std::string> turenVersion = nullptr;
     int32_t status = 0;
     int32_t shellId = 0;
     int64_t timestamp = 0;
@@ -30,6 +32,18 @@ namespace rokid {
     */
     inline const std::shared_ptr<std::string> getVersion() const {
       return version;
+    }
+    /*
+    * getter VSP 版本
+    */
+    inline const std::shared_ptr<std::string> getVspVersion() const {
+      return vspVersion;
+    }
+    /*
+    * getter 土人版本
+    */
+    inline const std::shared_ptr<std::string> getTurenVersion() const {
+      return turenVersion;
     }
     /*
     * getter 设备状态：0-idle，1-exe
@@ -72,6 +86,30 @@ namespace rokid {
     */
     inline void setVersion(const char* v) {
       if (!version)    version = std::make_shared<std::string>();  *version = v;
+    }
+    /*
+    * setter VSP 版本
+    */
+    inline void setVspVersion(const std::shared_ptr<std::string> &v) {
+      vspVersion = v;
+    }
+    /*
+    * setter VSP 版本
+    */
+    inline void setVspVersion(const char* v) {
+      if (!vspVersion)    vspVersion = std::make_shared<std::string>();  *vspVersion = v;
+    }
+    /*
+    * setter 土人版本
+    */
+    inline void setTurenVersion(const std::shared_ptr<std::string> &v) {
+      turenVersion = v;
+    }
+    /*
+    * setter 土人版本
+    */
+    inline void setTurenVersion(const char* v) {
+      if (!turenVersion)    turenVersion = std::make_shared<std::string>();  *turenVersion = v;
     }
     /*
     * setter 设备状态：0-idle，1-exe

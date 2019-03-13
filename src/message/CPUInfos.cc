@@ -80,7 +80,10 @@ int32_t CPUInfos::deserialize(void* buf, uint32_t bufSize) {
   int32_t arraySizeProcCpuList = 0;
   int32_t rRstProcCpuList = caps->read(arraySizeProcCpuList);
   if (rRstProcCpuList != CAPS_SUCCESS) return rRstProcCpuList;
-  procCpuList->clear();
+  if (!procCpuList)
+    procCpuList = std::make_shared<std::vector<ProcCPUInfo>>();
+  else
+    procCpuList->clear();
   for(int32_t i = 0; i < arraySizeProcCpuList;++i) {
     std::shared_ptr<Caps> c;
     if (caps->read(c) == CAPS_SUCCESS && c) {
@@ -106,7 +109,10 @@ int32_t CPUInfos::deserialize(std::shared_ptr<Caps> &caps) {
   int32_t arraySizeProcCpuList = 0;
   int32_t rRstProcCpuList = caps->read(arraySizeProcCpuList);
   if (rRstProcCpuList != CAPS_SUCCESS) return rRstProcCpuList;
-  procCpuList->clear();
+  if (!procCpuList)
+    procCpuList = std::make_shared<std::vector<ProcCPUInfo>>();
+  else
+    procCpuList->clear();
   for(int32_t i = 0; i < arraySizeProcCpuList;++i) {
     std::shared_ptr<Caps> c;
     if (caps->read(c) == CAPS_SUCCESS && c) {
@@ -165,7 +171,10 @@ int32_t CPUInfos::deserializeForCapsObj(std::shared_ptr<Caps> &caps) {
   int32_t arraySizeProcCpuList = 0;
   int32_t rRstProcCpuList = caps->read(arraySizeProcCpuList);
   if (rRstProcCpuList != CAPS_SUCCESS) return rRstProcCpuList;
-  procCpuList->clear();
+  if (!procCpuList)
+    procCpuList = std::make_shared<std::vector<ProcCPUInfo>>();
+  else
+    procCpuList->clear();
   for(int32_t i = 0; i < arraySizeProcCpuList;++i) {
     std::shared_ptr<Caps> c;
     if (caps->read(c) == CAPS_SUCCESS && c) {

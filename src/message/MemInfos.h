@@ -8,7 +8,7 @@
 #include "SysMemInfo.h"
 namespace rokid {
   /*
-   * 采集到的Mem信息
+   * memory infos
    */
   class MemInfos {
   private:
@@ -20,37 +20,37 @@ namespace rokid {
       return std::make_shared<MemInfos>();
     }
     /*
-    * getter 进程mem信息列表
+    * getter processes memory info
     */
     inline const std::shared_ptr<std::vector<ProcMemInfo>> getProcMemInfo() const {
       return procMemInfo;
     }
     /*
-    * getter 系统Mem状态
+    * getter system memory info
     */
     inline const std::shared_ptr<SysMemInfo> & getSysMem() const {
       return sysMem;
     }
     /*
-    * getter 采集时间
+    * getter collect time
     */
     inline int64_t getTimestamp() const {
       return timestamp;
     }
     /*
-    * setter 进程mem信息列表
+    * setter processes memory info
     */
     inline void setProcMemInfo(const std::shared_ptr<std::vector<ProcMemInfo>> &v) {
       this->procMemInfo = v;
     }
     /*
-    * setter 系统Mem状态
+    * setter system memory info
     */
     inline void setSysMem(const std::shared_ptr<SysMemInfo> &v) {
       sysMem = v;
     }
     /*
-    * setter 采集时间
+    * setter collect time
     */
     inline void setTimestamp(int64_t v) {
       timestamp = v;
