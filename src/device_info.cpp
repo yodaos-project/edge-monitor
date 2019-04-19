@@ -24,7 +24,7 @@ int32_t DeviceInfo::init() {
 
   #define READ_PROP(name) \
     if (line.find(key_##name) == 1 /* skip first '[' */) { \
-      size_t prefixLen = strlen(key_##name);\
+      size_t prefixLen = strlen(key_##name) + 5; /* skip "[" and "]: [" */ \
       name = line.substr(prefixLen, len - prefixLen - 1); \
       YODA_SIXSIX_FLOG("device " #name ": %s", name.c_str()); \
       continue; \
@@ -40,6 +40,7 @@ int32_t DeviceInfo::init() {
 
   turenVersion = Util::exec("turenproc --version | grep -Eo 'Version = .*' | sed 's/Version = \\(.*\\);/\\1/g'");
   if (turenVersion.empty()) {
+    YODA_SIXSIX_SLOG("get turen info error");
     turenVersion = "unknownTurenVersion";
   }
   return 0;
