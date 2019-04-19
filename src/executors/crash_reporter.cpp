@@ -8,6 +8,7 @@
 #include "restclient-cpp/connection.h"
 #include "options.h"
 #include "device_info.h"
+#include "busy_box.h"
 
 #define UPLOAD_PATH "/server/coredump/put"
 
@@ -104,7 +105,7 @@ void CrashReporter::compressAndUpload(const std::string &dir,
 
   YODA_SIXSIX_FLOG("zip size: %ld, read size: %zu", size, r);
   static const int32_t fieldsCount = 5;
-  char coredumpFields[fieldsCount][64] = {'\0'};
+  char coredumpFields[fieldsCount][64] = {{'\0'}};
   int tokCount = 0;
   const char *sep = ".";
   char *p = const_cast<char*>(filename.c_str());
@@ -119,19 +120,31 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   char *unknownField = coredumpFields[3];
   char *suffix = coredumpFields[4];
   if (tokCount != fieldsCount) {
-    strcpy(binName, "unknownApp");
+    strcpy(binName, "unknown-bin");
     strcpy(reportTime, std::to_string(time(nullptr)).c_str());
     strcpy(appPid, "0");
   }
-  YODA_SIXSIX_FLOG("%s %s %s %s %s\n", binName, reportTime, appPid, unknownField, suffix);
+  std::string fullname = "unknown-name";
+  int32_t pid;
+  if (Util::lexicalCast<int32_t>(appPid, &pid)) {
+    std::shared_ptr<ProcessTopInfo> process = busybox::getProcessTopCache(pid);
+    if (process) {
+      fullname = process->fullname;
+    }
+  }
+  YODA_SIXSIX_FLOG("%s %s %s\n", binName, fullname.c_str(), appPid);
   RestClient::Connection *conn = new RestClient::Connection(_uploadURL);
   conn->AppendHeader("Content-Type", "application/zip");
   conn->AppendHeader("Content-Length", std::to_string(size));
   conn->AppendHeader("Device-SN", DeviceInfo::sn);
+  conn->AppendHeader("Device-Type-Id", DeviceInfo::typeId);
+  conn->AppendHeader("Image-Version", DeviceInfo::imageVersion);
   conn->AppendHeader("Report-Time", reportTime);
   conn->AppendHeader("Report-Type", std::to_string(0));
-  conn->AppendHeader("APP-Fullname", binName);
+  conn->AppendHeader("APP-BinName", binName);
+  conn->AppendHeader("APP-Fullname", fullname);
   conn->AppendHeader("APP-PID", appPid);
+  conn->AppendHeader("APP-ARGS", "{}");
   RestClient::Response res = conn->post(UPLOAD_PATH, buf);
   if (200 <= res.code && res.code < 300) {
     YODA_SIXSIX_FLOG("uploaded %s %s", filepath, res.body.c_str());

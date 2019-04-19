@@ -10,17 +10,20 @@ YODA_NS_BEGIN
 std::map<std::string, std::string> Options::cmdArgs;
 
 void Options::parseCmdLine(int32_t argc, char **argv) {
-  if (argc % 2 != 1) {
-    YODA_SIXSIX_SLOG("cmdline argc should be paired");
-    exit(1);
-  }
-  for (int32_t i = 1; i < argc; ++i) {
-    const char *key = argv[i] + 1;
-    cmdArgs.insert({key, argv[++i]});
-    if (strcmp(key, "conf") == 0) {
-      parseConf(argv[i]);
+  for (int32_t i = 1; i < argc; ) {
+    const char *key = argv[i++] + 1;
+    const char *value;
+    if (i >= argc || argv[i][0] == '-') {
+      value = "";
+    } else {
+      value = argv[i++];
     }
-    YODA_SIXSIX_FLOG("cmdline args: %s=%s", key, argv[i]);
+    cmdArgs.insert({key, value});
+    YODA_SIXSIX_FLOG("cmdline args: %s=%s", key, value);
+  }
+  auto ite = cmdArgs.find("conf");
+  if (ite != cmdArgs.end()) {
+    parseConf(ite->second.c_str());
   }
 }
 

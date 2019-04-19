@@ -10,8 +10,8 @@ YODA_NS_BEGIN
 
 CollectSmap::CollectSmap() : IJobExecutor("CollectSmap"),
                              _scanDir(),
-                             _workReq(nullptr),
                              _usleepTime(0),
+                             _workReq(nullptr),
                              _smaps(),
                              _sysMem(nullptr) {
   _scanDir = Options::get<std::string>("sysroot", "") + "/proc";

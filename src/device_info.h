@@ -17,6 +17,7 @@ public:
   static std::string hardware;
   static std::string turenVersion;
   static std::string vspVersion;
+  static std::string typeId;
 };
 
 YODA_NS_END

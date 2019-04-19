@@ -121,16 +121,24 @@ T fast_strtoul_10(char **endptr) {
   return n;
 }
 
-std::map<int32_t, std::shared_ptr<ProcessTopInfo>> processesJif;
-std::shared_ptr<SystemCPUInfo> cpuTotalJif(nullptr);
-std::shared_ptr<SystemCPUInfo> cpuTotalPrevJif(nullptr);
-std::vector<std::shared_ptr<SystemCPUInfo>> cpuCoresJif;
-std::vector<std::shared_ptr<SystemCPUInfo>> cpuCoresPrevJif;
-char line_buf[LINE_BUF_SIZE] = {0};
+static std::map<int32_t, std::shared_ptr<ProcessTopInfo>> processesJif;
+static std::shared_ptr<SystemCPUInfo> cpuTotalJif(nullptr);
+static std::shared_ptr<SystemCPUInfo> cpuTotalPrevJif(nullptr);
+static std::vector<std::shared_ptr<SystemCPUInfo>> cpuCoresJif;
+static std::vector<std::shared_ptr<SystemCPUInfo>> cpuCoresPrevJif;
+static char line_buf[LINE_BUF_SIZE] = {0};
 
 }
 
 namespace busybox {
+
+std::shared_ptr<ProcessTopInfo> getProcessTopCache(uint32_t pid) {
+  auto ite = processesJif.find(pid);
+  if (ite == processesJif.end()) {
+    return nullptr;
+  }
+  return ite->second;
+}
 
 std::shared_ptr<ProcessTopInfo>
 getProcessTop(const std::string &dir, uint32_t pid) {

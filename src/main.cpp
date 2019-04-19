@@ -6,6 +6,7 @@
 #include "WebSocketClient.h"
 #include "MessageCommon.h"
 #include "device_info.h"
+#include "env.h"
 
 using namespace rokid;
 
@@ -16,6 +17,7 @@ int main(int argc, char **argv) {
   setpriority(PRIO_PGRP, 0, 19);
   parseExitCmd(argc, argv);
   YODA_SIXSIX_SLOG("starting app");
+  yoda::Env::setup();
   yoda::DeviceInfo::init();
   yoda::Options::parseCmdLine(argc, argv);
 
@@ -39,11 +41,7 @@ static const char *helpStr =
   "[-version]         print version\n"
   "[-conf]            set configure json, Please refer to"
                       " https://github.com/yodaos-project/edge-monitor#Configure-json-structure"
-                      " for details\n"
-  "\n\n"
-  "Hints: it is recommend to set smapSleep to 200 for Rokid Glass\n"
-  "                          set smapSleep to 500 for A113\n"
-  "                          set smapSleep to 1000 for Rokid Kamino\n";
+                      " for details\n";
 
 void parseExitCmd(int argc, char **argv) {
   if (argc >= 2) {

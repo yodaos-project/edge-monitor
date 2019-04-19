@@ -28,6 +28,10 @@ public:
     return p;
   }
 
+  static bool exists(const std::string &key) {
+    return cmdArgs.find(key) != cmdArgs.end();
+  }
+
 private:
   static void parseConf(const char *confpath);
 

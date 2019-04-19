@@ -16,6 +16,8 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir);
 std::shared_ptr<ProcessTopInfo> getProcessTop(const std::string &dir,
                                               uint32_t pid);
 
+std::shared_ptr<ProcessTopInfo> getProcessTopCache(uint32_t pid);
+
 std::shared_ptr<ProcessSmapInfo> getProcessSmap(const std::string &dir,
                                                 uint32_t pid);
 
