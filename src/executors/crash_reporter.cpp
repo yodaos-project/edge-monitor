@@ -139,6 +139,8 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   conn->AppendHeader("Device-SN", DeviceInfo::sn);
   conn->AppendHeader("Device-Type-Id", DeviceInfo::typeId);
   conn->AppendHeader("Image-Version", DeviceInfo::imageVersion);
+  conn->AppendHeader("Lothal-Version", DeviceInfo::turenVersion);
+  conn->AppendHeader("VSP-Version", DeviceInfo::vspVersion);
   conn->AppendHeader("Report-Time", reportTime);
   conn->AppendHeader("Report-Type", std::to_string(0));
   conn->AppendHeader("APP-BinName", binName);
