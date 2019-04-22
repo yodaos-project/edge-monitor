@@ -26,8 +26,6 @@
 #include <uv.h>
 #include <rapidjson/document.h>
 
-static const char *version = "v1.2.1";
-
 #define YODA_NS_BEGIN namespace yoda {
 #define YODA_NS_END }
 

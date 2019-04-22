@@ -10,6 +10,8 @@
 
 using namespace rokid;
 
+static const char *version = "v1.2.2";
+
 static void parseExitCmd(int argc, char **argv);
 static void makeUVHappy();
 
