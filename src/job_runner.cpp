@@ -8,6 +8,7 @@
 #include "collect_smap.h"
 #include "child_process.h"
 #include "crash_reporter.h"
+#include "collect_battery.h"
 
 YODA_NS_BEGIN
 
@@ -42,6 +43,9 @@ int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
       break;
     case JobType::CRASH_REPORTER:
       _executor = std::shared_ptr<IJobExecutor>(new CrashReporter());
+      break;
+    case JobType::COLLECT_BATTERY:
+      _executor = std::shared_ptr<IJobExecutor>(new CollectBattery());
       break;
     default:
       YODA_SIXSIX_FASSERT(0, "unknown job type %d", conf->type);
