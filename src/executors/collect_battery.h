@@ -40,7 +40,7 @@ protected:
   int capacity;
   int bat_voltage;
   int usb_voltage;
-  char *status;
+  char status[10];
   int online;
   int present;
   

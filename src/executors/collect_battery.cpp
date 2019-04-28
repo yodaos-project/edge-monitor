@@ -4,22 +4,27 @@
 
 #include "collect_battery.h"
 
-static char* readFile(const char *path) {
+static void readFile(const char *path, char *buf, int *value) {
+  *buf = '\0';
   FILE *file;
   int size = 0;
-  char *buffer;
   file = fopen(path, "rb");
   if (file == NULL)
   {
-    return NULL;
+    strcpy(buf, "0");
+    return;
   }
   fseek(file, 0, SEEK_END);
   size = ftell(file);
-  buffer = (char *)malloc((size + 1) * sizeof(char));
   rewind(file);
-  size = fread(buffer, 1, size, file);
-  buffer[size] = '\0';
-  return buffer;
+  size = fread(buf, 1, size, file);
+  if (size <= 0)
+  {
+    strcpy(buf, "0");
+  }
+  if (value != NULL) {
+    *value = atoi(buf);
+  }
 }
 
 YODA_NS_BEGIN
@@ -43,39 +48,25 @@ void CollectBattery::execute() {
 
 void CollectBattery::doCollect(uv_work_t *req) {
   YODA_SIXSIX_SLOG("========== CollectBattery startup  ==========");
-  char *bat_temp_char = readFile(GET_CHARGER_FILE("/temp"));
-  bat_temp = atoi(bat_temp_char);
-  free(bat_temp_char);
+  char buffer[10];
+  readFile(GET_CHARGER_FILE("/temp"), buffer, &bat_temp);
 
-  char *bat_current_char = readFile(GET_CHARGER_FILE("/constant_charge_current"));
-  current = atoi(bat_current_char);
-  free(bat_current_char);
+  readFile(GET_CHARGER_FILE("/constant_charge_current"), buffer, &current);
 
-  char *usb_voltage_char = readFile(GET_CHARGER_FILE("/voltage_now"));
-  usb_voltage = atoi(usb_voltage_char);
-  free(usb_voltage_char);
+  readFile(GET_CHARGER_FILE("/voltage_now"), buffer, &usb_voltage);
 
-  status = readFile(GET_CHARGER_FILE("/status"));
+  readFile(GET_CHARGER_FILE("/status"), buffer, NULL);
+  strcpy(status, buffer);
 
-  char *bat_online_char = readFile(GET_CHARGER_FILE("/online"));
-  online = atoi(bat_online_char);
-  free(bat_online_char);
+  readFile(GET_CHARGER_FILE("/online"), buffer, &online);
 
-  char *bat_present_char = readFile(GET_CHARGER_FILE("/present"));
-  present = atoi(bat_present_char);
-  free(bat_present_char);
+  readFile(GET_CHARGER_FILE("/present"), buffer, &present);
 
-  char *bat_capacity_char = readFile(GET_BATTERY_FILE("/capacity"));
-  capacity = atoi(bat_capacity_char);
-  free(bat_capacity_char);
+  readFile(GET_BATTERY_FILE("/capacity"), buffer, &capacity);
 
-  char *bat_voltage_char = readFile(GET_BATTERY_FILE("/voltage_now"));
-  bat_voltage = atoi(bat_voltage_char);
-  free(bat_voltage_char);
+  readFile(GET_BATTERY_FILE("/voltage_now"), buffer, &bat_voltage);
 
-  char *cpu_temp_char = readFile("/sys/devices/virtual/thermal/thermal_zone0/temp");
-  cpu_temp = atoi(cpu_temp_char);
-  free(cpu_temp_char);
+  readFile("/sys/devices/virtual/thermal/thermal_zone0/temp", buffer, &cpu_temp);
 
   YODA_SIXSIX_SLOG("========== CollectBattery finish  ==========");
 }
@@ -90,7 +81,6 @@ void CollectBattery::afterCollect(uv_work_t *req, int status) {
   printf("->   status: %s", this->status);
   printf("->   online: %d", online);
   printf("->  present: %d", present);
-  free(this->status);
   YODA_SIXSIX_SAFE_DELETE(_workReq);
   this->onJobDone();
 }

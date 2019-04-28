@@ -289,13 +289,13 @@ void JobManager::manuallyStartJobs(
   this->addRunnerWithConf(crashReporterConf, true);
 
   std::shared_ptr<JobConf> batteryConf(new JobConf);
-  topConf->task = _task;
-  topConf->type = JobType::COLLECT_BATTERY;
-  topConf->enable = true;
-  topConf->isRepeat = true;
-  topConf->loopCount = 0;
-  topConf->timeout = 500;
-  topConf->interval = 1000;
+  batteryConf->task = _task;
+  batteryConf->type = JobType::COLLECT_BATTERY;
+  batteryConf->enable = true;
+  batteryConf->isRepeat = true;
+  batteryConf->loopCount = 0;
+  batteryConf->timeout = 500;
+  batteryConf->interval = 1000;
   this->addRunnerWithConf(batteryConf, true);
 }
 
