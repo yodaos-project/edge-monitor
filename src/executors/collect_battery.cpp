@@ -11,16 +11,25 @@ static void readFile(const char *path, char *buf, int *value) {
   file = fopen(path, "rb");
   if (file == NULL)
   {
-    strcpy(buf, "0");
+    YODA_SIXSIX_FLOG("No such file: %s. skip collect info.", path);
+    if (value != NULL)
+    {
+      *value = 0;
+    }
     return;
   }
   fseek(file, 0, SEEK_END);
   size = ftell(file);
   rewind(file);
   size = fread(buf, 1, size, file);
+  fclose(file);
   if (size <= 0)
   {
-    strcpy(buf, "0");
+    if (value != NULL)
+    {
+    *value = 0;
+    }
+    return;
   }
   if (value != NULL) {
     *value = atoi(buf);
@@ -49,6 +58,8 @@ void CollectBattery::execute() {
 void CollectBattery::doCollect(uv_work_t *req) {
   YODA_SIXSIX_SLOG("========== CollectBattery startup  ==========");
   char buffer[10];
+  timestamp = time(nullptr);
+
   readFile(GET_CHARGER_FILE("/temp"), buffer, &bat_temp);
 
   readFile(GET_CHARGER_FILE("/constant_charge_current"), buffer, &current);
@@ -72,15 +83,33 @@ void CollectBattery::doCollect(uv_work_t *req) {
 }
 
 void CollectBattery::afterCollect(uv_work_t *req, int status) {
-  printf("-> bat-temp: %d", bat_temp);
-  printf("-> cpu-temp: %d", cpu_temp);
-  printf("-> bat-volt: %d", bat_voltage);
-  printf("-> usb-volt: %d", usb_voltage);
-  printf("->  cur-now: %d", current);
-  printf("-> capacity: %d", capacity);
-  printf("->   status: %s", this->status);
-  printf("->   online: %d", online);
-  printf("->  present: %d", present);
+  YODA_SIXSIX_SLOG("========== Battery Info  ============");
+  YODA_SIXSIX_FLOG("-> bat-temp: %d", bat_temp);
+  YODA_SIXSIX_FLOG("-> cpu-temp: %d", cpu_temp);
+  YODA_SIXSIX_FLOG("-> bat-volt: %d", bat_voltage);
+  YODA_SIXSIX_FLOG("-> usb-volt: %d", usb_voltage);
+  YODA_SIXSIX_FLOG("->  cur-now: %d", current);
+  YODA_SIXSIX_FLOG("-> capacity: %d", capacity);
+  YODA_SIXSIX_FLOG("->   status: %s", this->status);
+  YODA_SIXSIX_FLOG("->   online: %d", online);
+  YODA_SIXSIX_FLOG("->  present: %d", present);
+
+  rokid::BatteryInfosPtr data(new rokid::BatteryInfos);
+  data->setBatTemp(bat_temp);
+  data->setCpuTemp(cpu_temp);
+  data->setVoltageBat(bat_voltage);
+  data->setVoltageUsb(usb_voltage);
+  data->setCurrentNow(current);
+  data->setCapacity(capacity);
+  data->setStatus(this->status);
+  data->setOnline(online);
+  data->setPresent(present);
+  data->setTimestamp(timestamp);
+
+  std::shared_ptr<Caps> caps;
+  data->serialize(caps);
+  this->sendData(caps, "battery info");
+
   YODA_SIXSIX_SAFE_DELETE(_workReq);
   this->onJobDone();
 }

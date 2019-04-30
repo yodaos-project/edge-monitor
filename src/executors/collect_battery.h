@@ -10,8 +10,8 @@
 #define CHARGER_PATH "/sys/class/power_supply/bq25890-charger"
 #define BATTERY_PATH "/sys/class/power_supply/battery"
 
-#define GET_CHARGER_FILE(path) CHARGER_PATH#path
-#define GET_BATTERY_FILE(path) BATTERY_PATH#path
+#define GET_CHARGER_FILE(path) CHARGER_PATH path
+#define GET_BATTERY_FILE(path) BATTERY_PATH path
 
 using namespace std;
 
@@ -43,7 +43,7 @@ protected:
   char status[10];
   int online;
   int present;
-  
+  int64_t timestamp;
 };
 
 YODA_NS_END
