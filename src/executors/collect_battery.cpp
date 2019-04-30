@@ -5,9 +5,8 @@
 #include "collect_battery.h"
 
 static void readFile(const char *path, char *buf, int *value) {
-  *buf = '\0';
   FILE *file;
-  int size = 0;
+  int size = 9;
   file = fopen(path, "rb");
   if (file == NULL)
   {
@@ -18,9 +17,6 @@ static void readFile(const char *path, char *buf, int *value) {
     }
     return;
   }
-  fseek(file, 0, SEEK_END);
-  size = ftell(file);
-  rewind(file);
   size = fread(buf, 1, size, file);
   fclose(file);
   if (size <= 0)
@@ -58,6 +54,7 @@ void CollectBattery::execute() {
 void CollectBattery::doCollect(uv_work_t *req) {
   YODA_SIXSIX_SLOG("========== CollectBattery startup  ==========");
   char buffer[10];
+  memset(buffer, 0, sizeof buffer);
   timestamp = time(nullptr);
 
   readFile(GET_CHARGER_FILE("/temp"), buffer, &bat_temp);
