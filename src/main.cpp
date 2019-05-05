@@ -19,9 +19,9 @@ int main(int argc, char **argv) {
   setpriority(PRIO_PGRP, 0, 19);
   parseExitCmd(argc, argv);
   LOG_INFO("starting app");
-  yoda::DeviceInfo::init();
   yoda::Options::parseCmdLine(argc, argv);
   yoda::Env::setup();
+  yoda::DeviceInfo::init();
 
   WebSocketClient wsc;
   wsc.init();

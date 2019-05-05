@@ -6,6 +6,7 @@
 #define YODA_SIXSIX_I_EXECUTOR_H
 
 #include "job_def.h"
+#include "MessageCommon.h"
 
 YODA_NS_BEGIN
 

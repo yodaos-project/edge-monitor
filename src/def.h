@@ -26,7 +26,6 @@
 #include <uv.h>
 #include <rapidjson/document.h>
 #include "logger.h"
-#include "MessageCommon.h"
 
 #define YODA_NS_BEGIN namespace yoda {
 #define YODA_NS_END }

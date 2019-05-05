@@ -1,5 +1,6 @@
 #ifndef YODA_SIXSIX_LOGGER_H_
 #define YODA_SIXSIX_LOGGER_H_
+#include <stdio.h>
 
 typedef enum {
   LOG_LEVEL_VERBOSE = 0,
@@ -17,5 +18,9 @@ typedef enum {
 
 extern
 void do_log(log_level level, const char *file, int line, const char *fmt, ...);
+
+extern void set_log_file(const char *stdout_path, const char *stderr_path);
+
+extern void close_log_file();
 
 #endif // YODA_SIXSIX_LOGGER_H_
