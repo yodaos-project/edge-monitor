@@ -8,6 +8,7 @@
 #include "WebSocketClient.h"
 #include "MessageCommon.h"
 #include "device_info.h"
+#include "util.h"
 #include <rapidjson/istreamwrapper.h>
 
 YODA_NS_BEGIN
@@ -31,13 +32,13 @@ int JobManager::initWithWS(WebSocketClient *ws) {
     return 0;
   }
   std::ifstream ifs(confpath);
-  YODA_SIXSIX_FASSERT(ifs.is_open(),
+  ASSERT(ifs.is_open(),
                       "cannot load conf from %s",
                       confpath.c_str());
   rapidjson::IStreamWrapper ifsWrapper(ifs);
   rapidjson::Document doc;
   doc.ParseStream(ifsWrapper);
-  YODA_SIXSIX_FASSERT(!doc.HasParseError(),
+  ASSERT(!doc.HasParseError(),
                       "conf parse error %s",
                       confpath.c_str());
   if (!doc.HasMember("task")) {
@@ -61,12 +62,12 @@ int JobManager::initWithWS(WebSocketClient *ws) {
 
 void JobManager::addRunnerWithConf(const std::shared_ptr<JobConf> &conf,
                                    bool autoRun) {
-  YODA_SIXSIX_FLOG("add job type %d with conf", (int32_t) conf->type);
+  LOG_INFO("add job type %d with conf", (int32_t) conf->type);
   auto callback = std::bind(&JobManager::onRunnerStop, this, _1);
   std::shared_ptr<JobRunner> runner(new JobRunner(this));
   runner->setJobCallback(callback);
   _runners.push_back(runner);
-  YODA_SIXSIX_FLOG("runner count %d", (uint32_t) _runners.size());
+  LOG_INFO("runner count %d", (uint32_t) _runners.size());
   runner->initWithConf(conf);
   if (autoRun) {
     runner->run();
@@ -76,17 +77,17 @@ void JobManager::addRunnerWithConf(const std::shared_ptr<JobConf> &conf,
 void JobManager::onRunnerStop(JobRunner *runner) {
   auto name = runner->getJobName().c_str();
   auto isStopped = runner->getState() == JobState::STOP;
-  YODA_SIXSIX_FASSERT(isStopped, "runner %s is not stopped ", name);
-  YODA_SIXSIX_FLOG("removing runner %s", name);
+  ASSERT(isStopped, "runner %s is not stopped ", name);
+  LOG_INFO("removing runner %s", name);
   for (auto ite = _runners.begin(); ite != _runners.end(); ++ite) {
     if ((*ite).get() == runner) {
       _runners.erase(ite);
       break;
     }
   }
-  YODA_SIXSIX_FLOG("runner left %zu", _runners.size());
+  LOG_INFO("runner left %zu", _runners.size());
   if (_runners.empty()) {
-    YODA_SIXSIX_SLOG("stopping task timer");
+    LOG_INFO("stopping task timer");
     uv_timer_stop(_taskTimer);
     UV_CLOSE_HANDLE(_taskTimer, JobManager, onUVHandleClosed);
 
@@ -108,11 +109,11 @@ void JobManager::onRunnerStop(JobRunner *runner) {
 
 void JobManager::endTask(TaskErrorCodes errorCode) {
   if (!_task) {
-    YODA_SIXSIX_SERROR("not task, ignored");
+    LOG_ERROR("not task, ignored");
     return;
   }
   if (_task->status != TaskStatus::RUNNING) {
-    YODA_SIXSIX_SERROR("task is not running, ignored");
+    LOG_ERROR("task is not running, ignored");
     return;
   }
 
@@ -122,7 +123,7 @@ void JobManager::endTask(TaskErrorCodes errorCode) {
   } else {
     _task->status = TaskStatus::SUCCEED;
   }
-  YODA_SIXSIX_FLOG("stopping all runners %d", (int32_t) _runners.size());
+  LOG_INFO("stopping all runners %d", (int32_t) _runners.size());
   for (auto &runner : _runners) {
     runner->stop();
   }
@@ -135,7 +136,7 @@ void JobManager::onWSMessage(std::shared_ptr<Caps> &caps) {
       this->onTaskCommand(caps);
       break;
     default:
-      YODA_SIXSIX_FERROR("unknown ws message type %d, ignored", type);
+      LOG_ERROR("unknown ws message type %d, ignored", type);
       break;
   }
 }
@@ -149,7 +150,7 @@ void JobManager::onWSEvent(EventCode code) {
       this->onWSConnected();
       break;
     default:
-      YODA_SIXSIX_FERROR("unhandled ws event code %d, ignored", code);
+      LOG_ERROR("unhandled ws event code %d, ignored", code);
       break;
   }
 }
@@ -169,26 +170,26 @@ void JobManager::onWSConnected() {
   }
   deviceStatus->setStatus((int32_t) status);
   deviceStatus->setShellId(shellId);
-  YODA_SIXSIX_FLOG("ws connected, status %d, shell %d", status, shellId);
+  LOG_INFO("ws connected, status %d, shell %d", status, shellId);
   std::shared_ptr<Caps> caps;
   deviceStatus->serialize(caps);
   this->sendMsg(caps, "upload device status");
 }
 
 void JobManager::onWSDisconnected() {
-  YODA_SIXSIX_SERROR("ws disconnected");
+  LOG_ERROR("ws disconnected");
 }
 
 void JobManager::onTaskCommand(std::shared_ptr<Caps> &caps) {
   std::shared_ptr<rokid::TaskCommand> command = rokid::TaskCommand::create();
   int r = command->deserializeForCapsObj(caps);
   if (r != CAPS_SUCCESS) {
-    YODA_SIXSIX_SERROR("task command deserializeForCapsObj error");
+    LOG_ERROR("task command deserializeForCapsObj error");
     return;
   }
   auto type = command->getTaskType();
   if (*type == "CANCEL") {
-    YODA_SIXSIX_SLOG("cancel task");
+    LOG_INFO("cancel task");
     this->endTask(TaskErrorCodes::NO_ERROR);
   } else if (*type == "START") {
     auto task = std::make_shared<TaskInfo>();
@@ -205,12 +206,12 @@ void JobManager::onTaskCommand(std::shared_ptr<Caps> &caps) {
 }
 
 void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
-  YODA_SIXSIX_FLOG("start new task with id %d", task->id);
+  LOG_INFO("start new task with id %d", task->id);
   if (_task) {
     if (_task->id != task->id) {
       char msg[256] = {0};
       sprintf(msg, "end task with code: %d", TaskErrorCodes::NO_RESOURCE);
-      YODA_SIXSIX_FERROR("multi task %d %d", task->id, _task->id);
+      LOG_ERROR("multi task %d %d", task->id, _task->id);
       this->endTask(TaskErrorCodes::MULTI_TASK);
       auto taskStatus = rokid::TaskStatus::create();
       taskStatus->setTaskId(task->id);
@@ -222,7 +223,7 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
       taskStatus->serialize(caps);
       this->sendMsg(caps, "task error: multi task.");
     } else {
-      YODA_SIXSIX_FERROR("task %d is running, ignore start", task->id);
+      LOG_ERROR("task %d is running, ignore start", task->id);
     }
     return;
   }
@@ -235,17 +236,17 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
   uv_timer_init(uv_default_loop(), _taskTimer);
   uv_timer_start(_taskTimer, cb2, (uint64_t) _task->timeoutMs, 0);
   float timeoutHours = (float) _task->timeoutMs / 1000 / 3600;
-  YODA_SIXSIX_FLOG("task timeout after %.2f hours", timeoutHours);
+  LOG_INFO("task timeout after %.2f hours", timeoutHours);
 }
 
 void JobManager::onTaskTimeout(uv_timer_t *) {
-  YODA_SIXSIX_SLOG("task time timeout");
+  LOG_INFO("task time timeout");
   this->endTask(TaskErrorCodes::NO_ERROR);
 }
 
 void JobManager::manuallyStartJobs(
   const std::shared_ptr<std::string> &shell, int32_t shellId) {
-  YODA_SIXSIX_FLOG("start shell job with shell id %d", shellId);
+  LOG_INFO("start shell job with shell id %d", shellId);
   std::shared_ptr<JobConf> shellConf(new JobConf);
   shellConf->task = _task;
   shellConf->type = JobType::SPAWN_CHILD;
@@ -275,7 +276,7 @@ void JobManager::manuallyStartJobs(
   smapConf->loopCount = 0;
   smapConf->timeout = 1000;
   smapConf->interval = Options::get<uint64_t>("smapInterval", 300 * 1000);
-  YODA_SIXSIX_FLOG("smap interval %" PRIu64 "ms", smapConf->interval);
+  LOG_INFO("smap interval %" PRIu64 "ms", smapConf->interval);
   this->addRunnerWithConf(smapConf, true);
 
   std::shared_ptr<JobConf> crashReporterConf(new JobConf);
@@ -298,10 +299,10 @@ void JobManager::sendCollectData(std::shared_ptr<Caps> &caps, const char *hint){
 void JobManager::sendMsg(std::shared_ptr<Caps> &caps, const char *hint) {
   if (_ws) {
     _ws->sendMsg(caps, [hint](SendResult sr, void *) {
-      YODA_SIXSIX_FLOG("send ws %s result %u", hint, sr);
+      LOG_INFO("send ws %s result %u", hint, sr);
     });
   } else {
-    YODA_SIXSIX_FERROR("ws is null, drop %s data", hint);
+    LOG_ERROR("ws is null, drop %s data", hint);
   }
 }
 
@@ -309,7 +310,7 @@ void JobManager::onUVHandleClosed(uv_handle_t *handle) {
   if ((uv_handle_t *) _taskTimer == handle) {
     YODA_SIXSIX_SAFE_FREE(_taskTimer);
   } else {
-    YODA_SIXSIX_SLOG("manager receive unknown handle close, free it");
+    LOG_INFO("manager receive unknown handle close, free it");
     YODA_SIXSIX_SAFE_FREE(handle);
   }
 }

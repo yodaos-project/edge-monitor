@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_JOB_DEF_H
 #define YODA_SIXSIX_JOB_DEF_H
 
-#include "common.h"
+#include "def.h"
 
 YODA_NS_BEGIN
 

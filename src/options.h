@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_OPTIONS_H
 #define YODA_SIXSIX_OPTIONS_H
 
-#include "common.h"
+#include "def.h"
 
 YODA_NS_BEGIN
 
@@ -24,7 +24,7 @@ public:
     std::stringstream ss(ite->second);
     T p;
     bool isSucceed = !(ss >> p).fail() && (ss >> std::ws).eof();
-    YODA_SIXSIX_FASSERT(isSucceed, "get value %s error", key.c_str());
+    ASSERT(isSucceed, "get value %s error", key.c_str());
     return p;
   }
 

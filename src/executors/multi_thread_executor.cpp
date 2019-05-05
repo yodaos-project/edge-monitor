@@ -13,11 +13,11 @@ IMultiThreadExecutor::IMultiThreadExecutor(const std::string &name) :
 }
 
 IMultiThreadExecutor::~IMultiThreadExecutor() {
-  YODA_SIXSIX_FASSERT(_workReq == nullptr, "%s work not null", _name.c_str());
+  ASSERT(_workReq == nullptr, "%s work not null", _name.c_str());
 }
 
 void IMultiThreadExecutor::execute() {
-  YODA_SIXSIX_FASSERT(!_workReq, "%s is running", _name.c_str());
+  ASSERT(!_workReq, "%s is running", _name.c_str());
   _workReq = new uv_work_t;
   UV_CB_WRAP1(_workReq, cb1, IMultiThreadExecutor, onThreadStart, uv_work_t);
   UV_CB_WRAP2(_workReq, cb2, IMultiThreadExecutor, onThreadEnd, uv_work_t, int);

@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_ENV_H
 #define YODA_SIXSIX_ENV_H
 
-#include "common.h"
+#include "def.h"
 
 YODA_NS_BEGIN
 

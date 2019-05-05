@@ -18,10 +18,10 @@ static void makeUVHappy();
 int main(int argc, char **argv) {
   setpriority(PRIO_PGRP, 0, 19);
   parseExitCmd(argc, argv);
-  YODA_SIXSIX_SLOG("starting app");
-  yoda::Env::setup();
+  LOG_INFO("starting app");
   yoda::DeviceInfo::init();
   yoda::Options::parseCmdLine(argc, argv);
+  yoda::Env::setup();
 
   WebSocketClient wsc;
   wsc.init();
@@ -34,14 +34,15 @@ int main(int argc, char **argv) {
 
   makeUVHappy();
 
-  YODA_SIXSIX_SLOG("all tasks have been completed, app exit");
+  LOG_INFO("all tasks have been completed, app exit");
   return 0;
 }
 
 static const char *helpStr =
   "Usage: \n"
   "[-version]         print version\n"
-  "[-conf]            set configure json, Please refer to"
+  "[-b]               running in background"
+  "[-conf]            set configure json, please refer to"
                       " https://github.com/yodaos-project/edge-monitor#Configure-json-structure"
                       " for details\n";
 
@@ -68,5 +69,5 @@ void makeUVHappy() {
   }, nullptr);
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
   int r = uv_loop_close(uv_default_loop());
-  YODA_SIXSIX_FASSERT(r == 0, "uv close error: %s", uv_err_name(r));
+  ASSERT(r == 0, "uv close error: %s", uv_err_name(r));
 }

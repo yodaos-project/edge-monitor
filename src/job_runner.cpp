@@ -24,8 +24,8 @@ JobRunner::JobRunner(JobManager *manager) :
 }
 
 JobRunner::~JobRunner() {
-  YODA_SIXSIX_FASSERT(_timer == nullptr, "%s timer is not null", _name.c_str());
-  YODA_SIXSIX_FLOG("runner %s exit", _name.c_str());
+  ASSERT(_timer == nullptr, "%s timer is not null", _name.c_str());
+  LOG_INFO("runner %s exit", _name.c_str());
 }
 
 int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
@@ -44,7 +44,7 @@ int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
       _executor = std::shared_ptr<IJobExecutor>(new CrashReporter());
       break;
     default:
-      YODA_SIXSIX_FASSERT(0, "unknown job type %d", conf->type);
+      ASSERT(0, "unknown job type %d", conf->type);
   }
   _name = _executor->getName();
   _executor->setExecuteCb(std::bind(&JobRunner::onExecuteFinish, this));
@@ -53,8 +53,8 @@ int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
 }
 
 void JobRunner::run() {
-  YODA_SIXSIX_SASSERT(_state == JobState::STOP, "job runner is running");
-  YODA_SIXSIX_FLOG(
+  ASSERT(_state == JobState::STOP, "job runner is running");
+  LOG_INFO(
     "running job %s: timeout %"
     PRIu64
     ", interval: %"
@@ -74,8 +74,8 @@ void JobRunner::run() {
 }
 
 int32_t JobRunner::stop() {
-  YODA_SIXSIX_SASSERT(_state == JobState::RUNNING, "job runner is stopped");
-  YODA_SIXSIX_FLOG("stopping job %s", _executor->getName().c_str());
+  ASSERT(_state == JobState::RUNNING, "job runner is stopped");
+  LOG_INFO("stopping job %s", _executor->getName().c_str());
   _state = JobState::STOP;
   uv_timer_stop(_timer);
   UV_CLOSE_HANDLE(_timer, JobRunner, onUVHandleClosed);
@@ -83,7 +83,7 @@ int32_t JobRunner::stop() {
   if (r == 0) {
     _executor.reset();
   } else {
-    YODA_SIXSIX_FLOG("executor stop result error %s", uv_err_name(r));
+    LOG_INFO("executor stop result error %s", uv_err_name(r));
   }
   return 1;
 }
@@ -107,7 +107,7 @@ void JobRunner::onExecuteFinish() {
 }
 
 void JobRunner::onTimer(uv_timer_t *) {
-  YODA_SIXSIX_SASSERT(_state != JobState::STOP, "job runner is stopped");
+  ASSERT(_state != JobState::STOP, "job runner is stopped");
   ++_executeCount;
   _executor->execute();
 }

@@ -9,6 +9,7 @@
 #include "options.h"
 #include "device_info.h"
 #include "busy_box.h"
+#include "util.h"
 
 #define UPLOAD_PATH "/server/coredump/put"
 
@@ -23,7 +24,7 @@ CrashReporter::CrashReporter() :
   _scanDir({"/data"}),
   _uploadURL() {
   _uploadURL = Options::get<std::string>("uploadUrl", "");
-  YODA_SIXSIX_FLOG("coredump upload: %s", _uploadURL.c_str());
+  LOG_INFO("coredump upload: %s", _uploadURL.c_str());
   auto sysroot = Options::get<std::string>("sysroot", "");
   auto coredumpDir = Options::get<std::string>("coredumpDir", "");
   if (!coredumpDir.empty()) {
@@ -62,20 +63,20 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   sprintf(zippath, "%s/%s.zip", dir.c_str(), filename.c_str());
   zip_t *zip = zip_open(zippath, ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
   if (!zip) {
-    YODA_SIXSIX_FERROR("open zip %s error", zippath);
+    LOG_ERROR("open zip %s error", zippath);
     return;
   }
   do {
     if (zip_entry_open(zip, filename.c_str()) != 0) {
-      YODA_SIXSIX_FERROR("open zip entry %s error", zippath);
+      LOG_ERROR("open zip entry %s error", zippath);
       break;
     }
     if (zip_entry_fwrite(zip, filepath) != 0) {
-      YODA_SIXSIX_FERROR("open zip entry write %s error", zippath);
+      LOG_ERROR("open zip entry write %s error", zippath);
       break;
     }
     if (zip_entry_close(zip) != 0) {
-      YODA_SIXSIX_FERROR("zip entry close %s error", zippath);
+      LOG_ERROR("zip entry close %s error", zippath);
       break;
     }
   } while(0);
@@ -83,11 +84,11 @@ void CrashReporter::compressAndUpload(const std::string &dir,
     return;
   }
   zip_close(zip);
-  YODA_SIXSIX_FLOG("zip file path: %s", zippath);
-  YODA_SIXSIX_FLOG("coredump file path: %s", filepath);
+  LOG_INFO("zip file path: %s", zippath);
+  LOG_INFO("coredump file path: %s", filepath);
   FILE *zipfile = fopen(zippath, "r");
   if (!zipfile) {
-    YODA_SIXSIX_FERROR("open zip file %s error", zippath);
+    LOG_ERROR("open zip file %s error", zippath);
     unlink(zippath);
     return;
   }
@@ -99,11 +100,11 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   fclose(zipfile);
   unlink(zippath);
   if (r != size) {
-    YODA_SIXSIX_FERROR("read zip file %s error", zippath);
+    LOG_ERROR("read zip file %s error", zippath);
     return;
   }
 
-  YODA_SIXSIX_FLOG("zip size: %ld, read size: %zu", size, r);
+  LOG_INFO("zip size: %ld, read size: %zu", size, r);
   static const int32_t fieldsCount = 5;
   char coredumpFields[fieldsCount][64] = {{'\0'}};
   int tokCount = 0;
@@ -132,7 +133,7 @@ void CrashReporter::compressAndUpload(const std::string &dir,
       fullname = process->fullname;
     }
   }
-  YODA_SIXSIX_FLOG("%s %s %s\n", binName, fullname.c_str(), appPid);
+  LOG_INFO("%s %s %s\n", binName, fullname.c_str(), appPid);
   RestClient::Connection *conn = new RestClient::Connection(_uploadURL);
   conn->AppendHeader("Content-Type", "application/zip");
   conn->AppendHeader("Content-Length", std::to_string(size));
@@ -149,10 +150,10 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   conn->AppendHeader("APP-ARGS", "{}");
   RestClient::Response res = conn->post(UPLOAD_PATH, buf);
   if (200 <= res.code && res.code < 300) {
-    YODA_SIXSIX_FLOG("uploaded %s %s", filepath, res.body.c_str());
+    LOG_INFO("uploaded %s %s", filepath, res.body.c_str());
     unlink(filepath);
   } else {
-    YODA_SIXSIX_FERROR(
+    LOG_ERROR(
       "upload error: %s %d %s", zippath, res.code, res.body.c_str()
     );
   }

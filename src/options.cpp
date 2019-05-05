@@ -15,11 +15,12 @@ void Options::parseCmdLine(int32_t argc, char **argv) {
     const char *value;
     if (i >= argc || argv[i][0] == '-') {
       value = "";
+      LOG_INFO("cmdline args: -%s", key);
     } else {
       value = argv[i++];
+      LOG_INFO("cmdline args: %s=%s", key, value);
     }
     cmdArgs.insert({key, value});
-    YODA_SIXSIX_FLOG("cmdline args: %s=%s", key, value);
   }
   auto ite = cmdArgs.find("conf");
   if (ite != cmdArgs.end()) {
@@ -30,10 +31,10 @@ void Options::parseCmdLine(int32_t argc, char **argv) {
 void Options::parseConf(const char *confpath) {
   std::ifstream ifs(confpath);
   rapidjson::IStreamWrapper ifsWrapper(ifs);
-  YODA_SIXSIX_FASSERT(ifs.is_open(), "cannot load conf from %s", confpath);
+  ASSERT(ifs.is_open(), "cannot load conf from %s", confpath);
   rapidjson::Document doc;
   doc.ParseStream(ifsWrapper);
-  YODA_SIXSIX_FASSERT(!doc.HasParseError(), "conf parse error %s", confpath);
+  ASSERT(!doc.HasParseError(), "conf parse error %s", confpath);
   for (rapidjson::Value::ConstMemberIterator ite = doc.MemberBegin();
     ite != doc.MemberEnd(); ++ite) {
     const char *key = ite->name.GetString();
@@ -43,7 +44,7 @@ void Options::parseConf(const char *confpath) {
     if (ite->value.IsString()) {
       cmdArgs.insert({key, ite->value.GetString()});
     } else {
-      YODA_SIXSIX_FASSERT(ite->value.IsInt(), "%s is not string or int32", key);
+      ASSERT(ite->value.IsInt(), "%s is not string or int32", key);
       cmdArgs.insert({key, std::to_string(ite->value.GetInt())});
     }
     continue;
