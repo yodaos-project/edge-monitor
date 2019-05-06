@@ -85,7 +85,7 @@ void CollectBattery::afterCollect(uv_work_t *req, int status) {
   YODA_SIXSIX_FLOG("-> usb-volt: %d", _usb_voltage);
   YODA_SIXSIX_FLOG("->  cur-now: %d", _current);
   YODA_SIXSIX_FLOG("-> capacity: %d", _capacity);
-  YODA_SIXSIX_FLOG("->   status: %s", this->_status);
+  YODA_SIXSIX_FLOG("->   status: %s", _status);
   YODA_SIXSIX_FLOG("->   online: %d", _online);
   YODA_SIXSIX_FLOG("->  present: %d", _present);
 
@@ -96,7 +96,7 @@ void CollectBattery::afterCollect(uv_work_t *req, int status) {
   data->setVoltageUsb(_usb_voltage);
   data->setCurrentNow(_current);
   data->setCapacity(_capacity);
-  data->setStatus(this->_status);
+  data->setStatus(_status);
   data->setOnline(_online);
   data->setPresent(_present);
   data->setTimestamp(_timestamp);
