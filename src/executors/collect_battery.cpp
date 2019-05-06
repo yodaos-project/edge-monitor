@@ -4,32 +4,30 @@
 
 #include "collect_battery.h"
 
-static void readFile(const char *path, char *buf, int *value) {
+#define CHARGER_PATH "/sys/class/power_supply/bq25890-charger"
+#define BATTERY_PATH "/sys/class/power_supply/battery"
+
+#define GET_CHARGER_FILE(path) CHARGER_PATH path
+#define GET_BATTERY_FILE(path) BATTERY_PATH path
+
+static void readFile(const char *path, char *buf, int32_t *value) {
   FILE *file;
   int size = 9;
   file = fopen(path, "rb");
   if (file == NULL)
   {
     YODA_SIXSIX_FLOG("No such file: %s. skip collect info.", path);
-    if (value != NULL)
-    {
-      *value = 0;
-    }
+    if (value != NULL) *value = 0;
     return;
   }
   size = fread(buf, 1, size, file);
   fclose(file);
   if (size <= 0)
   {
-    if (value != NULL)
-    {
-    *value = 0;
-    }
+    if (value != NULL) *value = 0;
     return;
   }
-  if (value != NULL) {
-    *value = atoi(buf);
-  }
+  if (value != NULL) *value = atoi(buf);
 }
 
 YODA_NS_BEGIN
@@ -55,53 +53,53 @@ void CollectBattery::doCollect(uv_work_t *req) {
   YODA_SIXSIX_SLOG("========== CollectBattery startup  ==========");
   char buffer[10];
   memset(buffer, 0, sizeof buffer);
-  timestamp = time(nullptr);
+  _timestamp = time(nullptr);
 
-  readFile(GET_CHARGER_FILE("/temp"), buffer, &bat_temp);
+  readFile(GET_CHARGER_FILE("/temp"), buffer, &_bat_temp);
 
-  readFile(GET_CHARGER_FILE("/constant_charge_current"), buffer, &current);
+  readFile(GET_CHARGER_FILE("/constant_charge_current"), buffer, &_current);
 
-  readFile(GET_CHARGER_FILE("/voltage_now"), buffer, &usb_voltage);
+  readFile(GET_CHARGER_FILE("/voltage_now"), buffer, &_usb_voltage);
 
   readFile(GET_CHARGER_FILE("/status"), buffer, NULL);
-  strcpy(status, buffer);
+  strcpy(_status, buffer);
 
-  readFile(GET_CHARGER_FILE("/online"), buffer, &online);
+  readFile(GET_CHARGER_FILE("/online"), buffer, &_online);
 
-  readFile(GET_CHARGER_FILE("/present"), buffer, &present);
+  readFile(GET_CHARGER_FILE("/present"), buffer, &_present);
 
-  readFile(GET_BATTERY_FILE("/capacity"), buffer, &capacity);
+  readFile(GET_BATTERY_FILE("/capacity"), buffer, &_capacity);
 
-  readFile(GET_BATTERY_FILE("/voltage_now"), buffer, &bat_voltage);
+  readFile(GET_BATTERY_FILE("/voltage_now"), buffer, &_bat_voltage);
 
-  readFile("/sys/devices/virtual/thermal/thermal_zone0/temp", buffer, &cpu_temp);
+  readFile("/sys/devices/virtual/thermal/thermal_zone0/temp", buffer, &_cpu_temp);
 
   YODA_SIXSIX_SLOG("========== CollectBattery finish  ==========");
 }
 
 void CollectBattery::afterCollect(uv_work_t *req, int status) {
   YODA_SIXSIX_SLOG("========== Battery Info  ============");
-  YODA_SIXSIX_FLOG("-> bat-temp: %d", bat_temp);
-  YODA_SIXSIX_FLOG("-> cpu-temp: %d", cpu_temp);
-  YODA_SIXSIX_FLOG("-> bat-volt: %d", bat_voltage);
-  YODA_SIXSIX_FLOG("-> usb-volt: %d", usb_voltage);
-  YODA_SIXSIX_FLOG("->  cur-now: %d", current);
-  YODA_SIXSIX_FLOG("-> capacity: %d", capacity);
-  YODA_SIXSIX_FLOG("->   status: %s", this->status);
-  YODA_SIXSIX_FLOG("->   online: %d", online);
-  YODA_SIXSIX_FLOG("->  present: %d", present);
+  YODA_SIXSIX_FLOG("-> bat-temp: %d", _bat_temp);
+  YODA_SIXSIX_FLOG("-> cpu-temp: %d", _cpu_temp);
+  YODA_SIXSIX_FLOG("-> bat-volt: %d", _bat_voltage);
+  YODA_SIXSIX_FLOG("-> usb-volt: %d", _usb_voltage);
+  YODA_SIXSIX_FLOG("->  cur-now: %d", _current);
+  YODA_SIXSIX_FLOG("-> capacity: %d", _capacity);
+  YODA_SIXSIX_FLOG("->   status: %s", this->_status);
+  YODA_SIXSIX_FLOG("->   online: %d", _online);
+  YODA_SIXSIX_FLOG("->  present: %d", _present);
 
   rokid::BatteryInfosPtr data(new rokid::BatteryInfos);
-  data->setBatTemp(bat_temp);
-  data->setCpuTemp(cpu_temp);
-  data->setVoltageBat(bat_voltage);
-  data->setVoltageUsb(usb_voltage);
-  data->setCurrentNow(current);
-  data->setCapacity(capacity);
-  data->setStatus(this->status);
-  data->setOnline(online);
-  data->setPresent(present);
-  data->setTimestamp(timestamp);
+  data->setBatTemp(_bat_temp);
+  data->setCpuTemp(_cpu_temp);
+  data->setVoltageBat(_bat_voltage);
+  data->setVoltageUsb(_usb_voltage);
+  data->setCurrentNow(_current);
+  data->setCapacity(_capacity);
+  data->setStatus(this->_status);
+  data->setOnline(_online);
+  data->setPresent(_present);
+  data->setTimestamp(_timestamp);
 
   std::shared_ptr<Caps> caps;
   data->serialize(caps);

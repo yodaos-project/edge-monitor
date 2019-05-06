@@ -7,14 +7,6 @@
 
 #include "executor_def.h"
 
-#define CHARGER_PATH "/sys/class/power_supply/bq25890-charger"
-#define BATTERY_PATH "/sys/class/power_supply/battery"
-
-#define GET_CHARGER_FILE(path) CHARGER_PATH path
-#define GET_BATTERY_FILE(path) BATTERY_PATH path
-
-using namespace std;
-
 YODA_NS_BEGIN
 
 class CollectBattery : public IJobExecutor {
@@ -29,21 +21,21 @@ public:
 
 protected:
 
-  virtual void doCollect(uv_work_t *req);
+  void doCollect(uv_work_t *req);
 
   void afterCollect(uv_work_t *req, int status);
 
   uv_work_t *_workReq;
-  int bat_temp;
-  int cpu_temp;
-  int current;
-  int capacity;
-  int bat_voltage;
-  int usb_voltage;
-  char status[10];
-  int online;
-  int present;
-  int64_t timestamp;
+  int32_t _bat_temp;
+  int32_t _cpu_temp;
+  int32_t _current;
+  int32_t _capacity;
+  int32_t _bat_voltage;
+  int32_t _usb_voltage;
+  char _status[10];
+  int32_t _online;
+  int32_t _present;
+  int64_t _timestamp;
 };
 
 YODA_NS_END
