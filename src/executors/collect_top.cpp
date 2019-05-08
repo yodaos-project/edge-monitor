@@ -18,11 +18,11 @@ CollectTop::CollectTop() : IJobExecutor("CollectTop"),
 }
 
 CollectTop::~CollectTop() {
-  YODA_SIXSIX_FASSERT(_workReq == nullptr, "%s work not null", _name.c_str());
+  ASSERT(_workReq == nullptr, "%s work not null", _name.c_str());
 }
 
 void CollectTop::execute() {
-  YODA_SIXSIX_SASSERT(!_workReq, "CollectTop is running");
+  ASSERT(!_workReq, "CollectTop is running");
 
   _workReq = new uv_work_t;
   UV_CB_WRAP1(_workReq, cb1, CollectTop, doCollect, uv_work_t);
@@ -35,7 +35,7 @@ void CollectTop::doCollect(uv_work_t *) {
 }
 
 void CollectTop::afterCollect(uv_work_t *, int32_t status) {
-  YODA_SIXSIX_SLOG("========== busy idle iowait sys usr ==========");
+  LOG_INFO("========== busy idle iowait sys usr ==========");
   if (status == 0) {
     rokid::CPUInfosPtr data(new rokid::CPUInfos);
     data->setTimestamp(time(nullptr));
@@ -46,7 +46,7 @@ void CollectTop::afterCollect(uv_work_t *, int32_t status) {
     for (auto &pair : _top->processes) {
       if (pair.second->cpuUsagePercent > 0.0f) {
         auto &proc = pair.second;
-        YODA_SIXSIX_FLOG("process %d %s: %f, nice %d",
+        LOG_INFO("process %d %s: %f, nice %d",
                          proc->pid,
                          proc->fullname.c_str(),
                          proc->cpuUsagePercent,
@@ -72,7 +72,7 @@ void CollectTop::afterCollect(uv_work_t *, int32_t status) {
     );
     int32_t i = 0;
     for (auto &core : _top->cpu->cores) {
-      YODA_SIXSIX_FLOG("core: %d %f %f %f %f %f",
+      LOG_INFO("core: %d %f %f %f %f %f",
                        i++,
                        core->busyPercent,
                        core->idlePercent,
@@ -91,7 +91,7 @@ void CollectTop::afterCollect(uv_work_t *, int32_t status) {
     sysCpuInfo->setCores(coresInfo);
 
     std::shared_ptr<rokid::SysCPUCoreInfo> total(new rokid::SysCPUCoreInfo);
-    YODA_SIXSIX_FLOG("total : %f %f %f %f %f",
+    LOG_INFO("total : %f %f %f %f %f",
                      _top->cpu->total->busyPercent,
                      _top->cpu->total->idlePercent,
                      _top->cpu->total->iowaitPercent,

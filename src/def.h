@@ -25,8 +25,7 @@
 #include <sys/resource.h>
 #include <uv.h>
 #include <rapidjson/document.h>
-
-static const char *version = "v1.2.1";
+#include "logger.h"
 
 #define YODA_NS_BEGIN namespace yoda {
 #define YODA_NS_END }
@@ -92,5 +91,11 @@ private:\
 
 #define YODA_SIXSIX_MALLOC(type) \
   (type*)malloc(sizeof(type))
+
+#define ASSERT(exp, ...) \
+  do { if (!(exp)) { LOG_FATAL(__VA_ARGS__); assert(0); } } while (0)
+
+#define SASSERT(exp) \
+  do { if (!(exp)) { LOG_FATAL("%s", strerror(errno)); assert(0); } } while (0)
 
 #endif //YODA_SIXSIX_DEF_H

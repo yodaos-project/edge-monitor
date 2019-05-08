@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_DEVICE_INFO_H
 #define YODA_SIXSIX_DEVICE_INFO_H
 
-#include "common.h"
+#include "def.h"
 
 YODA_NS_BEGIN
 
@@ -17,6 +17,7 @@ public:
   static std::string hardware;
   static std::string turenVersion;
   static std::string vspVersion;
+  static std::string typeId;
 };
 
 YODA_NS_END

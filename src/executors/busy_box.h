@@ -5,7 +5,7 @@
 #ifndef YODA_SIXSIX_BUSY_BOX_H
 #define YODA_SIXSIX_BUSY_BOX_H
 
-#include "common.h"
+#include "def.h"
 #include "executor_def.h"
 
 // from https://github.com/mirror/busybox
@@ -15,6 +15,8 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir);
 
 std::shared_ptr<ProcessTopInfo> getProcessTop(const std::string &dir,
                                               uint32_t pid);
+
+std::shared_ptr<ProcessTopInfo> getProcessTopCache(uint32_t pid);
 
 std::shared_ptr<ProcessSmapInfo> getProcessSmap(const std::string &dir,
                                                 uint32_t pid);

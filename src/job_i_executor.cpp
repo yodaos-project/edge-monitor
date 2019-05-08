@@ -14,7 +14,7 @@ IJobExecutor::IJobExecutor(const std::string &name) : _name(name),
 }
 
 IJobExecutor::~IJobExecutor() {
-  YODA_SIXSIX_FLOG("executor %s exit", _name.c_str());
+  LOG_INFO("executor %s exit", _name.c_str());
 }
 
 void IJobExecutor::sendData(std::shared_ptr<Caps> &caps, const char *hint) {

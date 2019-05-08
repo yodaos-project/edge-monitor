@@ -6,8 +6,11 @@
 #include "WebSocketClient.h"
 #include "MessageCommon.h"
 #include "device_info.h"
+#include "env.h"
 
 using namespace rokid;
+
+static const char *version = "v1.2.2";
 
 static void parseExitCmd(int argc, char **argv);
 static void makeUVHappy();
@@ -15,9 +18,10 @@ static void makeUVHappy();
 int main(int argc, char **argv) {
   setpriority(PRIO_PGRP, 0, 19);
   parseExitCmd(argc, argv);
-  YODA_SIXSIX_SLOG("starting app");
-  yoda::DeviceInfo::init();
+  LOG_INFO("starting app");
   yoda::Options::parseCmdLine(argc, argv);
+  yoda::Env::setup();
+  yoda::DeviceInfo::init();
 
   WebSocketClient wsc;
   wsc.init();
@@ -30,20 +34,17 @@ int main(int argc, char **argv) {
 
   makeUVHappy();
 
-  YODA_SIXSIX_SLOG("all tasks have been completed, app exit");
+  LOG_INFO("all tasks have been completed, app exit");
   return 0;
 }
 
 static const char *helpStr =
   "Usage: \n"
   "[-version]         print version\n"
-  "[-conf]            set configure json, Please refer to"
+  "[-b]               running in background"
+  "[-conf]            set configure json, please refer to"
                       " https://github.com/yodaos-project/edge-monitor#Configure-json-structure"
-                      " for details\n"
-  "\n\n"
-  "Hints: it is recommend to set smapSleep to 200 for Rokid Glass\n"
-  "                          set smapSleep to 500 for A113\n"
-  "                          set smapSleep to 1000 for Rokid Kamino\n";
+                      " for details\n";
 
 void parseExitCmd(int argc, char **argv) {
   if (argc >= 2) {
@@ -68,5 +69,5 @@ void makeUVHappy() {
   }, nullptr);
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
   int r = uv_loop_close(uv_default_loop());
-  YODA_SIXSIX_FASSERT(r == 0, "uv close error: %s", uv_err_name(r));
+  ASSERT(r == 0, "uv close error: %s", uv_err_name(r));
 }

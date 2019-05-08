@@ -3,6 +3,7 @@
 //
 
 #include "busy_box.h"
+#include "util.h"
 
 #define PROCPS_BUFSIZE 1024
 #define LINE_BUF_SIZE 512
@@ -121,16 +122,24 @@ T fast_strtoul_10(char **endptr) {
   return n;
 }
 
-std::map<int32_t, std::shared_ptr<ProcessTopInfo>> processesJif;
-std::shared_ptr<SystemCPUInfo> cpuTotalJif(nullptr);
-std::shared_ptr<SystemCPUInfo> cpuTotalPrevJif(nullptr);
-std::vector<std::shared_ptr<SystemCPUInfo>> cpuCoresJif;
-std::vector<std::shared_ptr<SystemCPUInfo>> cpuCoresPrevJif;
-char line_buf[LINE_BUF_SIZE] = {0};
+static std::map<int32_t, std::shared_ptr<ProcessTopInfo>> processesJif;
+static std::shared_ptr<SystemCPUInfo> cpuTotalJif(nullptr);
+static std::shared_ptr<SystemCPUInfo> cpuTotalPrevJif(nullptr);
+static std::vector<std::shared_ptr<SystemCPUInfo>> cpuCoresJif;
+static std::vector<std::shared_ptr<SystemCPUInfo>> cpuCoresPrevJif;
+static char line_buf[LINE_BUF_SIZE] = {0};
 
 }
 
 namespace busybox {
+
+std::shared_ptr<ProcessTopInfo> getProcessTopCache(uint32_t pid) {
+  auto ite = processesJif.find(pid);
+  if (ite == processesJif.end()) {
+    return nullptr;
+  }
+  return ite->second;
+}
 
 std::shared_ptr<ProcessTopInfo>
 getProcessTop(const std::string &dir, uint32_t pid) {
@@ -361,7 +370,7 @@ std::shared_ptr<SystemTopInfo> getSystemTop(const std::string &dir) {
       p->cpuUsagePercent = CAL_PERCENT_1000(p->ticksDelta * cpup, totalTick);
       if (p->cpuUsagePercent >= 100) {
         p->cpuUsagePercent = 100.0f;
-        YODA_SIXSIX_FERROR("cpu usage error: %" PRIu64 " %f %" PRIu64,
+        LOG_ERROR("cpu usage error: %" PRIu64 " %f %" PRIu64,
           p->ticksDelta, cpup, totalTick);
       }
     }
@@ -407,7 +416,7 @@ readCPUJif(FILE *fp, const std::shared_ptr<SystemCPUInfo> &coreJif) {
 std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir) {
   std::string statDir = dir + "/stat";
   FILE *fp = fopen(statDir.c_str(), "r");
-  YODA_SIXSIX_FASSERT(fp, "read %s failed", dir.c_str());
+  ASSERT(fp, "read %s failed", dir.c_str());
   int32_t r;
 
   /* We need to parse cumulative counts even if SMP CPU display is on,
@@ -416,11 +425,11 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir) {
     /* First time here. How many CPUs?
      * There will be at least 1 /proc/stat line with cpu%d
      */
-    YODA_SIXSIX_SLOG("reading first time");
+    LOG_INFO("reading first time");
     cpuTotalJif = std::make_shared<SystemCPUInfo>();
     cpuTotalPrevJif = std::make_shared<SystemCPUInfo>();
     r = readCPUJif(fp, cpuTotalJif);
-    YODA_SIXSIX_FASSERT(r == 0, "read total cpu failed code %d", r);
+    ASSERT(r == 0, "read total cpu failed code %d", r);
     while (true) {
       std::shared_ptr<SystemCPUInfo> cpuCoreJif(new SystemCPUInfo);
       r = readCPUJif(fp, cpuCoreJif);
@@ -434,7 +443,7 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir) {
   } else {
     cpuTotalJif.swap(cpuTotalPrevJif);
     r = readCPUJif(fp, cpuTotalJif);
-    YODA_SIXSIX_FASSERT(r == 0, "read total cpu failed code %d", r);
+    ASSERT(r == 0, "read total cpu failed code %d", r);
     CAL_CPU_USAGE_PERCENT(cpuTotalJif, cpuTotalPrevJif);
 
     cpuCoresJif.swap(cpuCoresPrevJif);
@@ -443,7 +452,7 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir) {
       auto coreJif = cpuCoresJif.at(i);
       auto corePrevJif = cpuCoresPrevJif.at(i);
       r = readCPUJif(fp, coreJif);
-      YODA_SIXSIX_FASSERT(r == 0, "read cpu %zu failed code %d", i, r);
+      ASSERT(r == 0, "read cpu %zu failed code %d", i, r);
       CAL_CPU_USAGE_PERCENT(coreJif, corePrevJif);
     }
   }

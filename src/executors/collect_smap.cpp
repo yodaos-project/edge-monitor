@@ -5,26 +5,27 @@
 #include "collect_smap.h"
 #include "busy_box.h"
 #include "options.h"
+#include "util.h"
 
 YODA_NS_BEGIN
 
 CollectSmap::CollectSmap() : IJobExecutor("CollectSmap"),
                              _scanDir(),
-                             _workReq(nullptr),
                              _usleepTime(0),
+                             _workReq(nullptr),
                              _smaps(),
                              _sysMem(nullptr) {
   _scanDir = Options::get<std::string>("sysroot", "") + "/proc";
   _usleepTime = (Options::get<uint64_t>("smapSleep", 1000)) * 1000;
-  YODA_SIXSIX_FLOG("smap sleep time %" PRIu64 "us", _usleepTime);
+  LOG_INFO("smap sleep time %" PRIu64 "us", _usleepTime);
 }
 
 CollectSmap::~CollectSmap() {
-  YODA_SIXSIX_FASSERT(_workReq == nullptr, "%s work not null", _name.c_str());
+  ASSERT(_workReq == nullptr, "%s work not null", _name.c_str());
 }
 
 void CollectSmap::execute() {
-  YODA_SIXSIX_SASSERT(!_workReq, "CollectSmap is running");
+  ASSERT(!_workReq, "CollectSmap is running");
   _workReq = new uv_work_t;
   UV_CB_WRAP1(_workReq, cb1, CollectSmap, doCollect, uv_work_t);
   UV_CB_WRAP2(_workReq, cb2, CollectSmap, afterCollect, uv_work_t, int);
@@ -72,7 +73,7 @@ void CollectSmap::afterCollect(uv_work_t *, int status) {
     sysMem->setCached(_sysMem->cached);
     sysMem->setFree(_sysMem->free);
     sysMem->setTotal(_sysMem->total);
-    YODA_SIXSIX_FLOG("sys mem: total %" PRIi64 " available %" PRIi64,
+    LOG_INFO("sys mem: total %" PRIi64 " available %" PRIi64,
                      _sysMem->total, _sysMem->available);
     data->setSysMem(sysMem);
 
@@ -90,7 +91,7 @@ void CollectSmap::afterCollect(uv_work_t *, int status) {
         mem.setPrivateDirty(smap->private_dirty);
         mem.setSharedClean(smap->shared_clean);
         mem.setSharedDirty(smap->shared_dirty);
-        YODA_SIXSIX_FLOG("pss %d %s: %" PRIi64,
+        LOG_INFO("pss %d %s: %" PRIi64,
                          smap->pid,
                          smap->fullname.c_str(),
                          smap->pss
@@ -103,7 +104,7 @@ void CollectSmap::afterCollect(uv_work_t *, int status) {
     data->serialize(caps);
     this->sendData(caps, "smap data");
   } else {
-    YODA_SIXSIX_FERROR("smap collect error status: %d", status);
+    LOG_ERROR("smap collect error status: %d", status);
   }
 
   YODA_SIXSIX_SAFE_DELETE(_workReq);
