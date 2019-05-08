@@ -346,6 +346,62 @@
           "Comment": "采集时间"
         }
       ]
+    },
+    {
+      "MsgName": "BatteryInfos",
+      "Comment": "设备电池监控信息（设备->平台）",
+      "Fields": [
+        {
+          "Name": "batTemp",
+          "Type": "int32",
+          "Comment": "电池温度"
+        },
+        {
+          "Name": "cpuTemp",
+          "Type": "int32",
+          "Comment": "cpu温度"
+        },
+        {
+          "Name": "currentNow",
+          "Type": "int32",
+          "Comment": "充电电流(uA)"
+        },
+        {
+          "Name": "capacity",
+          "Type": "int32",
+          "Comment": "电池电量(%)"
+        },
+        {
+          "Name": "voltageBat",
+          "Type": "int32",
+          "Comment": "电池电压(V)"
+        },
+        {
+          "Name": "voltageUsb",
+          "Type": "int32",
+          "Comment": "USB电压(V)"
+        },
+        {
+          "Name": "status",
+          "Type": "string",
+          "Comment": "充电状态"
+        },
+        {
+          "Name": "online",
+          "Type": "int32",
+          "Comment": "online"
+        },
+        {
+          "Name": "present",
+          "Type": "int32",
+          "Comment": "present"
+        },
+        {
+          "Name": "timestamp",
+          "Type": "int64",
+          "Comment": "采集时间"
+        }
+      ]
     }
   ]
 }

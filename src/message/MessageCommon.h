@@ -15,6 +15,7 @@
 #include "TaskCommand.h"
 #include "TaskStatus.h"
 #include "DeviceStatus.h"
+#include "BatteryInfos.h"
 #include <vector>
 #include <string>
 
@@ -38,6 +39,7 @@ namespace rokid{
   typedef std::shared_ptr<TaskCommand> TaskCommandPtr;
   typedef std::shared_ptr<TaskStatus> TaskStatusPtr;
   typedef std::shared_ptr<DeviceStatus> DeviceStatusPtr;
+  typedef std::shared_ptr<BatteryInfos> BatteryInfosPtr;
   /*
    * you should call this function when you got message package,
    * [in] buff: the packgae buffer
