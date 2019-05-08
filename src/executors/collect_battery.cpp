@@ -14,20 +14,24 @@ static void readFile(const char *path, char *buf, int32_t *value) {
   FILE *file;
   int size = 9;
   file = fopen(path, "rb");
-  if (file == NULL)
-  {
-    YODA_SIXSIX_FLOG("No such file: %s. skip collect info.", path);
-    if (value != NULL) *value = 0;
+  if (file == NULL) {
+    LOG_INFO("No such file: %s. skip collect info.", path);
+    if (value != NULL) {
+      *value = 0;
+    }
     return;
   }
   size = fread(buf, 1, size, file);
   fclose(file);
-  if (size <= 0)
-  {
-    if (value != NULL) *value = 0;
+  if (size <= 0) {
+    if (value != NULL) {
+      *value = 0;
+    }
     return;
   }
-  if (value != NULL) *value = atoi(buf);
+  if (value != NULL) {
+    *value = atoi(buf);
+  }
 }
 
 YODA_NS_BEGIN
@@ -38,11 +42,11 @@ CollectBattery::CollectBattery() : IJobExecutor("CollectBattery"),
 }
 
 CollectBattery::~CollectBattery() {
-  YODA_SIXSIX_FASSERT(_workReq == nullptr, "%s uv_work_t* _workReq not nullptr", _name.c_str());
+  ASSERT(_workReq == nullptr, "%s uv_work_t* _workReq not nullptr", _name.c_str());
 }
 
 void CollectBattery::execute() {
-  YODA_SIXSIX_SASSERT(!_workReq, "CollectBattery is running");
+  ASSERT(!_workReq, "CollectBattery is running");
   _workReq = new uv_work_t;
   UV_CB_WRAP1(_workReq, cb1, CollectBattery, doCollect, uv_work_t);
   UV_CB_WRAP2(_workReq, cb2, CollectBattery, afterCollect, uv_work_t, int);
@@ -50,7 +54,7 @@ void CollectBattery::execute() {
 }
 
 void CollectBattery::doCollect(uv_work_t *req) {
-  YODA_SIXSIX_SLOG("========== CollectBattery startup  ==========");
+  LOG_INFO("========== CollectBattery startup  ==========");
   char buffer[10];
   memset(buffer, 0, sizeof buffer);
   _timestamp = time(nullptr);
@@ -74,20 +78,20 @@ void CollectBattery::doCollect(uv_work_t *req) {
 
   readFile("/sys/devices/virtual/thermal/thermal_zone0/temp", buffer, &_cpu_temp);
 
-  YODA_SIXSIX_SLOG("========== CollectBattery finish  ==========");
+  LOG_INFO("========== CollectBattery finish  ==========");
 }
 
 void CollectBattery::afterCollect(uv_work_t *req, int status) {
-  YODA_SIXSIX_SLOG("========== Battery Info  ============");
-  YODA_SIXSIX_FLOG("-> bat-temp: %d", _bat_temp);
-  YODA_SIXSIX_FLOG("-> cpu-temp: %d", _cpu_temp);
-  YODA_SIXSIX_FLOG("-> bat-volt: %d", _bat_voltage);
-  YODA_SIXSIX_FLOG("-> usb-volt: %d", _usb_voltage);
-  YODA_SIXSIX_FLOG("->  cur-now: %d", _current);
-  YODA_SIXSIX_FLOG("-> capacity: %d", _capacity);
-  YODA_SIXSIX_FLOG("->   status: %s", _status);
-  YODA_SIXSIX_FLOG("->   online: %d", _online);
-  YODA_SIXSIX_FLOG("->  present: %d", _present);
+  LOG_INFO("========== Battery Info  ============");
+  LOG_INFO("-> bat-temp: %d", _bat_temp);
+  LOG_INFO("-> cpu-temp: %d", _cpu_temp);
+  LOG_INFO("-> bat-volt: %d", _bat_voltage);
+  LOG_INFO("-> usb-volt: %d", _usb_voltage);
+  LOG_INFO("->  cur-now: %d", _current);
+  LOG_INFO("-> capacity: %d", _capacity);
+  LOG_INFO("->   status: %s", _status);
+  LOG_INFO("->   online: %d", _online);
+  LOG_INFO("->  present: %d", _present);
 
   rokid::BatteryInfosPtr data(new rokid::BatteryInfos);
   data->setBatTemp(_bat_temp);
