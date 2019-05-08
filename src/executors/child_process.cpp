@@ -176,12 +176,12 @@ void ChildProcess::onPipeData(uv_stream_t *stm, ssize_t nread,
 }
 
 void ChildProcess::onSignal(uv_signal_t *, int32_t sig) {
-  LOG_INFO("signal %d", sig);
+  LOG_INFO("signal %d, is SIGTERM: %d", sig, sig == SIGTERM);
   if (sig == SIGTERM) {
     if (_cp) {
       uv_process_kill(_cp, sig);
-      exit(1);
     }
+    exit(1);
   }
 }
 
