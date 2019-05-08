@@ -5,6 +5,7 @@ Collect and upload system data in real time. Currently supports the following fe
 - Total CPU usage and usage on per CPU.
 - CPU usage on per process.
 - System available memory.
+- System battery info.
 - PSS usage on per process, map PSS to file.
 - Monitor comredump file, compress and upload automatically.
 
@@ -28,6 +29,7 @@ The above builds an executable `yoda-sixsix` in your CMake build directory.
 |------------------|---------------|
 | `-version`       | print version |
 | `-conf`          | set configure json path |
+| `-b`             | running in the background |
 
 ## Configure json structure
 | options          | description   |
