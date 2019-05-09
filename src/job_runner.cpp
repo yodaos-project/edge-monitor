@@ -9,6 +9,7 @@
 #include "child_process.h"
 #include "crash_reporter.h"
 #include "collect_battery.h"
+#include "watch_pid.h"
 
 YODA_NS_BEGIN
 
@@ -46,6 +47,9 @@ int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
       break;
     case JobType::COLLECT_BATTERY:
       _executor = std::shared_ptr<IJobExecutor>(new CollectBattery());
+      break;
+    case JobType::WATCH_PID:
+      _executor = std::shared_ptr<IJobExecutor>(new WatchPID());
       break;
     default:
       ASSERT(0, "unknown job type %d", conf->type);

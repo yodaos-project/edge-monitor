@@ -468,19 +468,19 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir) {
   return detail;
 }
 
-std::shared_ptr<std::map<std::string, uint32_t>> getSystemTopDiff() {
-  std::shared_ptr<std::map<std::string, uint32_t>> diff;
+std::shared_ptr<std::map<uint32_t, std::string>> getSystemTopDiff() {
+  std::shared_ptr<std::map<uint32_t, std::string>> diff;
   bool empty = processesJifPrev.empty();
   for (auto p : processesJif) {
     // first run.
     if (empty) {
-      diff->insert(std::pair<std::string, uint32_t>(p.second->fullname, p.second->pid));
+      diff->insert(std::pair<uint32_t, std::string>(p.second->pid, p.second->fullname));
       continue;
     }
     auto iter = processesJifPrev.find(p.second->pid);
     // pid has changed
     if (iter == processesJifPrev.end()) {
-      diff->insert(std::pair<std::string, uint32_t>(p.second->fullname, p.second->pid));
+      diff->insert(std::pair<uint32_t, std::string>(p.second->pid, p.second->fullname));
       continue;
     }
   }

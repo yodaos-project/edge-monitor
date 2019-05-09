@@ -25,6 +25,8 @@ std::shared_ptr<SystemMemoryInfo> getSystemMemory(const std::string &dir);
 
 std::shared_ptr<SystemTopInfo> getSystemTop(const std::string &dir);
 
+std::shared_ptr<std::map<uint32_t, std::string>> getSystemTopDiff();
+
 }
 
 #endif //YODA_SIXSIX_BUSY_BOX_H

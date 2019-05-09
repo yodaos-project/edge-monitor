@@ -298,6 +298,16 @@ void JobManager::manuallyStartJobs(
   batteryConf->timeout = 500;
   batteryConf->interval = 1000;
   this->addRunnerWithConf(batteryConf, true);
+
+  std::shared_ptr<JobConf> watchConf(new JobConf);
+  batteryConf->task = _task;
+  batteryConf->type = JobType::WATCH_PID;
+  batteryConf->enable = true;
+  batteryConf->isRepeat = true;
+  batteryConf->loopCount = 0;
+  batteryConf->timeout = 500;
+  batteryConf->interval = 1000;
+  this->addRunnerWithConf(watchConf, true);
 }
 
 void JobManager::sendCollectData(std::shared_ptr<Caps> &caps, const char *hint){
