@@ -123,6 +123,7 @@ T fast_strtoul_10(char **endptr) {
 }
 
 static std::map<int32_t, std::shared_ptr<ProcessTopInfo>> processesJif;
+static std::map<int32_t, std::shared_ptr<ProcessTopInfo>> processesJifPrev;
 static std::shared_ptr<SystemCPUInfo> cpuTotalJif(nullptr);
 static std::shared_ptr<SystemCPUInfo> cpuTotalPrevJif(nullptr);
 static std::vector<std::shared_ptr<SystemCPUInfo>> cpuCoresJif;
@@ -329,7 +330,10 @@ std::shared_ptr<SystemTopInfo> getSystemTop(const std::string &dir) {
   cpuTotalJif->processTickTotal = 0;
 
   std::vector<std::string> files(yoda::Util::getFileList(dir));
+  // copy the last data
+  processesJifPrev = processesJif;
   bool isFirstTime = processesJif.empty();
+
   for (auto &file : files) {
     uint32_t pid;
     // determine if file is pid dir
@@ -462,6 +466,25 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir) {
   detail->total = cpuTotalJif;
   detail->cores = cpuCoresJif;
   return detail;
+}
+
+std::shared_ptr<std::map<std::string, uint32_t>> getSystemTopDiff() {
+  std::shared_ptr<std::map<std::string, uint32_t>> diff;
+  bool empty = processesJifPrev.empty();
+  for (auto p : processesJif) {
+    // first run.
+    if (empty) {
+      diff->insert(std::pair<std::string, uint32_t>(p.second->fullname, p.second->pid));
+      continue;
+    }
+    auto iter = processesJifPrev.find(p.second->pid);
+    // pid has changed
+    if (iter == processesJifPrev.end()) {
+      diff->insert(std::pair<std::string, uint32_t>(p.second->fullname, p.second->pid));
+      continue;
+    }
+  }
+  return diff;
 }
 
 }
