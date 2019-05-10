@@ -122,6 +122,7 @@ T fast_strtoul_10(char **endptr) {
   return n;
 }
 
+pthread_mutex_t jifMutex = PTHREAD_MUTEX_INITIALIZER; 
 static std::map<int32_t, std::shared_ptr<ProcessTopInfo>> processesJif;
 static std::map<int32_t, std::shared_ptr<ProcessTopInfo>> processesJifPrev;
 static std::shared_ptr<SystemCPUInfo> cpuTotalJif(nullptr);
@@ -135,11 +136,14 @@ static char line_buf[LINE_BUF_SIZE] = {0};
 namespace busybox {
 
 std::shared_ptr<ProcessTopInfo> getProcessTopCache(uint32_t pid) {
+  pthread_mutex_lock(&jifMutex);
   auto ite = processesJif.find(pid);
   if (ite == processesJif.end()) {
     return nullptr;
   }
-  return ite->second;
+  std::shared_ptr<ProcessTopInfo> ret = ite->second;
+  pthread_mutex_unlock(&jifMutex);
+  return ret;
 }
 
 std::shared_ptr<ProcessTopInfo>
@@ -325,12 +329,14 @@ std::shared_ptr<SystemMemoryInfo> getSystemMemory(const std::string &dir) {
   ((deno) ? std::floor(1000.0f * (num) / (deno)) / 10.0f : 0)
 
 std::shared_ptr<SystemTopInfo> getSystemTop(const std::string &dir) {
+  pthread_mutex_lock(&jifMutex);
   std::shared_ptr<SystemTopInfo> top(new SystemTopInfo);
   top->cpu = getCPUTop(dir);
   cpuTotalJif->processTickTotal = 0;
 
   std::vector<std::string> files(yoda::Util::getFileList(dir));
   // copy the last data
+  LOG_INFO("%d %d", processesJifPrev.size(), processesJif.size());
   processesJifPrev = processesJif;
   bool isFirstTime = processesJif.empty();
 
@@ -380,7 +386,7 @@ std::shared_ptr<SystemTopInfo> getSystemTop(const std::string &dir) {
     }
   }
   processesJif = top->processes;
-
+  pthread_mutex_unlock(&jifMutex);
   return top;
 }
 
@@ -469,7 +475,8 @@ std::shared_ptr<SystemCPUDetailInfo> getCPUTop(const std::string &dir) {
 }
 
 std::shared_ptr<std::map<uint32_t, std::string>> getSystemTopDiff() {
-  std::shared_ptr<std::map<uint32_t, std::string>> diff;
+  pthread_mutex_lock(&jifMutex);
+  std::shared_ptr<std::map<uint32_t, std::string>> diff(new std::map<uint32_t, std::string>);
   bool empty = processesJifPrev.empty();
   for (auto p : processesJif) {
     // first run.
@@ -484,6 +491,7 @@ std::shared_ptr<std::map<uint32_t, std::string>> getSystemTopDiff() {
       continue;
     }
   }
+  pthread_mutex_unlock(&jifMutex);
   return diff;
 }
 
