@@ -14,14 +14,8 @@ branches:
     - ci
 
 before_install:
-  - if [ $TRAVIS_OS_NAME == linux ]; then \
-      sudo apt-get update -q
-      sudo apt-get install -q -y \
-      cmake clang-format-7 \
-      build-essential \
-    elif [ $TRAVIS_OS_NAME == osx ]; \
-      brew update && brew install cmake \
-    fi
+  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update -q && sudo apt-get install -q -y cmake clang-format-7 build-essential; fi
+  - if [ $TRAVIS_OS_NAME == osx ]; brew update && brew install cmake; fi
 
 script:
   - cmake -H. -B./build
