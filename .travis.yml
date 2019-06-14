@@ -8,6 +8,10 @@ os:
   - osx
 compiler:
   - gcc
+branches:
+  only:
+    - master
+#     - ci
 
 before_install:
 # 
