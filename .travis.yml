@@ -1,0 +1,20 @@
+language: cpp
+sudo: required
+dist: trusty
+git:
+  depth: false
+os:
+  - linux
+  - osx
+compiler:
+  - gcc
+branches:
+  only:
+    - master
+#     - ci
+
+before_install:
+# 
+script:
+  - cmake -H. -B./build
+  - make -C./build
