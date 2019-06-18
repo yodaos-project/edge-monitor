@@ -42,8 +42,7 @@ static const char *helpStr =
   "Usage:                \n"
   "[-v]     print version\n"
   "[-b]     running in background\n"
-  "[-l]     print log to specific file\n"
-  "[-s]      specific log file max size in KB\n"
+  "[-l]     specific log file max size in bytes to write log to files\n"
   "[-conf]  https://github.com/yodaos-project/edge-monitor#Configure-json-structure\n";
 
 void parseExitCmd(int argc, char **argv) {
