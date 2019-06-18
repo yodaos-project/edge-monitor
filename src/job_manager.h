@@ -40,8 +40,6 @@ private:
 
   void onTaskCommand(std::shared_ptr<Caps> &caps);
 
-  void onTaskTimeout(uv_timer_t *timeoutReq);
-
   void manuallyStartJobs(
     const std::shared_ptr<std::string> &shell, int32_t shellId);
 
@@ -56,7 +54,6 @@ private:
   std::list<std::shared_ptr<JobRunner>> _runners;
   WebSocketClient *_ws;
   std::shared_ptr<TaskInfo> _task;
-  uv_timer_t *_taskTimer;
   bool _disableUpload;
 };
 

@@ -34,7 +34,6 @@ typedef struct TaskInfo {
   std::shared_ptr<std::string> shell;
   std::shared_ptr<std::string> shellType;
   int64_t timestampMs;
-  time_t timeoutMs;
   TaskStatus status;
   TaskErrorCodes errorCode;
 } TaskInfo;

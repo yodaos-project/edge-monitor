@@ -17,7 +17,6 @@ JobManager::JobManager() :
   _runners(),
   _ws(nullptr),
   _task(nullptr),
-  _taskTimer(nullptr),
   _disableUpload(false) {
 
 }
@@ -51,11 +50,6 @@ int JobManager::initWithWS(WebSocketClient *ws) {
   task->shellId = obj["shellId"].GetUint();
   task->shell = std::make_shared<std::string>(obj["shell"].GetString());
   task->shellType = std::make_shared<std::string>(obj["shellType"].GetString());
-  task->timestampMs = obj["timestamp"].GetInt64();
-  if (task->timestampMs == 0) {
-    task->timeoutMs = 15 * 86400 * 1000; // run a month by default
-    task->timestampMs = Util::getTimeMS() + task->timeoutMs;
-  }
   this->startNewTask(task);
   return 0;
 }
@@ -88,8 +82,6 @@ void JobManager::onRunnerStop(JobRunner *runner) {
   LOG_INFO("runner left %zu", _runners.size());
   if (_runners.empty()) {
     LOG_INFO("stopping task timer");
-    uv_timer_stop(_taskTimer);
-    UV_CLOSE_HANDLE(_taskTimer, JobManager, onUVHandleClosed);
 
     char msg[256] = {0};
     sprintf(msg, "end task with code: %d", _task->errorCode);
@@ -200,7 +192,6 @@ void JobManager::onTaskCommand(std::shared_ptr<Caps> &caps) {
     task->shell = command->getShellContent();
     task->shellType = command->getShellType();
     task->timestampMs = command->getTimestamp();
-    task->timeoutMs = task->timestampMs - Util::getTimeMS();
     this->startNewTask(task);
   }
 }
@@ -231,17 +222,6 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
 
   this->manuallyStartJobs(task->shell, task->shellId);
 
-  _taskTimer = (uv_timer_t *) malloc(sizeof(uv_timer_t));
-  UV_CB_WRAP1(_taskTimer, cb2, JobManager, onTaskTimeout, uv_timer_t);
-  uv_timer_init(uv_default_loop(), _taskTimer);
-  uv_timer_start(_taskTimer, cb2, (uint64_t) _task->timeoutMs, 0);
-  float timeoutHours = (float) _task->timeoutMs / 1000 / 3600;
-  LOG_INFO("task timeout after %.2f hours", timeoutHours);
-}
-
-void JobManager::onTaskTimeout(uv_timer_t *) {
-  LOG_INFO("task time timeout");
-  this->endTask(TaskErrorCodes::NO_ERROR);
 }
 
 void JobManager::manuallyStartJobs(
@@ -317,12 +297,8 @@ void JobManager::sendMsg(std::shared_ptr<Caps> &caps, const char *hint) {
 }
 
 void JobManager::onUVHandleClosed(uv_handle_t *handle) {
-  if ((uv_handle_t *) _taskTimer == handle) {
-    YODA_SIXSIX_SAFE_FREE(_taskTimer);
-  } else {
-    LOG_INFO("manager receive unknown handle close, free it");
-    YODA_SIXSIX_SAFE_FREE(handle);
-  }
+  LOG_INFO("manager receive unknown handle close, free it");
+  YODA_SIXSIX_SAFE_FREE(handle);
 }
 
 YODA_NS_END
