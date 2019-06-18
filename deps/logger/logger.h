@@ -16,11 +16,15 @@ typedef enum {
 #define LOG_ERROR(...)    do_log(LOG_LEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_FATAL(...)    do_log(LOG_LEVEL_FATAL, __FILE__, __LINE__, __VA_ARGS__)
 
-extern
+#ifdef __cplusplus
+extern "C" {
+#endif
 void do_log(log_level level, const char *file, int line, const char *fmt, ...);
 
-extern void set_log_file(const char *stdout_path, const char *stderr_path);
+void set_logger_file(const char *path, size_t max_size);
 
-extern void close_log_file();
+#ifdef __cplusplus
+}
+#endif
 
 #endif // YODA_SIXSIX_LOGGER_H_
