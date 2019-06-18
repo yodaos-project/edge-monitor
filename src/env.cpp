@@ -13,12 +13,9 @@ int32_t Env::setup() {
   int32_t pid = getpid();
   int32_t pgid = getpgid(pid);
   pthread_atfork(nullptr, nullptr, nullptr);
-  bool isLog2File = Options::exists("l");
-  if (isLog2File) {
-    size_t maxSize = Options::get<size_t>("s", 0);
-    std::string logFile = Options::get<std::string>("l", "");
-    set_logger_file(logFile.c_str(), maxSize);
-  }
+  size_t logMaxSize = Options::get<size_t>("l", 0);
+  LOG_INFO("log file size %ld", logMaxSize);
+  set_logger_file_size(logMaxSize);
   if (Options::exists("b")) {
     pid = fork();
     ASSERT(pid >= 0, "fork self error: %d", pid);
@@ -30,7 +27,7 @@ int32_t Env::setup() {
     pid = getpid();
     pgid = getpgid(pid);
     LOG_INFO("child running with pid %d, pgid %d", pid, pgid);
-    if (!isLog2File) {
+    if (logMaxSize == 0) {
       dup2(0, 1);
       dup2(0, 2);
     }

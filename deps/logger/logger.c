@@ -12,11 +12,11 @@
 #include <unistd.h>
 #include <pthread.h>
 
-static const int file_max_count = 2;
+static const int file_max_count = 3;
 static int file_index = 0;
 static pthread_t adjust_th;
 static FILE *redirect_file = NULL;
-static const char* file_name = NULL;
+static const char* file_name_format = "yoda666.%d.log";
 
 static const char *level_colors[] = {
   "", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"
@@ -26,7 +26,7 @@ static FILE **log_files[] = {
   &stdout, &stdout, &stdout, &stderr, &stderr,
 };
 
-static size_t log_max_size = 5 * 1024;
+static size_t log_max_size = 0;
 
 void do_log(log_level level, const char *file, int line, const char *fmt, ...) {
   struct timeval cur_time = {};
@@ -60,28 +60,32 @@ void do_log(log_level level, const char *file, int line, const char *fmt, ...) {
 }
 
 void update_log_file() {
-  if (redirect_file) {
-    fclose(redirect_file);
-    redirect_file = NULL;
-  }
-  char path[256];
   if (file_index < file_max_count) {
     ++file_index;
   } else {
-    sprintf(path, "%d.%s",file_index, file_name);
-    unlink(path);
-    file_index = 1;
+    char old_name[256];
+    char new_name[256];
+    // remove first log file
+    sprintf(old_name, file_name_format, 1);
+    unlink(old_name);
+    for (int i = 2; i <= file_max_count; ++i) {
+      sprintf(old_name, file_name_format, i);
+      sprintf(new_name, file_name_format, i - 1);
+      rename(old_name, new_name);
+    }
   }
-  sprintf(path, "%d.%s",file_index, file_name);
-  redirect_file = fopen(path, "a+");
-  if(!redirect_file) {
+  char path[256];
+  sprintf(path, file_name_format, file_index);
+  FILE *new_redirect_file = fopen(path, "a+");
+  if(!new_redirect_file) {
     LOG_ERROR("open log file %s error: %s\n", path, strerror(errno));
     return;
   }
-  int fd = fileno(redirect_file);
+  int fd = fileno(new_redirect_file);
   LOG_INFO("redirect 1,2 to %s, fd: %d", path, fd);
   dup2(fd, 1);
   dup2(fd, 2);
+  redirect_file = new_redirect_file;
 }
 
 void* adjust_file_size(void *data) {
@@ -98,15 +102,12 @@ void* adjust_file_size(void *data) {
   pthread_exit(0);
 }
 
-void set_logger_file(const char *path, size_t max_size) {
-  file_name = strdup(path);
-  if (max_size > 0) {
-    log_max_size = max_size;
-    LOG_INFO("log file size %ld", log_max_size);
-  } else {
-    LOG_INFO("log file using default size %ld bytes", log_max_size);
+void set_logger_file_size(size_t size) {
+  if (size > 0) {
+    log_max_size = size;
+    LOG_INFO("log file size %ld", size);
+    update_log_file();
+    pthread_create(&adjust_th, NULL, adjust_file_size, NULL);
+    pthread_detach(adjust_th);
   }
-  update_log_file();
-  pthread_create(&adjust_th, NULL, adjust_file_size, NULL);
-  pthread_detach(adjust_th);
 }
