@@ -35,7 +35,7 @@ void CollectTop::doCollect(uv_work_t *) {
 }
 
 void CollectTop::afterCollect(uv_work_t *, int32_t status) {
-  LOG_INFO("========== busy idle iowait sys usr ==========");
+  LOG_VERBOSE("========== busy idle iowait sys usr ==========");
   if (status == 0) {
     rokid::CPUInfosPtr data(new rokid::CPUInfos);
     data->setTimestamp(time(nullptr));
@@ -46,12 +46,11 @@ void CollectTop::afterCollect(uv_work_t *, int32_t status) {
     for (auto &pair : _top->processes) {
       if (pair.second->cpuUsagePercent > 0.0f) {
         auto &proc = pair.second;
-        LOG_INFO("process %d %s: %f, nice %d",
+        LOG_VERBOSE("process %d %s: %f, nice %d",
                          proc->pid,
                          proc->fullname.c_str(),
                          proc->cpuUsagePercent,
-                         proc->nice
-        );
+                         proc->nice);
         procList->emplace_back();
         rokid::ProcCPUInfo &procCpu = procList->back();
         procCpu.setPid(proc->pid);
@@ -72,7 +71,7 @@ void CollectTop::afterCollect(uv_work_t *, int32_t status) {
     );
     int32_t i = 0;
     for (auto &core : _top->cpu->cores) {
-      LOG_INFO("core: %d %f %f %f %f %f",
+      LOG_VERBOSE("core: %d %f %f %f %f %f",
                        i++,
                        core->busyPercent,
                        core->idlePercent,
@@ -91,7 +90,7 @@ void CollectTop::afterCollect(uv_work_t *, int32_t status) {
     sysCpuInfo->setCores(coresInfo);
 
     std::shared_ptr<rokid::SysCPUCoreInfo> total(new rokid::SysCPUCoreInfo);
-    LOG_INFO("total : %f %f %f %f %f",
+    LOG_VERBOSE("total : %f %f %f %f %f",
                      _top->cpu->total->busyPercent,
                      _top->cpu->total->idlePercent,
                      _top->cpu->total->iowaitPercent,

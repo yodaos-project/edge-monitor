@@ -23,17 +23,20 @@ int main(int argc, char **argv) {
   yoda::Env::setup();
   yoda::DeviceInfo::init();
 
-  WebSocketClient wsc;
-  wsc.init();
-  yoda::JobManager manager;
-  manager.initWithWS(&wsc);
+  WebSocketClient *wsc = new WebSocketClient();
+  wsc->init();
+  yoda::JobManager *manager = new yoda::JobManager();
+  manager->startMonitor();
+  manager->setWsClient(wsc);
 
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  wsc.stop();
+  wsc->stop();
 
   makeUVHappy();
 
+  delete wsc;
+  delete manager;
   LOG_INFO("all tasks have been completed, app exit");
   return 0;
 }

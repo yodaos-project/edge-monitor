@@ -167,9 +167,9 @@ void ChildProcess::onPipeData(uv_stream_t *stm, ssize_t nread,
                               const uv_buf_t *buf) {
   if (nread > 0) {
     if (stm == (uv_stream_t *) _pipe1) {
-      fprintf(stdout, "child-info: %s", buf->base);
+      LOG_INFO("child-info: %s", buf->base);
     } else {
-      fprintf(stderr, "child-error: %s", buf->base);
+      LOG_ERROR("child-error: %s", buf->base);
     }
   }
   free(buf->base);

@@ -17,41 +17,15 @@ JobManager::JobManager() :
   _runners(),
   _ws(nullptr),
   _task(nullptr),
-  _disableUpload(false) {
+  _disableUpload(false),
+  _wsConnected(false) {
 
 }
 
-int JobManager::initWithWS(WebSocketClient *ws) {
+void JobManager::setWsClient(WebSocketClient *ws) {
   _ws = ws;
   ws->setRecvCallback(std::bind(&JobManager::onWSMessage, this, _1));
   ws->setEventCallback(std::bind(&JobManager::onWSEvent, this, _1));
-  _disableUpload = Options::get<uint32_t>("disableUpload", 0) != 0;
-  std::string confpath = Options::get<std::string>("conf", "");
-  if (confpath.empty()) {
-    return 0;
-  }
-  std::ifstream ifs(confpath);
-  ASSERT(ifs.is_open(),
-                      "cannot load conf from %s",
-                      confpath.c_str());
-  rapidjson::IStreamWrapper ifsWrapper(ifs);
-  rapidjson::Document doc;
-  doc.ParseStream(ifsWrapper);
-  ASSERT(!doc.HasParseError(),
-                      "conf parse error %s",
-                      confpath.c_str());
-  if (!doc.HasMember("task")) {
-    return 0;
-  }
-  auto &obj = doc["task"];
-  std::shared_ptr<yoda::TaskInfo> task(new yoda::TaskInfo{0});
-  task->id = obj["id"].GetInt();
-  task->type = std::make_shared<std::string>(obj["type"].GetString());
-  task->shellId = obj["shellId"].GetUint();
-  task->shell = std::make_shared<std::string>(obj["shell"].GetString());
-  task->shellType = std::make_shared<std::string>(obj["shellType"].GetString());
-  this->startNewTask(task);
-  return 0;
 }
 
 void JobManager::addRunnerWithConf(const std::shared_ptr<JobConf> &conf,
@@ -148,6 +122,7 @@ void JobManager::onWSEvent(EventCode code) {
 }
 
 void JobManager::onWSConnected() {
+  _wsConnected = true;
   auto deviceStatus = rokid::DeviceStatus::create();
   deviceStatus->setTimestamp(Util::getTimeMS());
   deviceStatus->setSn(DeviceInfo::sn.c_str());
@@ -170,6 +145,7 @@ void JobManager::onWSConnected() {
 
 void JobManager::onWSDisconnected() {
   LOG_ERROR("ws disconnected");
+  _wsConnected = false;
 }
 
 void JobManager::onTaskCommand(std::shared_ptr<Caps> &caps) {
@@ -220,24 +196,20 @@ void JobManager::startNewTask(const std::shared_ptr<TaskInfo> &task) {
   }
   _task = task;
 
-  this->manuallyStartJobs(task->shell, task->shellId);
-
-}
-
-void JobManager::manuallyStartJobs(
-  const std::shared_ptr<std::string> &shell, int32_t shellId) {
-  LOG_INFO("start shell job with shell id %d", shellId);
   std::shared_ptr<JobConf> shellConf(new JobConf);
   shellConf->task = _task;
   shellConf->type = JobType::SPAWN_CHILD;
-  shellConf->data = shell;
+  shellConf->data = task->shell;
   shellConf->enable = true;
   shellConf->isRepeat = false;
   shellConf->loopCount = 0;
   shellConf->timeout = 0;
   shellConf->interval = 0;
   this->addRunnerWithConf(shellConf, true);
+}
 
+void JobManager::startMonitor() {
+   _disableUpload = Options::get<uint32_t>("disableUpload", 0) != 0;
   std::shared_ptr<JobConf> topConf(new JobConf);
   topConf->task = _task;
   topConf->type = JobType::COLLECT_TOP;
@@ -265,8 +237,8 @@ void JobManager::manuallyStartJobs(
   crashReporterConf->enable = true;
   crashReporterConf->isRepeat = true;
   crashReporterConf->loopCount = 0;
-  crashReporterConf->timeout = 1000;
-  crashReporterConf->interval = 1 * 1000;
+  crashReporterConf->timeout = 5000;
+  crashReporterConf->interval = 5000;
   this->addRunnerWithConf(crashReporterConf, true);
 
   std::shared_ptr<JobConf> batteryConf(new JobConf);
@@ -275,8 +247,8 @@ void JobManager::manuallyStartJobs(
   batteryConf->enable = true;
   batteryConf->isRepeat = true;
   batteryConf->loopCount = 0;
-  batteryConf->timeout = 500;
-  batteryConf->interval = 1000;
+  batteryConf->timeout = 3000;
+  batteryConf->interval = 3000;
   this->addRunnerWithConf(batteryConf, true);
 }
 
@@ -287,9 +259,12 @@ void JobManager::sendCollectData(std::shared_ptr<Caps> &caps, const char *hint){
 }
 
 void JobManager::sendMsg(std::shared_ptr<Caps> &caps, const char *hint) {
+  if (!_wsConnected) {
+    LOG_ERROR("ws disconnected, ignore send message %s", hint);
+  }
   if (_ws) {
     _ws->sendMsg(caps, [hint](SendResult sr, void *) {
-      LOG_INFO("send ws %s result %u", hint, sr);
+      LOG_VERBOSE("send ws %s result %u", hint, sr);
     });
   } else {
     LOG_ERROR("ws is null, drop %s data", hint);

@@ -15,7 +15,7 @@ static void readFile(const char *path, char *buf, int32_t *value) {
   int size = 9;
   file = fopen(path, "rb");
   if (file == NULL) {
-    LOG_INFO("No such file: %s. skip collect info.", path);
+    LOG_VERBOSE("No such file: %s. skip collect info.", path);
     if (value != NULL) {
       *value = 0;
     }
@@ -54,7 +54,7 @@ void CollectBattery::execute() {
 }
 
 void CollectBattery::doCollect(uv_work_t *req) {
-  LOG_INFO("========== CollectBattery startup  ==========");
+  LOG_VERBOSE("========== CollectBattery startup  ==========");
   char buffer[10];
   memset(buffer, 0, sizeof buffer);
   _timestamp = time(nullptr);
@@ -78,20 +78,20 @@ void CollectBattery::doCollect(uv_work_t *req) {
 
   readFile("/sys/devices/virtual/thermal/thermal_zone0/temp", buffer, &_cpu_temp);
 
-  LOG_INFO("========== CollectBattery finish  ==========");
+  LOG_VERBOSE("========== CollectBattery finish  ==========");
 }
 
 void CollectBattery::afterCollect(uv_work_t *req, int status) {
-  LOG_INFO("========== Battery Info  ============");
-  LOG_INFO("-> bat-temp: %d", _bat_temp);
-  LOG_INFO("-> cpu-temp: %d", _cpu_temp);
-  LOG_INFO("-> bat-volt: %d", _bat_voltage);
-  LOG_INFO("-> usb-volt: %d", _usb_voltage);
-  LOG_INFO("->  cur-now: %d", _current);
-  LOG_INFO("-> capacity: %d", _capacity);
-  LOG_INFO("->   status: %s", _status);
-  LOG_INFO("->   online: %d", _online);
-  LOG_INFO("->  present: %d", _present);
+  LOG_VERBOSE("========== Battery Info  ============");
+  LOG_VERBOSE("-> bat-temp: %d", _bat_temp);
+  LOG_VERBOSE("-> cpu-temp: %d", _cpu_temp);
+  LOG_VERBOSE("-> bat-volt: %d", _bat_voltage);
+  LOG_VERBOSE("-> usb-volt: %d", _usb_voltage);
+  LOG_VERBOSE("->  cur-now: %d", _current);
+  LOG_VERBOSE("-> capacity: %d", _capacity);
+  LOG_VERBOSE("->   status: %s", _status);
+  LOG_VERBOSE("->   online: %d", _online);
+  LOG_VERBOSE("->  present: %d", _present);
 
   rokid::BatteryInfosPtr data(new rokid::BatteryInfos);
   data->setBatTemp(_bat_temp);

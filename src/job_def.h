@@ -13,6 +13,7 @@ typedef enum class TaskErrorCodes {
   NO_ERROR = 0,
   MULTI_TASK,
   NO_RESOURCE,
+  CANCEL,
 } TaskErrorCodes;
 
 typedef enum class TaskStatus {

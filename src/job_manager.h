@@ -19,16 +19,18 @@ class JobManager {
 public:
   JobManager();
 
-  int initWithWS(WebSocketClient *ws);
-
-  void addRunnerWithConf(const std::shared_ptr<JobConf> &conf,
-                         bool autoRun = false);
-
-  void startNewTask(const std::shared_ptr<TaskInfo> &task);
+  void setWsClient(WebSocketClient *ws);
 
   void sendCollectData(std::shared_ptr<Caps> &caps, const char *hint = "");
 
+  void startMonitor();
+
 private:
+
+  void startNewTask(const std::shared_ptr<TaskInfo> &task);
+
+  void addRunnerWithConf(const std::shared_ptr<JobConf> &conf,
+                         bool autoRun = false);
 
   void onRunnerStop(JobRunner *runner);
 
@@ -55,6 +57,7 @@ private:
   WebSocketClient *_ws;
   std::shared_ptr<TaskInfo> _task;
   bool _disableUpload;
+  bool _wsConnected;
 };
 
 YODA_NS_END

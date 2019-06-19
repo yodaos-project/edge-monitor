@@ -10,7 +10,7 @@ typedef enum {
   LOG_LEVEL_FATAL = 4,
 } log_level;
 
-#define LOG_VERBOSE(...)  do_log(LOG_LEVEL_VERBOSE, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_VERBOSE(...) // do_log(LOG_LEVEL_VERBOSE, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_INFO(...)     do_log(LOG_LEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_WARN(...)     do_log(LOG_LEVEL_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_ERROR(...)    do_log(LOG_LEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
