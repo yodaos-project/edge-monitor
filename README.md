@@ -32,6 +32,7 @@ The above builds an executable `yoda-sixsix` in your CMake build directory.
 | `-version`       | print version |
 | `-conf`          | set configure json path |
 | `-b`             | running in the background |
+| `-l`             | set log file directory to write log to files |
 
 ## Configure json structure
 | options          | description   |
