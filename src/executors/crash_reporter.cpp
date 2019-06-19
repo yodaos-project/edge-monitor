@@ -160,7 +160,8 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   delete conn;
 }
 
-void CrashReporter::afterExecute(uv_work_t *, int status) {
+int CrashReporter::afterExecute(uv_work_t *, int status) {
+  return 0;
 }
 
 YODA_NS_END

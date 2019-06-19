@@ -12,7 +12,7 @@ YODA_NS_BEGIN
 
 class JobManager;
 
-typedef std::function<void()> ExecuteCallback;
+typedef std::function<void(int code)> ExecuteCallback;
 
 class IJobExecutor {
 public:
@@ -38,7 +38,7 @@ protected:
 
   void sendData(std::shared_ptr<Caps> &caps, const char *hint);
 
-  void onJobDone();
+  void onJobDone(int code);
 
   std::string _name;
 

@@ -37,6 +37,7 @@ private:
   uv_pipe_t *_pipe0;
   uv_pipe_t *_pipe1;
   uv_pipe_t *_pipe2;
+  int _code;
 };
 
 YODA_NS_END

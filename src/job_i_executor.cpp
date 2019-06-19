@@ -21,9 +21,9 @@ void IJobExecutor::sendData(std::shared_ptr<Caps> &caps, const char *hint) {
   _manager->sendCollectData(caps, hint);
 }
 
-void IJobExecutor::onJobDone() {
+void IJobExecutor::onJobDone(int code) {
   if (_executeCb) {
-    _executeCb();
+    _executeCb(code);
   }
 }
 

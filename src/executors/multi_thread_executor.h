@@ -25,7 +25,7 @@ protected:
 
   virtual void doExecute(uv_work_t *req) = 0;
 
-  virtual void afterExecute(uv_work_t *req, int status) = 0;
+  virtual int afterExecute(uv_work_t *req, int status) = 0;
 
   void onThreadStart(uv_work_t *req);
 

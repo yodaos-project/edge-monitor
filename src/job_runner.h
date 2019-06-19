@@ -25,6 +25,8 @@ public:
 
   int initWithConf(const std::shared_ptr<JobConf> &conf);
 
+  std::shared_ptr<JobConf> getConf() { return _conf; }
+
   void run();
 
   int32_t stop();
@@ -39,7 +41,7 @@ public:
 
 private:
 
-  void onExecuteFinish();
+  void onExecuteFinish(int code);
 
   void onUVHandleClosed(uv_handle_t *handle);
 

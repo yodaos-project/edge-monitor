@@ -110,7 +110,7 @@ void CollectSmap::afterCollect(uv_work_t *, int status) {
   _smaps.clear();
   _sysMem.reset();
 
-  this->onJobDone();
+  this->onJobDone(0);
 }
 
 YODA_NS_END

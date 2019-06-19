@@ -21,7 +21,8 @@ ChildProcess::ChildProcess(const std::shared_ptr<JobConf> &conf) :
   _filePath{0},
   _pipe0(nullptr),
   _pipe1(nullptr),
-  _pipe2(nullptr) {
+  _pipe2(nullptr),
+  _code(0) {
   auto task = conf->task;
   ASSERT(task, "conf task is empty");
   auto unzipRoot = Options::get<std::string>("unzipRoot", "/tmp");
@@ -141,6 +142,7 @@ void ChildProcess::onChildProcessExit(uv_process_t *,
   UV_CLOSE_HANDLE(_pipe0, ChildProcess, onUVHandleClosed);
   UV_CLOSE_HANDLE(_pipe1, ChildProcess, onUVHandleClosed);
   UV_CLOSE_HANDLE(_pipe2, ChildProcess, onUVHandleClosed);
+  _code = code;
 }
 
 void ChildProcess::onUVHandleClosed(uv_handle_t *handle) {
@@ -160,7 +162,7 @@ void ChildProcess::onUVHandleClosed(uv_handle_t *handle) {
     return;
   }
   LOG_INFO("child process closed");
-  this->onJobDone();
+  this->onJobDone(_code);
 }
 
 void ChildProcess::onPipeData(uv_stream_t *stm, ssize_t nread,

@@ -27,14 +27,14 @@ public:
 
 private:
 
-  void startNewTask(const std::shared_ptr<TaskInfo> &task);
+  void startNewTask(const std::shared_ptr<rokid::TaskCommand> &taskCommand);
 
-  void addRunnerWithConf(const std::shared_ptr<JobConf> &conf,
-                         bool autoRun = false);
+  std::shared_ptr<JobRunner> addRunnerWithConf(
+    const std::shared_ptr<JobConf> &conf);
 
   void onRunnerStop(JobRunner *runner);
 
-  void endTask(TaskErrorCodes errorCode);
+  void endTask(TaskStatus status);
 
   void onWSMessage(std::shared_ptr<Caps> &caps);
 
@@ -54,8 +54,9 @@ private:
   void onUVHandleClosed(uv_handle_t *handle);
 
   std::list<std::shared_ptr<JobRunner>> _runners;
+  std::shared_ptr<JobRunner> _taskRunner;
+  std::shared_ptr<rokid::TaskCommand> _pendingTaskCommand;
   WebSocketClient *_ws;
-  std::shared_ptr<TaskInfo> _task;
   bool _disableUpload;
   bool _wsConnected;
 };

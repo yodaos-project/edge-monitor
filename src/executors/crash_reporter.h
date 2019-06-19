@@ -19,7 +19,7 @@ protected:
 
   void doExecute(uv_work_t *) override;
 
-  void afterExecute(uv_work_t *, int status) override;
+  int afterExecute(uv_work_t *, int status) override;
 
   void compressAndUpload(const std::string &dir, const std::string &filename);
 

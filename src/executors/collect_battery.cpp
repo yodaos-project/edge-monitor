@@ -110,7 +110,7 @@ void CollectBattery::afterCollect(uv_work_t *req, int status) {
   this->sendData(caps, "battery info");
 
   YODA_SIXSIX_SAFE_DELETE(_workReq);
-  this->onJobDone();
+  this->onJobDone(0);
 }
 
 int CollectBattery::stop() {

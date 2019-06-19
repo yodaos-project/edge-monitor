@@ -29,9 +29,9 @@ void IMultiThreadExecutor::onThreadStart(uv_work_t *req) {
 }
 
 void IMultiThreadExecutor::onThreadEnd(uv_work_t *req, int status) {
-  this->afterExecute(req, status);
+  int code = this->afterExecute(req, status);
   YODA_SIXSIX_SAFE_DELETE(_workReq);
-  this->onJobDone();
+  this->onJobDone(code);
 }
 
 int IMultiThreadExecutor::stop() {

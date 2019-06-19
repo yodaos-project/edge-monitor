@@ -51,7 +51,7 @@ int JobRunner::initWithConf(const std::shared_ptr<JobConf> &conf) {
       ASSERT(0, "unknown job type %d", conf->type);
   }
   _name = _executor->getName();
-  _executor->setExecuteCb(std::bind(&JobRunner::onExecuteFinish, this));
+  _executor->setExecuteCb(std::bind(&JobRunner::onExecuteFinish, this, _1));
   _executor->setManager(_manager);
   return 0;
 }
@@ -92,7 +92,7 @@ int32_t JobRunner::stop() {
   return 1;
 }
 
-void JobRunner::onExecuteFinish() {
+void JobRunner::onExecuteFinish(int code) {
   if (_state == JobState::STOP) {
     // timer is closing or closed
     int32_t r = _executor->stop();

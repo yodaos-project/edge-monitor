@@ -114,7 +114,7 @@ void CollectTop::afterCollect(uv_work_t *, int32_t status) {
   YODA_SIXSIX_SAFE_DELETE(_workReq);
   _top.reset();
 
-  this->onJobDone();
+  this->onJobDone(0);
 }
 
 int CollectTop::stop() {
