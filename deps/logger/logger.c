@@ -4,10 +4,8 @@
 #include <stdarg.h>
 #include <sys/time.h>
 #include <stdlib.h>
-#include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -16,7 +14,7 @@ static const int file_max_count = 3;
 static int file_index = 0;
 static pthread_t adjust_th;
 static FILE *redirect_file = NULL;
-static const char* file_name_format = "yoda666.%d.log";
+static char* log_file_directory = NULL;
 
 static const char *level_colors[] = {
   "", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"
@@ -26,7 +24,7 @@ static FILE **log_files[] = {
   &stdout, &stdout, &stdout, &stderr, &stderr,
 };
 
-static size_t log_max_size = 0;
+static size_t log_max_size = 2 * 1024 * 1024;
 
 void do_log(log_level level, const char *file, int line, const char *fmt, ...) {
   struct timeval cur_time = {};
@@ -59,6 +57,10 @@ void do_log(log_level level, const char *file, int line, const char *fmt, ...) {
   va_end(args);
 }
 
+void get_file_name(char *path, int index) {
+  sprintf(path, "%s/yoda666.%d.log", log_file_directory, index);
+}
+
 void update_log_file() {
   if (file_index < file_max_count) {
     ++file_index;
@@ -66,16 +68,16 @@ void update_log_file() {
     char old_name[256];
     char new_name[256];
     // remove first log file
-    sprintf(old_name, file_name_format, 1);
+    get_file_name(old_name, 1);
     unlink(old_name);
     for (int i = 2; i <= file_max_count; ++i) {
-      sprintf(old_name, file_name_format, i);
-      sprintf(new_name, file_name_format, i - 1);
+      get_file_name(old_name, i);
+      get_file_name(new_name, i - 1);
       rename(old_name, new_name);
     }
   }
   char path[256];
-  sprintf(path, file_name_format, file_index);
+  get_file_name(path, file_index);
   FILE *new_redirect_file = fopen(path, "a+");
   if(!new_redirect_file) {
     LOG_ERROR("open log file %s error: %s\n", path, strerror(errno));
@@ -102,10 +104,24 @@ void* adjust_file_size(void *data) {
   pthread_exit(0);
 }
 
-void set_logger_file_size(size_t size) {
-  if (size > 0) {
-    log_max_size = size;
-    LOG_INFO("log file size %ld", size);
+void set_logger_file_directory(const char *directory) {
+  if (directory) {
+    if (access(directory, W_OK | R_OK) != 0) {
+      if (errno == ENOENT) {
+        LOG_INFO("create log directory %s", directory);
+        if (mkdir(directory, S_IRWXU) != 0) {
+          const char *err = strerror(errno);
+          LOG_FATAL("unable to create log directory %s: %s", directory, err);
+          abort();
+        }
+      } else {
+        const char *err = strerror(errno);
+        LOG_FATAL("unable to read/write log directory %s: %s", directory, err);
+        abort();
+      }
+    }
+    log_file_directory = strdup(directory);
+    LOG_INFO("log file directory %s", directory);
     update_log_file();
     pthread_create(&adjust_th, NULL, adjust_file_size, NULL);
     pthread_detach(adjust_th);

@@ -21,7 +21,7 @@ extern "C" {
 #endif
 void do_log(log_level level, const char *file, int line, const char *fmt, ...);
 
-void set_logger_file_size(size_t size);
+void set_logger_file_directory(const char *directory);
 
 #ifdef __cplusplus
 }
