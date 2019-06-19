@@ -8,13 +8,12 @@
 YODA_NS_BEGIN
 
 int32_t Env::setup() {
+  close(0);
+  open("/dev/null", O_RDWR);
   int32_t pid = getpid();
   int32_t pgid = getpgid(pid);
-  LOG_INFO("pid, %d, pgid %d", pid, pgid);
   pthread_atfork(nullptr, nullptr, nullptr);
-  if (Options::exists("i")) {
-    // ...
-  } else if (Options::exists("b")) {
+  if (Options::exists("b")) {
     pid = fork();
     ASSERT(pid >= 0, "fork self error: %d", pid);
     if (pid > 0) {
@@ -25,10 +24,12 @@ int32_t Env::setup() {
     pid = getpid();
     pgid = getpgid(pid);
     LOG_INFO("child running with pid %d, pgid %d", pid, pgid);
-    close(0);
-    open("/dev/null", O_RDWR);
     dup2(0, 1);
     dup2(0, 2);
+  }
+  std::string logDirectory = Options::get<std::string>("l", "");
+  if (!logDirectory.empty()) {
+    set_logger_file_directory(logDirectory.c_str());
   }
   return 0;
 }

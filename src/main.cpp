@@ -10,7 +10,7 @@
 
 using namespace rokid;
 
-static const char *version = "v1.2.2";
+static const char *version = "v1.3.0";
 
 static void parseExitCmd(int argc, char **argv);
 static void makeUVHappy();
@@ -39,19 +39,18 @@ int main(int argc, char **argv) {
 }
 
 static const char *helpStr =
-  "Usage: \n"
-  "[-version]         print version\n"
-  "[-b]               running in background"
-  "[-conf]            set configure json, please refer to"
-                      " https://github.com/yodaos-project/edge-monitor#Configure-json-structure"
-                      " for details\n";
+  "Usage:                \n"
+  "[-v]     print version\n"
+  "[-b]     running in background\n"
+  "[-l]     set log file directory to write log to files\n"
+  "[-conf]  https://github.com/yodaos-project/edge-monitor#Configure-json-structure\n";
 
 void parseExitCmd(int argc, char **argv) {
   if (argc >= 2) {
     const char *print = nullptr;
     if (strcmp(argv[1], "-help") == 0 || strcmp(argv[1], "-h") == 0) {
       print = helpStr;
-    } else if (strcmp(argv[1], "-version") == 0) {
+    } else if (strcmp(argv[1], "-version") == 0 || strcmp(argv[1], "-v") == 0) {
       print = version;
     }
     if (print) {
