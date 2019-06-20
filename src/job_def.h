@@ -10,12 +10,12 @@
 YODA_NS_BEGIN
 
 typedef enum class TaskStatus {
-  IDLE = 0,
-  RUNNING,
-  SUCCEED,
-  FAILED,
-  USER_CANCEL,
-  MULTI_TASK_CANCEL,
+  RUNNING = 0,
+  FAILED = 1,
+  SUCCEED = 2,
+  READY = 3,
+  USER_CANCEL = 4,
+  MULTI_TASK_CANCEL = 5,
 } TaskStatus;
 
 typedef enum class JobType {

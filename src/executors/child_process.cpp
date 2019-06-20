@@ -71,7 +71,7 @@ void ChildProcess::execute() {
   options.file = args[0];
   options.args = const_cast<char **>(args);
   options.stdio = io;
-  options.stdio_count = sizeof(io)/sizeof(uv_stdio_container_t);
+  options.stdio_count = sizeof(io) / sizeof(uv_stdio_container_t);
   _cp = (uv_process_t *) malloc(sizeof(uv_process_t));
   UV_CB_WRAP3(_cp, cb, ChildProcess, onChildProcessExit,
                    uv_process_t, int64_t, int32_t);

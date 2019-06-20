@@ -124,9 +124,8 @@ void JobManager::onWSEvent(EventCode code) {
 void JobManager::onWSConnected() {
   LOG_INFO("ws connected, is first time: %d", _wsFirstConnected);
   if (_wsFirstConnected) {
-    this->sendDeviceStatus();
-  } else {
     _wsFirstConnected = false;
+    this->sendDeviceStatus();
   }
 }
 
@@ -198,7 +197,18 @@ void JobManager::startNewTask(const std::shared_ptr<rokid::TaskCommand> &taskCom
   shellConf->timeout = 0;
   shellConf->interval = 0;
 
+  char msg[256] = {0};
+  sprintf(msg, "task id: %d, shell id: %d", taskInfo->id, taskInfo->shellId);
   _taskRunner = this->addRunnerWithConf(shellConf);
+  auto taskStatus = rokid::TaskStatus::create();
+  taskStatus->setTaskId(taskInfo->id);
+  taskStatus->setShellId(taskInfo->shellId);
+  taskStatus->setTimestamp(Util::getTimeMS());
+  taskStatus->setStatus((int32_t) taskInfo->status);
+  taskStatus->setMessage(std::make_shared<std::string>(msg));
+  auto caps = Caps::new_instance();
+  taskStatus->serialize(caps);
+  this->sendMsg(caps, "start task");
 }
 
 void JobManager::startMonitor() {
