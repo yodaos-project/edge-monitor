@@ -10,7 +10,7 @@
 
 using namespace rokid;
 
-static const char *version = "v1.3.0";
+static const char *version = "v2.0.0";
 
 static void parseExitCmd(int argc, char **argv);
 static void makeUVHappy();

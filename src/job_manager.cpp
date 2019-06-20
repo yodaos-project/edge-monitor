@@ -19,7 +19,7 @@ JobManager::JobManager() :
   _pendingTaskCommand(nullptr),
   _ws(nullptr),
   _disableUpload(false),
-  _wsConnected(false) {
+  _wsFirstConnected(true) {
 
 }
 
@@ -35,7 +35,6 @@ std::shared_ptr<JobRunner> JobManager::addRunnerWithConf(
   auto callback = std::bind(&JobManager::onRunnerStop, this, _1);
   std::shared_ptr<JobRunner> runner(new JobRunner(this));
   runner->setJobCallback(callback);
-  LOG_INFO("runner count %d", (uint32_t) _runners.size());
   runner->initWithConf(conf);
   runner->run();
   return runner;
@@ -63,7 +62,7 @@ void JobManager::onRunnerStop(JobRunner *runner) {
         task->status = TaskStatus::SUCCEED;
       }
     }
-    sprintf(msg, "end task with code: %d", task->status);
+    sprintf(msg, "end task %d with code: %d", task->id, task->status);
     LOG_INFO(msg); 
     auto taskStatus = rokid::TaskStatus::create();
     taskStatus->setTaskId(task->id);
@@ -123,22 +122,24 @@ void JobManager::onWSEvent(EventCode code) {
 }
 
 void JobManager::onWSConnected() {
-  _wsConnected = true;
+  LOG_INFO("ws connected, is first time: %d", _wsFirstConnected);
+  if (_wsFirstConnected) {
+    this->sendDeviceStatus();
+  } else {
+    _wsFirstConnected = false;
+  }
+}
+
+void JobManager::sendDeviceStatus() {
+  LOG_INFO("send device info");
   auto deviceStatus = rokid::DeviceStatus::create();
   deviceStatus->setTimestamp(Util::getTimeMS());
   deviceStatus->setSn(DeviceInfo::sn.c_str());
   deviceStatus->setVersion(DeviceInfo::imageVersion.c_str());
   deviceStatus->setVspVersion(DeviceInfo::vspVersion.c_str());
   deviceStatus->setTurenVersion(DeviceInfo::turenVersion.c_str());
-  TaskStatus status = TaskStatus::IDLE;
-  int32_t shellId = 0;
-  if (_taskRunner) {
-    status = _taskRunner->getConf()->task->status;
-    shellId = _taskRunner->getConf()->task->shellId;
-  }
-  deviceStatus->setStatus((int32_t) status);
-  deviceStatus->setShellId(shellId);
-  LOG_INFO("ws connected, status %d, shell %d", status, shellId);
+  deviceStatus->setStatus(0);
+  deviceStatus->setShellId(0);
   std::shared_ptr<Caps> caps;
   deviceStatus->serialize(caps);
   this->sendMsg(caps, "upload device status");
@@ -146,7 +147,6 @@ void JobManager::onWSConnected() {
 
 void JobManager::onWSDisconnected() {
   LOG_ERROR("ws disconnected");
-  _wsConnected = false;
 }
 
 void JobManager::onTaskCommand(std::shared_ptr<Caps> &caps) {
@@ -248,10 +248,6 @@ void JobManager::sendCollectData(std::shared_ptr<Caps> &caps, const char *hint){
 }
 
 void JobManager::sendMsg(std::shared_ptr<Caps> &caps, const char *hint) {
-  if (!_wsConnected) {
-    LOG_ERROR("ws disconnected, ignore send message %s", hint);
-    return;
-  }
   if (_ws) {
     _ws->sendMsg(caps, [hint](SendResult sr, void *) {
       LOG_VERBOSE("send ws %s result %u", hint, sr);

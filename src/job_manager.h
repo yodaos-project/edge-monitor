@@ -42,8 +42,7 @@ private:
 
   void onTaskCommand(std::shared_ptr<Caps> &caps);
 
-  void manuallyStartJobs(
-    const std::shared_ptr<std::string> &shell, int32_t shellId);
+  void sendDeviceStatus();
 
   void onWSConnected();
 
@@ -58,7 +57,7 @@ private:
   std::shared_ptr<rokid::TaskCommand> _pendingTaskCommand;
   WebSocketClient *_ws;
   bool _disableUpload;
-  bool _wsConnected;
+  bool _wsFirstConnected;
 };
 
 YODA_NS_END
