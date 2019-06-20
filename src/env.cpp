@@ -50,8 +50,8 @@ static void setupLogger() {
 int32_t Env::setup() {
   close(0);
   open("/dev/null", O_RDWR);
-  runInBackground();
   setupLogger();
+  runInBackground();
   return 0;
 }
 
