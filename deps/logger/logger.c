@@ -15,9 +15,10 @@ static int file_index = 0;
 static pthread_t adjust_th;
 static FILE *redirect_file = NULL;
 static char* log_file_directory = NULL;
+static log_level min_level = LOG_LEVEL_VERBOSE;
 
 static const char *level_colors[] = {
-  "", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"
+  "\x1b[0m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"
 };
 
 static const char *level_des[] = {
@@ -31,6 +32,12 @@ static FILE **log_files[] = {
 static size_t log_max_size = 2 * 1024 * 1024;
 
 void do_log(log_level level, const char *file, int line, const char *fmt, ...) {
+  if (level < min_level) {
+    return;
+  }
+  if (level < LOG_LEVEL_VERBOSE || level > LOG_LEVEL_FATAL) {
+    level = LOG_LEVEL_INFO;
+  }
   struct timeval cur_time = {};
   gettimeofday(&cur_time, NULL);
   struct tm *tm = localtime(&cur_time.tv_sec);
@@ -44,16 +51,19 @@ void do_log(log_level level, const char *file, int line, const char *fmt, ...) {
   size_t fmt_len = 64 + strlen(fmt);
   char fmt_buf[fmt_len];
   FILE *log_file = *(log_files[level]);
-  const char *color;
+  const char *start_color;
+  const char *end_color;
   const char *des = level_des[level];
   if (redirect_file) {
-    color = "";
+    start_color = "";
+    end_color = "";
   } else {
-    color = level_colors[level];
+    start_color = level_colors[level];
+    end_color = level_colors[0];
   }
   sprintf(fmt_buf,
     "%s%04d-%02d-%02d %02d:%02d:%02d:%03d [%s] %s%s\n",
-    color, year, mon, day, hour, min, sec, ms, des, fmt, color
+    start_color, year, mon, day, hour, min, sec, ms, des, fmt, end_color
   );
 
   va_list args;
@@ -131,4 +141,8 @@ void set_logger_file_directory(const char *directory) {
     pthread_create(&adjust_th, NULL, adjust_file_size, NULL);
     pthread_detach(adjust_th);
   }
+}
+
+void set_logger_level(log_level level) {
+  min_level = level;
 }

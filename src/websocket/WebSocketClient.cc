@@ -211,15 +211,15 @@ bool WebSocketClient::connect() {
 }
 
 void WebSocketClient::reconnectTimerCb(uv_timer_t *handle) {
-  LOG_INFO("reconnect timer in");
+  LOG_ERROR("reconnect timer in");
   auto wsc = reinterpret_cast<WebSocketClient *>(handle->data);
   wsc->connect();
-  LOG_INFO("reconnect timer out");
+  LOG_ERROR("reconnect timer out");
   //uv_timer_stop(handle);
 }
 
 void WebSocketClient::reconnect() {
-  LOG_INFO("reconnect timer start");
+  LOG_ERROR("reconnect timer start");
   uv_timer_start(&timerHandle, WebSocketClient::reconnectTimerCb, 5000, 0);
 }
 

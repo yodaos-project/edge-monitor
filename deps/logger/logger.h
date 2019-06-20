@@ -10,7 +10,7 @@ typedef enum {
   LOG_LEVEL_FATAL = 4,
 } log_level;
 
-#define LOG_VERBOSE(...) // do_log(LOG_LEVEL_VERBOSE, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_VERBOSE(...)  do_log(LOG_LEVEL_VERBOSE, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_INFO(...)     do_log(LOG_LEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_WARN(...)     do_log(LOG_LEVEL_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_ERROR(...)    do_log(LOG_LEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
@@ -22,6 +22,9 @@ extern "C" {
 void do_log(log_level level, const char *file, int line, const char *fmt, ...);
 
 void set_logger_file_directory(const char *directory);
+
+// default is verbose
+void set_logger_level(log_level level);
 
 #ifdef __cplusplus
 }

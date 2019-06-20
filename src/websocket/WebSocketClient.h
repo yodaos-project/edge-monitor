@@ -51,7 +51,7 @@ private:
     struct lws_context_creation_info info;
     void **foreign_loops = nullptr;
     struct lws *web_socket = nullptr;
-    struct lws_protocols protocols[2];
+    // struct lws_protocols protocols[2];
     struct lws_client_connect_info cinfo = {0};
     list<DataToSend> msgList;
 

@@ -46,6 +46,7 @@ static const char *helpStr =
   "[-v]     print version\n"
   "[-b]     running in background\n"
   "[-l]     set log file directory to write log to files\n"
+  "[-d]     set log level, [verbose, info, warn, error, fatal]\n"
   "[-conf]  https://github.com/yodaos-project/edge-monitor#Configure-json-structure\n";
 
 void parseExitCmd(int argc, char **argv) {

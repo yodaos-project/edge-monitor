@@ -64,12 +64,12 @@ void ChildProcess::execute() {
 
   uv_process_options_t options;
   memset(&options, 0, sizeof(uv_process_options_t));
-  const char *args[2];
+  char *args[2];
   args[0] = _filePath;
   args[1] = nullptr;
   options.cwd = getcwd(buf, bufSize);
   options.file = args[0];
-  options.args = const_cast<char **>(args);
+  options.args = args;
   options.stdio = io;
   options.stdio_count = sizeof(io) / sizeof(uv_stdio_container_t);
   _cp = (uv_process_t *) malloc(sizeof(uv_process_t));
@@ -84,26 +84,26 @@ void ChildProcess::execute() {
 }
 
 int ChildProcess::stop() {
+  int r = 0;
   if (_cp) {
-    int32_t r = uv_process_kill(_cp, SIGTERM);
+    r = uv_process_kill(_cp, SIGTERM);
     if (r == UV_ESRCH) {
       r = 0;
     }
-    if (r) {
+    if (r != 0) {
       const char *err = uv_err_name(r);
       LOG_ERROR("stop child process %d error %s", _cp->pid, err);
     } else {
       LOG_INFO("stop child process %d succeed", _cp->pid);
     }
-    return 1;
   }
-  return 0;
+  return r;
 }
 
 void ChildProcess::onChildProcessExit(uv_process_t *,
                                       int64_t code,
                                       int32_t signal) {
-  LOG_INFO("process exit: %" PRId64 " %d", code, signal);
+  LOG_INFO("process exit: %" PRId64 " %s", code, strsignal(signal));
   UV_CLOSE_HANDLE(_cp, ChildProcess, onUVHandleClosed);
   _code = code;
 }
@@ -112,7 +112,7 @@ void ChildProcess::onUVHandleClosed(uv_handle_t *handle) {
   if ((uv_handle_t *) _cp == handle) {
     YODA_SIXSIX_SAFE_FREE(_cp);
   } else {
-    LOG_INFO("cp receive unknown handle close, free it");
+    LOG_WARN("cp receive unknown handle close, free it");
     YODA_SIXSIX_SAFE_FREE(handle);
   }
   LOG_INFO("child process closed");
