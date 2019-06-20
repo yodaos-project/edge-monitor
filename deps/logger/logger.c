@@ -20,6 +20,10 @@ static const char *level_colors[] = {
   "", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"
 };
 
+static const char *level_des[] = {
+  "verbose", "info", "warn", "error", "fatal"
+};
+
 static FILE **log_files[] = {
   &stdout, &stdout, &stdout, &stderr, &stderr,
 };
@@ -41,14 +45,15 @@ void do_log(log_level level, const char *file, int line, const char *fmt, ...) {
   char fmt_buf[fmt_len];
   FILE *log_file = *(log_files[level]);
   const char *color;
+  const char *des = level_des[level];
   if (redirect_file) {
     color = "";
   } else {
     color = level_colors[level];
   }
   sprintf(fmt_buf,
-    "%s%04d-%02d-%02d %02d:%02d:%02d:%03d %s%s\n",
-    color, year, mon, day, hour, min, sec, ms, fmt, color
+    "%s%04d-%02d-%02d %02d:%02d:%02d:%03d [%s] %s%s\n",
+    color, year, mon, day, hour, min, sec, ms, des, fmt, color
   );
 
   va_list args;
