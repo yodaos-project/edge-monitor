@@ -22,16 +22,16 @@ void WebSocketClient::sendMsg(shared_ptr<Caps> &msg, SendCallback cb, void *cbDa
         msgList.front().cb(SendResult::Removed,
                            msgList.front().userdata);
       msgList.pop_front();
-      LOG_ERROR("websocket buffer is full\n");
+      LOG_ERROR("websocket buffer is full");
     }
 
     msgList.push_back({vector<unsigned char>(len + LWS_SEND_BUFFER_PRE_PADDING), cbData, cb});
     auto rst = msg->serialize(msgList.back().data.data() + LWS_SEND_BUFFER_PRE_PADDING,
                               (uint32_t) msgList.back().data.size(), 0x80);
     if (rst != len)
-      LOG_ERROR("send msg error\n");
+      LOG_ERROR("send msg error");
   } else
-    LOG_ERROR("send msg error\n");
+    LOG_ERROR("send msg error");
   if (web_socket)
     lws_callback_on_writable(web_socket);
 }
@@ -45,15 +45,15 @@ void WebSocketClient::sendMsg(vector<shared_ptr<Caps>> &msgs, SendCallback cb, v
           msgList.front().cb(SendResult::Removed,
                              msgList.front().userdata);
         msgList.pop_front();
-        LOG_ERROR("websocket buffer is full\n");
+        LOG_ERROR("websocket buffer is full");
       }
       msgList.push_back({vector<unsigned char>(len + LWS_SEND_BUFFER_PRE_PADDING), cbData, cb});
       auto rst = m->serialize(msgList.back().data.data() + LWS_SEND_BUFFER_PRE_PADDING,
                               (uint32_t) msgList.back().data.size(), 0x80);
       if (rst != len)
-        LOG_ERROR("send msg error\n");
+        LOG_ERROR("send msg error");
     } else
-      LOG_ERROR("send msg error\n");
+      LOG_ERROR("send msg error");
   }
   if (web_socket)
     lws_callback_on_writable(web_socket);
@@ -147,7 +147,7 @@ int WebSocketClient::callback_ws(struct lws *wsi, enum lws_callback_reasons reas
         if (wsc->funcRecvCb)
           wsc->funcRecvCb(caps);
       } else
-        LOG_ERROR("recv msg, caps parse error:%d\n", parseResult);
+        LOG_ERROR("recv msg, caps parse error:%d", parseResult);
       break;
     case LWS_CALLBACK_CLIENT_WRITEABLE: {
       if (wsc->msgList.size() > 0) {
@@ -162,9 +162,9 @@ int WebSocketClient::callback_ws(struct lws *wsi, enum lws_callback_reasons reas
                d.userdata
           );
         if (write != d.data.size() - LWS_SEND_BUFFER_PRE_PADDING)
-          LOG_ERROR("write ws error:%d/%zu\n", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
+          LOG_ERROR("write ws error:%d/%zu", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
         else
-          LOG_INFO("write ws success:%d/%zu\n", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
+          LOG_VERBOSE("write ws success:%d/%zu", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
       }
       break;
     }
@@ -211,15 +211,15 @@ bool WebSocketClient::connect() {
 }
 
 void WebSocketClient::reconnectTimerCb(uv_timer_t *handle) {
-  printf("reconnect timer in\n");
+  LOG_ERROR("reconnect timer in");
   auto wsc = reinterpret_cast<WebSocketClient *>(handle->data);
   wsc->connect();
-  printf("reconnect timer out\n");
+  LOG_ERROR("reconnect timer out");
   //uv_timer_stop(handle);
 }
 
 void WebSocketClient::reconnect() {
-  printf("reconnect timer start\n");
+  LOG_ERROR("reconnect timer start");
   uv_timer_start(&timerHandle, WebSocketClient::reconnectTimerCb, 5000, 0);
 }
 

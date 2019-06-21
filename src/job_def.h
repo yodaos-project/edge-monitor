@@ -9,35 +9,14 @@
 
 YODA_NS_BEGIN
 
-typedef enum class TaskErrorCodes {
-  NO_ERROR = 0,
-  MULTI_TASK,
-  NO_RESOURCE,
-} TaskErrorCodes;
-
 typedef enum class TaskStatus {
   RUNNING = 0,
   FAILED = 1,
   SUCCEED = 2,
-  PREPARING = 3,
+  READY = 3,
+  USER_CANCEL = 4,
+  MULTI_TASK_CANCEL = 5,
 } TaskStatus;
-
-typedef enum class DeviceStatus {
-  IDLE = 0,
-  RUNNING = 1,
-} DeviceStatus;
-
-typedef struct TaskInfo {
-  int32_t id;
-  std::shared_ptr<std::string> type;
-  uint32_t shellId;
-  std::shared_ptr<std::string> shell;
-  std::shared_ptr<std::string> shellType;
-  int64_t timestampMs;
-  time_t timeoutMs;
-  TaskStatus status;
-  TaskErrorCodes errorCode;
-} TaskInfo;
 
 typedef enum class JobType {
   COLLECT_TOP = 0,
@@ -50,7 +29,18 @@ typedef enum class JobType {
 typedef enum class JobState {
   STOP = 0,
   RUNNING,
+  FAILED,
 } JobState;
+
+typedef struct TaskInfo {
+  int32_t id;
+  std::shared_ptr<std::string> type;
+  uint32_t shellId;
+  std::shared_ptr<std::string> shell;
+  std::shared_ptr<std::string> shellType;
+  int64_t timestampMs;
+  TaskStatus status;
+} TaskInfo;
 
 typedef struct JobConf {
   JobType type;

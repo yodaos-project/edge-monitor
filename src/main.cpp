@@ -10,7 +10,7 @@
 
 using namespace rokid;
 
-static const char *version = "v1.3.0";
+static const char *version = "v2.0.0";
 
 static void parseExitCmd(int argc, char **argv);
 static void makeUVHappy();
@@ -23,17 +23,20 @@ int main(int argc, char **argv) {
   yoda::Env::setup();
   yoda::DeviceInfo::init();
 
-  WebSocketClient wsc;
-  wsc.init();
-  yoda::JobManager manager;
-  manager.initWithWS(&wsc);
+  WebSocketClient *wsc = new WebSocketClient();
+  wsc->init();
+  yoda::JobManager *manager = new yoda::JobManager();
+  manager->startMonitor();
+  manager->setWsClient(wsc);
 
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  wsc.stop();
+  wsc->stop();
 
   makeUVHappy();
 
+  delete wsc;
+  delete manager;
   LOG_INFO("all tasks have been completed, app exit");
   return 0;
 }
@@ -43,6 +46,7 @@ static const char *helpStr =
   "[-v]     print version\n"
   "[-b]     running in background\n"
   "[-l]     set log file directory to write log to files\n"
+  "[-d]     set log level, [verbose, info, warn, error, fatal]\n"
   "[-conf]  https://github.com/yodaos-project/edge-monitor#Configure-json-structure\n";
 
 void parseExitCmd(int argc, char **argv) {

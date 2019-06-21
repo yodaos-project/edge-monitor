@@ -15,10 +15,8 @@ void Options::parseCmdLine(int32_t argc, char **argv) {
     const char *value;
     if (i >= argc || argv[i][0] == '-') {
       value = "";
-      LOG_INFO("cmdline args: -%s", key);
     } else {
       value = argv[i++];
-      LOG_INFO("cmdline args: %s=%s", key, value);
     }
     cmdArgs.insert({key, value});
   }

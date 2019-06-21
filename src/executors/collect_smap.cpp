@@ -17,7 +17,7 @@ CollectSmap::CollectSmap() : IJobExecutor("CollectSmap"),
                              _sysMem(nullptr) {
   _scanDir = Options::get<std::string>("sysroot", "") + "/proc";
   _usleepTime = (Options::get<uint64_t>("smapSleep", 1000)) * 1000;
-  LOG_INFO("smap sleep time %" PRIu64 "us", _usleepTime);
+  LOG_INFO("smap sleep time %" PRIu64 "ms", _usleepTime / 1000);
 }
 
 CollectSmap::~CollectSmap() {
@@ -91,11 +91,10 @@ void CollectSmap::afterCollect(uv_work_t *, int status) {
         mem.setPrivateDirty(smap->private_dirty);
         mem.setSharedClean(smap->shared_clean);
         mem.setSharedDirty(smap->shared_dirty);
-        LOG_INFO("pss %d %s: %" PRIi64,
+        LOG_VERBOSE("pss %d %s: %" PRIi64,
                          smap->pid,
                          smap->fullname.c_str(),
-                         smap->pss
-        );
+                         smap->pss);
       }
     }
     data->setProcMemInfo(procMems);
@@ -111,7 +110,7 @@ void CollectSmap::afterCollect(uv_work_t *, int status) {
   _smaps.clear();
   _sysMem.reset();
 
-  this->onJobDone();
+  this->onJobDone(0);
 }
 
 YODA_NS_END

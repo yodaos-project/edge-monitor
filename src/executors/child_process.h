@@ -27,16 +27,10 @@ private:
 
   void onUVHandleClosed(uv_handle_t *handle);
 
-  void onSignal(uv_signal_t * req, int32_t sig);
-
-  void onPipeData(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf);
-
   uv_process_t *_cp;
   std::shared_ptr<JobConf> _conf;
   char _filePath[128];
-  uv_pipe_t *_pipe0;
-  uv_pipe_t *_pipe1;
-  uv_pipe_t *_pipe2;
+  int _code;
 };
 
 YODA_NS_END

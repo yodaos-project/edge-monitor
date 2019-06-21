@@ -23,6 +23,9 @@ void do_log(log_level level, const char *file, int line, const char *fmt, ...);
 
 void set_logger_file_directory(const char *directory);
 
+// default is verbose
+void set_logger_level(log_level level);
+
 #ifdef __cplusplus
 }
 #endif

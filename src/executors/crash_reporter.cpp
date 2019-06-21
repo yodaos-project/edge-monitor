@@ -118,8 +118,8 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   char *binName = coredumpFields[0];
   char *reportTime = coredumpFields[1];
   char *appPid = coredumpFields[2];
-  char *unknownField = coredumpFields[3];
-  char *suffix = coredumpFields[4];
+  // char *unknownField = coredumpFields[3];
+  // char *suffix = coredumpFields[4];
   if (tokCount != fieldsCount) {
     strcpy(binName, "unknown-bin");
     strcpy(reportTime, std::to_string(time(nullptr)).c_str());
@@ -160,7 +160,8 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   delete conn;
 }
 
-void CrashReporter::afterExecute(uv_work_t *, int status) {
+int CrashReporter::afterExecute(uv_work_t *, int status) {
+  return 0;
 }
 
 YODA_NS_END

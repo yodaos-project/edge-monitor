@@ -15,7 +15,7 @@ class JobRunner;
 
 class JobManager;
 
-typedef std::function<void(JobRunner *runner)> RunnerExecuteCallback;
+typedef std::function<void(JobRunner *runner, int32_t code)> RunnerExecuteCallback;
 
 class JobRunner {
 public:
@@ -24,6 +24,8 @@ public:
   ~JobRunner();
 
   int initWithConf(const std::shared_ptr<JobConf> &conf);
+
+  std::shared_ptr<JobConf> getConf() { return _conf; }
 
   void run();
 
@@ -39,7 +41,7 @@ public:
 
 private:
 
-  void onExecuteFinish();
+  void onExecuteFinish(int code);
 
   void onUVHandleClosed(uv_handle_t *handle);
 
@@ -56,6 +58,8 @@ private:
   JobManager *_manager;
 
   std::string _name;
+
+  int32_t _exitCode;
 };
 
 YODA_NS_END
