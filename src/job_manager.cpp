@@ -161,6 +161,8 @@ void JobManager::onTaskCommand(std::shared_ptr<Caps> &caps) {
     this->endTask(TaskStatus::USER_CANCEL);
   } else if (*type == "START") {
     this->startNewTask(command);
+  } else {
+    LOG_ERROR("unknown command %s", type->c_str());
   }
 }
 

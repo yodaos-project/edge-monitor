@@ -29,10 +29,11 @@ The above builds an executable `yoda-sixsix` in your CMake build directory.
 
 | options          | description   |
 |------------------|---------------|
-| `-version`       | print version |
+| `-v`             | print version |
 | `-conf`          | set configure json path |
 | `-b`             | running in the background |
 | `-l`             | set log file directory to write log to files |
+| `-d`             | set log level, [verbose, info, warn, error, fatal] |
 
 ## Configure json structure
 | options          | description   |
@@ -49,17 +50,6 @@ The above builds an executable `yoda-sixsix` in your CMake build directory.
 | `serverPort`     | set ws server port |
 | `sn`             | mock a sn, read from host by default |
 | `hardware`       | mock a hardware type, read from host by default |
-| `task`           | set task info, monitor will exit if this value is not set |
-
-## Task info structure
-| options          | description   |
-|------------------|---------------|
-| `id`             | task id, set a mock task id |
-| `type`           | task type, set a mock type |
-| `shellId`        | shell id, set a mock shell id |
-| `shell`          | shell content, set shell count |
-| `shellType`      | shell type, set shell type |
-| `timestamp`      | finish time in milliseconds |
 
 ## Test
 
@@ -67,6 +57,6 @@ The above builds an executable `yoda-sixsix` in your CMake build directory.
 $ ./yoda-sixsix -conf ./sample/conf.json
 ```
 
-## Liscense
+## License
 
 [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0)
