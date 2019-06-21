@@ -94,12 +94,16 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   }
   fseek(zipfile, 0, SEEK_END);
   long size = ftell(zipfile);
+  if (size < 0) {
+    LOG_ERROR("get file %s size error: %s", zippath, strerror(errno));
+    return;
+  }
   std::string buf(size, '\0');
   fseek(zipfile, 0, SEEK_SET);
   size_t r = fread(&buf[0], 1, size, zipfile);
   fclose(zipfile);
   unlink(zippath);
-  if (r != size) {
+  if (r != (size_t)size) {
     LOG_ERROR("read zip file %s error", zippath);
     return;
   }

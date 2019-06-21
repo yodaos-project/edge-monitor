@@ -62,7 +62,7 @@ void JobManager::onRunnerStop(JobRunner *runner, int32_t exitCode) {
         task->status = TaskStatus::SUCCEED;
       }
     }
-    sprintf(msg, "end task %d with status: %d", task->id, task->status);
+    sprintf(msg, "end task %d with status: %d", task->id, (int)task->status);
     LOG_INFO(msg);
     auto taskStatus = rokid::TaskStatus::create();
     taskStatus->setTaskId(task->id);
@@ -196,7 +196,7 @@ void JobManager::startNewTask(const std::shared_ptr<rokid::TaskCommand> &taskCom
   shellConf->enable = true;
   shellConf->isRepeat = false;
   shellConf->loopCount = 0;
-  shellConf->timeout = 0;
+  shellConf->timeout = 1000;
   shellConf->interval = 0;
 
   char msg[256] = {0};

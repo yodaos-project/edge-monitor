@@ -73,7 +73,8 @@ namespace rokid {
     * setter 设备sn
     */
     inline void setSn(const char* v) {
-      if (!sn)    sn = std::make_shared<std::string>();  *sn = v;
+      if (!sn) sn = std::make_shared<std::string>();
+      *sn = v;
     }
     /*
     * setter 设备版本
@@ -85,7 +86,8 @@ namespace rokid {
     * setter 设备版本
     */
     inline void setVersion(const char* v) {
-      if (!version)    version = std::make_shared<std::string>();  *version = v;
+      if (!version) version = std::make_shared<std::string>();
+      *version = v;
     }
     /*
     * setter VSP 版本
@@ -97,7 +99,8 @@ namespace rokid {
     * setter VSP 版本
     */
     inline void setVspVersion(const char* v) {
-      if (!vspVersion)    vspVersion = std::make_shared<std::string>();  *vspVersion = v;
+      if (!vspVersion) vspVersion = std::make_shared<std::string>();
+      *vspVersion = v;
     }
     /*
     * setter 土人版本
@@ -109,7 +112,8 @@ namespace rokid {
     * setter 土人版本
     */
     inline void setTurenVersion(const char* v) {
-      if (!turenVersion)    turenVersion = std::make_shared<std::string>();  *turenVersion = v;
+      if (!turenVersion) turenVersion = std::make_shared<std::string>();
+      *turenVersion = v;
     }
     /*
     * setter 设备状态：0-idle，1-exe

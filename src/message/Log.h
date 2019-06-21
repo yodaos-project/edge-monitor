@@ -31,7 +31,8 @@ namespace rokid {
     * setter 日志内容
     */
     inline void setContent(const char* v) {
-      if (!content)    content = std::make_shared<std::string>();  *content = v;
+      if (!content) content = std::make_shared<std::string>();
+      *content = v;
     }
     /*
      * serialize this object as buffer

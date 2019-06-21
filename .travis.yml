@@ -16,5 +16,8 @@ branches:
 before_install:
 # 
 script:
+  - sudo apt-get update
+  - sudo apt-get install gcc-aarch64-linux-gnu
+  - sudo apt-get install gcc-arm-linux-gnueabi
   - cmake -H. -B./build
   - make -C./build

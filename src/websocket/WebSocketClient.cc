@@ -157,11 +157,11 @@ int WebSocketClient::callback_ws(struct lws *wsi, enum lws_callback_reasons reas
         lws_callback_on_writable(wsi);
         wsc->msgList.pop_front();
         if (d.cb != nullptr)
-          d.cb(write == d.data.size() - LWS_SEND_BUFFER_PRE_PADDING ?
+          d.cb(write == (int)d.data.size() - LWS_SEND_BUFFER_PRE_PADDING ?
                SendResult::SendOut : SendResult::SendFailed,
                d.userdata
           );
-        if (write != d.data.size() - LWS_SEND_BUFFER_PRE_PADDING)
+        if (write != (int)d.data.size() - LWS_SEND_BUFFER_PRE_PADDING)
           LOG_ERROR("write ws error:%d/%zu", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);
         else
           LOG_VERBOSE("write ws success:%d/%zu", write, d.data.size() - LWS_SEND_BUFFER_PRE_PADDING);

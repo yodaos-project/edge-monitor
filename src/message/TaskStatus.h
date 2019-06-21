@@ -71,7 +71,8 @@ namespace rokid {
     * setter 状态描述
     */
     inline void setMessage(const char* v) {
-      if (!message)    message = std::make_shared<std::string>();  *message = v;
+      if (!message) message = std::make_shared<std::string>();
+      *message = v;
     }
     /*
     * setter 脚本id

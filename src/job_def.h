@@ -45,7 +45,7 @@ typedef struct TaskInfo {
 typedef struct JobConf {
   JobType type;
   bool isRepeat;
-  int32_t loopCount;
+  uint32_t loopCount;
   uint64_t interval;
   uint64_t timeout;
   bool enable;
