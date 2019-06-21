@@ -25,6 +25,8 @@ public:
 
   void startMonitor();
 
+  void stopMonitor();
+
 private:
 
   void startNewTask(const std::shared_ptr<rokid::TaskCommand> &taskCommand);
@@ -32,7 +34,7 @@ private:
   std::shared_ptr<JobRunner> addRunnerWithConf(
     const std::shared_ptr<JobConf> &conf);
 
-  void onRunnerStop(JobRunner *runner);
+  void onRunnerStop(JobRunner *runner, int32_t exitCode);
 
   void endTask(TaskStatus status);
 

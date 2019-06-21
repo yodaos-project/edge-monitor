@@ -84,20 +84,20 @@ void ChildProcess::execute() {
 }
 
 int ChildProcess::stop() {
-  int r = 0;
   if (_cp) {
-    r = uv_process_kill(_cp, SIGTERM);
+    int32_t r = uv_process_kill(_cp, SIGTERM);
     if (r == UV_ESRCH) {
       r = 0;
     }
-    if (r != 0) {
+    if (r) {
       const char *err = uv_err_name(r);
       LOG_ERROR("stop child process %d error %s", _cp->pid, err);
     } else {
       LOG_INFO("stop child process %d succeed", _cp->pid);
     }
+    return 1;
   }
-  return r;
+  return 0;
 }
 
 void ChildProcess::onChildProcessExit(uv_process_t *,

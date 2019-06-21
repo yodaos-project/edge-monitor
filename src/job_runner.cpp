@@ -20,7 +20,8 @@ JobRunner::JobRunner(JobManager *manager) :
   _state(JobState::STOP),
   _executeCount(0),
   _manager(manager),
-  _name("unknown") {
+  _name("unknown"),
+  _exitCode(0) {
 
 }
 
@@ -78,6 +79,9 @@ void JobRunner::run() {
 }
 
 int32_t JobRunner::stop() {
+  if (!_executor) {
+    return 1;
+  }
   ASSERT(_state == JobState::RUNNING, "job runner is stopped");
   LOG_INFO("stopping job %s", _executor->getName().c_str());
   _state = JobState::STOP;
@@ -87,18 +91,19 @@ int32_t JobRunner::stop() {
   if (r == 0) {
     _executor.reset();
   } else {
-    LOG_INFO("executor stop result error %s", uv_err_name(r));
+    LOG_ERROR("executor stop code %d", r);
   }
   return 1;
 }
 
 void JobRunner::onExecuteFinish(int code) {
+  _exitCode = code;
   if (_state == JobState::STOP) {
     // timer is closing or closed
     int32_t r = _executor->stop();
     if (r == 0) {
       if (!_timer) {
-        _stopCb(this);
+        _stopCb(this, _exitCode);
       }
     }
   } else if (!_conf->isRepeat && _executeCount >= _conf->loopCount) {
@@ -120,7 +125,7 @@ void JobRunner::onUVHandleClosed(uv_handle_t *) {
   YODA_SIXSIX_SAFE_DELETE(_timer);
   // executor is running or closed
   if (!_executor) {
-    _stopCb(this);
+    _stopCb(this, _exitCode);
   }
 }
 

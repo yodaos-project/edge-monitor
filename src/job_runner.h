@@ -15,7 +15,7 @@ class JobRunner;
 
 class JobManager;
 
-typedef std::function<void(JobRunner *runner)> RunnerExecuteCallback;
+typedef std::function<void(JobRunner *runner, int32_t code)> RunnerExecuteCallback;
 
 class JobRunner {
 public:
@@ -58,6 +58,8 @@ private:
   JobManager *_manager;
 
   std::string _name;
+
+  int32_t _exitCode;
 };
 
 YODA_NS_END

@@ -32,7 +32,7 @@ void JobManager::setWsClient(WebSocketClient *ws) {
 std::shared_ptr<JobRunner> JobManager::addRunnerWithConf(
   const std::shared_ptr<JobConf> &conf) {
   LOG_INFO("add job type %d with conf", (int32_t) conf->type);
-  auto callback = std::bind(&JobManager::onRunnerStop, this, _1);
+  auto callback = std::bind(&JobManager::onRunnerStop, this, _1, _2);
   std::shared_ptr<JobRunner> runner(new JobRunner(this));
   runner->setJobCallback(callback);
   runner->initWithConf(conf);
@@ -40,7 +40,7 @@ std::shared_ptr<JobRunner> JobManager::addRunnerWithConf(
   return runner;
 }
 
-void JobManager::onRunnerStop(JobRunner *runner) {
+void JobManager::onRunnerStop(JobRunner *runner, int32_t exitCode) {
   auto name = runner->getJobName().c_str();
   auto isStopped = runner->getState() != JobState::RUNNING;
   ASSERT(isStopped, "runner %s is not stopped ", name);
@@ -56,14 +56,14 @@ void JobManager::onRunnerStop(JobRunner *runner) {
     auto task = runner->getConf()->task;
     char msg[256] = {0};
     if (task->status == TaskStatus::RUNNING) {
-      if (runner->getState() == JobState::FAILED) {
+      if (runner->getState() == JobState::FAILED || exitCode != 0) {
         task->status = TaskStatus::FAILED;
       } else {
         task->status = TaskStatus::SUCCEED;
       }
     }
-    sprintf(msg, "end task %d with code: %d", task->id, task->status);
-    LOG_INFO(msg); 
+    sprintf(msg, "end task %d with status: %d", task->id, task->status);
+    LOG_INFO(msg);
     auto taskStatus = rokid::TaskStatus::create();
     taskStatus->setTaskId(task->id);
     taskStatus->setShellId(task->shellId);
@@ -249,6 +249,13 @@ void JobManager::startMonitor() {
   batteryConf->timeout = 3000;
   batteryConf->interval = 3000;
   _runners.push_back(this->addRunnerWithConf(batteryConf));
+}
+
+void JobManager::stopMonitor() {
+  LOG_INFO("stop monitor");
+  for (auto& _runner: _runners) {
+    _runner->stop();
+  }
 }
 
 void JobManager::sendCollectData(std::shared_ptr<Caps> &caps, const char *hint){
