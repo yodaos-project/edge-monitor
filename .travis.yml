@@ -2,7 +2,7 @@ stages:
   - test
   - name: deploy
     if: branch = optimize/compatitable
-language: cpp
+language: c++
 sudo: required
 dist: trusty
 git:
@@ -11,31 +11,36 @@ os:
   - linux
 cache:
   directories:
-    aarch64-toolchain/
-    aarch64-sysroot/
-    armhf-toolchain/
-    armhf-sysroot/
+  - gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu/
+  - sysroot-glibc-linaro-2.21-2017.10-aarch64-linux-gnu/
+  - gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi/
+  - sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi/
 
 install:
   - sudo apt-get update -q
   - sudo apt-get install wget -q -y
   - which gcc
   - which g++
-  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/aarch64-linux-gnu/gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu.tar.xz -O aarch64-toolchain.xz
-  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/aarch64-linux-gnu/sysroot-glibc-linaro-2.21-2017.10-aarch64-linux-gnu.tar.xz -O aarch64-sysroot.xz
-  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabi/gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi.tar.xz -O armhf-toolchain.xz
-  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabi/sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi.tar.xz -O armhf-sysroot.xz
-  - xz -d aarch64-toolchain.xz & tar -xf aarch64-toolchain.tar & rm aarch64-toolchain.tar
-  - xz -d aarch64-sysroot.xz & tar -xf aarch64-sysroot.tar & rm aarch64-sysroot.tar
-  - xz -d armhf-toolchain.xz & tar -xf armhf-toolchain.tar & rm armhf-toolchain.tar
-  - xz -d armhf-sysroot.xz & tar -xvf armhf-sysroot.tar & rm armhf-sysroot.tar
+  - aarch64_toolchain_name="gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu"
+  - aarch64_sysroot_name="sysroot-glibc-linaro-2.21-2017.10-aarch64-linux-gnu"
+  - armhf_toolchain_name="gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi"
+  - armhf_sysroot_name="sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi"
+  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/aarch64-linux-gnu/${aarch64_toolchain_name}.tar.xz
+  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/aarch64-linux-gnu/${aarch64_sysroot_name}.tar.xz
+  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabi/${armhf_toolchain_name}.tar.xz
+  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabi/${armhf_sysroot_name}.tar.xz
+  - ls -lh
+  - xz -fd ${aarch64_toolchain_name}.tar.xz & tar -xvf ${aarch64_toolchain_name}.tar & rm ${aarch64_toolchain_name}.tar
+  - xz -fd ${aarch64_sysroot_name}.tar.xz & tar -xvf ${aarch64_sysroot_name}.tar & rm ${aarch64_sysroot_name}.tar
+  - xz -fd ${armhf_toolchain_name}.tar.xz & tar -xvf ${armhf_toolchain_name}.tar & rm ${armhf_toolchain_name}.tar
+  - xz -fd ${armhf_sysroot_name}.xz & tar -xvf ${armhf_sysroot_name}.tar & rm ${armhf_sysroot_name}.tar
 
 jobs:
   include:
     - stage: tests
       name: "Integration aarch64-linux-gnu"
-      script: tools/build.sh --host aarch64-linux-gnu --toolchain aarch64-toolchain/bin --sysroot arch64-sysroot/ -j 8
-    - script: tools/build.sh --host arm-linux-gnueabi --toolchain armhf-toolchain/bin --sysroot armhf-sysroot/ -j 8
+      script: tools/build.sh --host aarch64-linux-gnu --toolchain ${aarch64_toolchain_name}/bin --sysroot ${aarch64_sysroot_name} -j 8
+    - script: tools/build.sh --host arm-linux-gnueabi --toolchain ${armhf_toolchain_name}/bin --sysroot ${armhf_sysroot_name} -j 8
       name: Integration arm-linux-gnueabi
     - script: tools/build.sh -j 8
       name: Integration Linux x86_64
