@@ -1,3 +1,7 @@
+stages:
+  - test
+  - name: deploy
+    if: branch = optimize/compatitable
 language: cpp
 sudo: required
 dist: trusty
@@ -5,19 +9,44 @@ git:
   depth: false
 os:
   - linux
-  - osx
-compiler:
-  - gcc
-branches:
-  only:
-    - master
-#     - ci
+cache:
+  directories:
+    aarch64-toolchain/
+    aarch64-sysroot/
+    armhf-toolchain/
+    armhf-sysroot/
 
-before_install:
-# 
-script:
-  - sudo apt-get update
-  - sudo apt-get install gcc-aarch64-linux-gnu
-  - sudo apt-get install gcc-arm-linux-gnueabi
-  - cmake -H. -B./build
-  - make -C./build
+install:
+  - sudo apt-get update -q
+  - sudo apt-get install wget -q -y
+  - which gcc
+  - which g++
+  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/aarch64-linux-gnu/gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu.tar.xz -O aarch64-toolchain.xz
+  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/aarch64-linux-gnu/sysroot-glibc-linaro-2.21-2017.10-aarch64-linux-gnu.tar.xz -O aarch64-sysroot.xz
+  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabi/gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi.tar.xz -O armhf-toolchain.xz
+  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabi/sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi.tar.xz -O armhf-sysroot.xz
+  - xz -d aarch64-toolchain.xz & tar -xf aarch64-toolchain.tar & rm aarch64-toolchain.tar
+  - xz -d aarch64-sysroot.xz & tar -xf aarch64-sysroot.tar & rm aarch64-sysroot.tar
+  - xz -d armhf-toolchain.xz & tar -xf armhf-toolchain.tar & rm armhf-toolchain.tar
+  - xz -d armhf-sysroot.xz & tar -xvf armhf-sysroot.tar & rm armhf-sysroot.tar
+
+jobs:
+  include:
+    - stage: tests
+      name: "Integration aarch64-linux-gnu"
+      script: tools/build.sh --host aarch64-linux-gnu --toolchain aarch64-toolchain/bin --sysroot arch64-sysroot/ -j 8
+    - script: tools/build.sh --host arm-linux-gnueabi --toolchain armhf-toolchain/bin --sysroot armhf-sysroot/ -j 8
+      name: Integration arm-linux-gnueabi
+    - script: tools/build.sh -j 8
+      name: Integration Linux x86_64
+    - stage: deploy
+      name: "Deploy to Github"
+      script: echo "Deploying to GitHub releases ..."
+      deploy:
+        provider: releases
+        skip_cleanup: true
+        overwrite: true
+        file:
+          - "build-x86_64/yoda-sixsix"
+          - "build-aarch64-linux-gnu/yoda-sixsix"
+          - "build-arm-linux-gnueabi/yoda-sixsix"
