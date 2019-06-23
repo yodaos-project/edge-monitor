@@ -19,6 +19,7 @@ cache:
   - gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi/
   - sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi/
 install:
+- ls -lh
 - sudo apt-get update -q
 - sudo apt-get install wget -q -y
 - which gcc
@@ -49,9 +50,10 @@ jobs:
       - ls -lh
     deploy:
       provider: releases
+      file_glob: true
       api_key:
-        secure: FmVxwslheoxBlyYvrFv/dROynOIexFf9ee5oFgWjJOlHsx3x44zwLn0HACF4mAYDEXiRqBLAleKRp5a7VzkjsiNioikPJ+fAEclG7QHN0c52QJXIFW5JIHyjeUUWSdAPcnwqJHlr75dyZjtNGNv/M15MI/rsrIY2p68C1fmvsParboGicmpTl2S0GFOTOGVjpb7IvhTDDcG6bdTxFLvRaUq09bs6mBkiVD4+YCVBa/9/t0XgSsoeV54hlHKQe1ujJ9+rb2BFdN5R7zEVgt4WVDizPMZvt4FcCngDiNaxtnOt5chMjfaIwUZrjwmgKTWDLljrvL6vcBjN9V74wZmu6s9sw3Co3BK9LrhCkm58dsue7ifFJUp8Zn/oGXK1c6hN73aZAjBCiOe0jSoLvlFqKK5CqmSE+HsQqzeIeCX/Tc26nSEvJdGddfRDCU9QBEoGdXgroxQFlujyL3QwfVdouCqTKK3u+vCU+yHaYEQ2RkMmByc8jOv/ShSfCssKHf9j4Ke/Sil1e8sO4+glu04o5fHliDo8NGPBzUdHe6Ke85po9tY2OVzd9+AkBn/yauzvBBK3Xp+aSvCpj9CPL30gQFG5sar+Flov+yc1i2OkIx78RB8m2rQIIz3bYo03VA0noifMxdoMd6qIo88vL4BB/bBhUvdQdygWhwae0f88tH0=
-      file: yoda-sixsix-release.tar.gz
+        secure: chyumVR1sCxAgYpJT0aT0MPzIQDDcL3sPAMWiroTR6iy/Nx8R74v9WlTCtnQ8kF50jeByR3RTLTcBjA70yB1jlM6riqQqUdUsFhGPBMpaiuy8hxaLBWNX6tI9YfBWrPh84J5gl0YsX5z+LfGsIFr1AVVmluR2V8dgZdO2V71Cs66Gd1Uxua2wNOiythVSU+FUUYTdzxnY/7OWFW7FtqNiaNCJjtOXTq0gq5DsXygNwvCTkCnSYwaJxaT9Ik2nc6dMcOwy+QsbLMUz41CwNv18CaYAsFDY1zn5crQ3gdeRXDHy3WVxNwsBLVB3bC6FXpto+XYCO7PTk51sG0H1ao8WHeN6UqKP6AqkOG+vWc9IkqQQmlRBpjErH9mufbmY+iddSGyanVllGJ/BZe1DDaOxlTgwLeHtrTA/cp09nsBLIptdF8Egrn9ndtdT2DemAtmJCM14UyFWps7nKJEBKzmLHKJzlJJOUPsA7piJwDuzdLzmvo0pIsvHHx4mt/ll/GyLY4l05LBoKs1HdN4iC9o3zBG9CKuKZGrSQFJYx7SxX1FHis0fcHKOIJhHvZvZKoShGMjILLwn9WleiYDQ7LbiJTZs0oHhzaOaXUffGfnFZU5CRYd8b+X/XGj+pMpQ2Uoczu4rbjl0MrcbrzfEsDjhuSR9MsWTBUr65Y5BfCHYVU=
+      file: ./yoda-sixsix-release.tar.gz
       on:
         repo: yodaos-project/edge-monitor
         branch: optimize/compatitable
