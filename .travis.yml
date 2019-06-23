@@ -10,6 +10,8 @@ git:
 os:
 - linux
 fast_finish: true
+# branches:
+  # only: master
 cache:
   directories:
   - gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu/
@@ -45,11 +47,11 @@ jobs:
       - cp build-arm-linux-gnueabi/yoda-sixsix release/yoda-sixsix-arm-linux-gnueabi
       - tar -czf yoda-sixsix-release.tar.gz release/
       - ls -lh
-deploy:
-  provider: releases
-  api_key:
-    secure: b2PPzKKGisAdXYJ7RmzJqW4/1Ebkb0EV4vWluOVz+xXIsXkJlslhSWFbbdEk8iNrDKrlSo6g4MCrF/5Htpc74obcIxNjJFVdIPk8qHTd9sEg3pRo5O5GFPkEcfN9Q0N+y+ot3KbauIDKaisRyX3LdbpS4CS++50Tmpfl57D7HUrHOtZtgwe56O9nolfmQ56OAmoccC3OtCYBOE2RQjrVoWMaTGY5LKcTaXGBU4CXPTnZxuT+Iwsev9F7uKzEsgKcMC6c6gMoqfaYKP6wCXg4U5HkBMnkwNdbh9u7GMfRBZ0PHrFvSjFumIf5uo8700JEeDnOs+QE1xsJAstac71YXEIfrkUHTY2xjWZsPA8aFsbap5BZ/An4VY2AWTEn6rMbA7fpuU7bCEBtlmkbuU3RNGamtGX4y9FewdydVEdQOqcJs45Z05yjHFhqACivjhVqAIk1naPbmengWfJukOMryqujfmUZxvXrbVTyYoxa3dnb8khi4YHFnMjDcWqoM7wPmZrQmX1cndQFtu3DoaxeuqJ+GZl0yLD8CsnWjm4kaOB1mfsbPLNr9y/9LA4S/ZClJBy7TG3aiNo9V4Mdtan1n3Ih/I8uMpGRiwAJoD84SOlDHSYiVH4fIitUVMzLwZ8S5BdtrtJ0vczpzeZQL+EYhfZrPvq6iqC+gaVhHugjj/A=
-  file: yoda-sixsix-release.tar.gz
-  on:
-    repo: yodaos-project/edge-monitor
-    branch: optimize/compatitable
+    deploy:
+      provider: releases
+      api_key:
+        secure: jKqMCzdzwf6DWBt8HT9s2k2SrFHeOlZZaGUreMl/TQNQzw+Z/40vPfq+e52c0/bszPLda8AKeaj+/FOStUe3mY++jaLi4ks9g3hz+vykG3LnNPYyu7ahi5nAQJtQxnyR1DkRpN8ex2FWdWTUT1dRui5SxaA7DVIkQlDFm0JzPD91rpEwVF14oFNGG+0SG5n6cMdmp2//2MXKuT3XhRzHY+IfoC6jOD8r6nEmNwcPvRiEVUV7idnaPBHZDF5cBAmdGl8+HkWkUGv3nuC2iV7jCLtBRQgeBuuthuiACC5FkjftXnj8aKuZng7lOYllgm3HdCGE8Lejs7iugASeH9LxFuz2cb29tDvisW7XDqMQvgJl9O7LXP7jTsSkAausl+M97ROSeVq59LpOElH8mURLSjCT+y+7fs/27quREzalbEtc6VfRac+ObdcKYkcquKDbZtl/cjH0NEe5GiouatVvXgu8elu5UyXwrd7YaP5Gil2e6aNRMegVVwyJuilk3cb3XfLazhPrTsAffW+1PViryFWK1VLeDqRgT/YwMXLo+m6ddCwk0b/j99Ile6lj5/zimpvFoP3P1Pk3KGtiWcUmxzO1/n9WnsZM9dqysLeIFWUsfkUP9XJmlGRwur4lKfXhjVQl+QgmH0W6BFmhu0Ab96QMyjfpW1UX1wSHeXDvlX0=
+      file: yoda-sixsix-release.tar.gz
+      on:
+        repo: yodaos-project/edge-monitor
+        branch: optimize/compatitable
