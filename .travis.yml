@@ -45,11 +45,11 @@ jobs:
       - cp build-arm-linux-gnueabi/yoda-sixsix release/yoda-sixsix-arm-linux-gnueabi
       - tar -czf yoda-sixsix-release.tar.gz release/
       - ls -lh
-    deploy:
-      provider: releases
-      api_key:
-        secure: trt8Auk+LE7OzVEQuaMuS68zppvXgM6/XBxyxAJWTrsft+eMSR3obGqNrZL4CXab2XyrIHLj6wGpotO14/lpRcelp6gfTjPOrZMGcsXEas/pvwms8p5lwSi9vO/9LgoN37cLphkjn0cNbCh/kbRx3Z2wUVliyKAWypQdEI2Hlxw0sApVUYjbHFX2yH6H5yQinh33jXHA5i2w4BWDrPUQvnvwleqawJNgUUSCE3vg9aWZw0gs45c3ZF4/jUEvSecly1Lp8DLL66J9cII3NI8OMEZkSbZp45jgBT5dYf2SHvqu81uqbzlVK8yoJSCcoENRWd/qqIiATsANgRttXxF9lPmxzRKADhJgMk/rY8zvMT5t657vsRZ5bxG4kHEHzTc3IMMLtTbhCVNUlBef4eaD+Ng5K2+/08iJnn2hY6KKf8dp8ajIHY4jpXXWmFc9Q57SWJKKxplk+YpfZZ8Rta0RM5UTJ4O+zd9V4Zr5ivcSJeJ68zfXahzuBLuW3aMuBrxioafYzo6n+ZnmkvqEism9gsf+qgSwyBJpU78Z7i9gCsjszOE/Xai5RNJwjHzXMaPiw6/l17WapCELbPYI4Nhbh3Ez75lzrY84gHGynVxw+uuqx2vY04uotv3pVRvhIAoUeVrbb7iYyS+w07QmZIOK1Ol/lOByHjq7xi78Y/r2RUU=
-      file: yoda-sixsix-release.tar.gz
-      on:
-        repo: yodaos-project/edge-monitor
-        branch: optimize/compatitable
+deploy:
+  provider: releases
+  api_key:
+    secure: b2PPzKKGisAdXYJ7RmzJqW4/1Ebkb0EV4vWluOVz+xXIsXkJlslhSWFbbdEk8iNrDKrlSo6g4MCrF/5Htpc74obcIxNjJFVdIPk8qHTd9sEg3pRo5O5GFPkEcfN9Q0N+y+ot3KbauIDKaisRyX3LdbpS4CS++50Tmpfl57D7HUrHOtZtgwe56O9nolfmQ56OAmoccC3OtCYBOE2RQjrVoWMaTGY5LKcTaXGBU4CXPTnZxuT+Iwsev9F7uKzEsgKcMC6c6gMoqfaYKP6wCXg4U5HkBMnkwNdbh9u7GMfRBZ0PHrFvSjFumIf5uo8700JEeDnOs+QE1xsJAstac71YXEIfrkUHTY2xjWZsPA8aFsbap5BZ/An4VY2AWTEn6rMbA7fpuU7bCEBtlmkbuU3RNGamtGX4y9FewdydVEdQOqcJs45Z05yjHFhqACivjhVqAIk1naPbmengWfJukOMryqujfmUZxvXrbVTyYoxa3dnb8khi4YHFnMjDcWqoM7wPmZrQmX1cndQFtu3DoaxeuqJ+GZl0yLD8CsnWjm4kaOB1mfsbPLNr9y/9LA4S/ZClJBy7TG3aiNo9V4Mdtan1n3Ih/I8uMpGRiwAJoD84SOlDHSYiVH4fIitUVMzLwZ8S5BdtrtJ0vczpzeZQL+EYhfZrPvq6iqC+gaVhHugjj/A=
+  file: yoda-sixsix-release.tar.gz
+  on:
+    repo: yodaos-project/edge-monitor
+    branch: optimize/compatitable
