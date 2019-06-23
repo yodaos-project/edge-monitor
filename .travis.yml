@@ -1,57 +1,65 @@
 stages:
-  - test
-  - name: deploy
-    if: branch = optimize/compatitable
-language: c++
+- test
+- name: deploy
+  if: branch = optimize/compatitable
+language: cpp
 sudo: required
 dist: trusty
 git:
   depth: false
 os:
-  - linux
+- linux
+fast_finish: true
 cache:
   directories:
   - gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu/
   - sysroot-glibc-linaro-2.21-2017.10-aarch64-linux-gnu/
   - gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi/
   - sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi/
-
 install:
-  - sudo apt-get update -q
-  - sudo apt-get install wget -q -y
-  - which gcc
-  - which g++
-  - aarch64_toolchain_name="gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu"
-  - aarch64_sysroot_name="sysroot-glibc-linaro-2.21-2017.10-aarch64-linux-gnu"
-  - armhf_toolchain_name="gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi"
-  - armhf_sysroot_name="sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi"
-  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/aarch64-linux-gnu/${aarch64_toolchain_name}.tar.xz
-  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/aarch64-linux-gnu/${aarch64_sysroot_name}.tar.xz
-  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabi/${armhf_toolchain_name}.tar.xz
-  - wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabi/${armhf_sysroot_name}.tar.xz
-  - ls -lh
-  - xz -fd ${aarch64_toolchain_name}.tar.xz && tar -xf ${aarch64_toolchain_name}.tar && rm ${aarch64_toolchain_name}.tar
-  - xz -fd ${aarch64_sysroot_name}.tar.xz && tar -xf ${aarch64_sysroot_name}.tar && rm ${aarch64_sysroot_name}.tar
-  - xz -fd ${armhf_toolchain_name}.tar.xz && tar -xf ${armhf_toolchain_name}.tar && rm ${armhf_toolchain_name}.tar
-  - xz -fd ${armhf_sysroot_name}.tar.xz && tar -xf ${armhf_sysroot_name}.tar && rm ${armhf_sysroot_name}.tar
-
+- sudo apt-get update -q
+- sudo apt-get install wget -q -y
+- which gcc
+- which g++
+- aarch64_toolchain_name="gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu"
+- aarch64_sysroot_name="sysroot-glibc-linaro-2.21-2017.10-aarch64-linux-gnu"
+- armhf_toolchain_name="gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi"
+- armhf_sysroot_name="sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi"
+- wget https://releases.linaro.org/components/toolchain/binaries/latest-5/aarch64-linux-gnu/${aarch64_toolchain_name}.tar.xz
+- wget https://releases.linaro.org/components/toolchain/binaries/latest-5/aarch64-linux-gnu/${aarch64_sysroot_name}.tar.xz
+- wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabi/${armhf_toolchain_name}.tar.xz
+- wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabi/${armhf_sysroot_name}.tar.xz
+- ls -lh
+- xz -fd ${aarch64_toolchain_name}.tar.xz && tar -xf ${aarch64_toolchain_name}.tar && rm ${aarch64_toolchain_name}.tar
+- xz -fd ${aarch64_sysroot_name}.tar.xz && tar -xf ${aarch64_sysroot_name}.tar && rm ${aarch64_sysroot_name}.tar
+- xz -fd ${armhf_toolchain_name}.tar.xz && tar -xf ${armhf_toolchain_name}.tar && rm ${armhf_toolchain_name}.tar
+- xz -fd ${armhf_sysroot_name}.tar.xz && tar -xf ${armhf_sysroot_name}.tar && rm ${armhf_sysroot_name}.tar
 jobs:
   include:
-    - stage: tests
-      name: "Integration aarch64-linux-gnu"
-      script: tools/build.sh --host aarch64-linux-gnu --toolchain ${aarch64_toolchain_name}/bin --sysroot ${aarch64_sysroot_name} -j 8
-    - script: tools/build.sh --host arm-linux-gnueabi --toolchain ${armhf_toolchain_name}/bin --sysroot ${armhf_sysroot_name} -j 8
-      name: Integration arm-linux-gnueabi
-    - script: tools/build.sh -j 8
-      name: Integration Linux x86_64
-    - stage: deploy
-      name: "Deploy to Github"
-      script: echo "Deploying to GitHub releases ..."
-      deploy:
-        provider: releases
-        skip_cleanup: true
-        overwrite: true
-        file:
-          - "build-x86_64/yoda-sixsix"
-          - "build-aarch64-linux-gnu/yoda-sixsix"
-          - "build-arm-linux-gnueabi/yoda-sixsix"
+  - stage: tests
+    script: tools/build.sh --host aarch64-linux-gnu --toolchain ${aarch64_toolchain_name}/bin --sysroot ${aarch64_sysroot_name} -j 8 -s
+    name: aarch64-linux-gnu
+  - script: tools/build.sh --host arm-linux-gnueabi --toolchain ${armhf_toolchain_name}/bin --sysroot ${armhf_sysroot_name} -j 8 -s
+    name: arm-linux-gnueabi
+  - script: tools/build.sh -j 8 -s
+    name: linux x86_64
+  - stage: deploy
+    name: Deploy to Github
+    script: echo "Deploying to GitHub releases ..."
+      - tools/build.sh --host aarch64-linux-gnu --toolchain ${aarch64_toolchain_name}/bin --sysroot ${aarch64_sysroot_name} -j 8 -s
+      - tools/build.sh --host arm-linux-gnueabi --toolchain ${armhf_toolchain_name}/bin --sysroot ${armhf_sysroot_name} -j 8 -s
+      - tools/build.sh -j 8 -s
+      - mkdir release
+      - cp build-x86_64/yoda-sixsix release/yoda-sixsix-linux_x86_64
+      - cp build-aarch64-linux-gnu/yoda-sixsix release/yoda-sixsix-aarch64-linux-gnu
+      - cp build-arm-linux-gnueabi/yoda-sixsix release/yoda-sixsix-arm-linux-gnueabi
+      - tar -czf yoda-sixsix-release.tar.gz release/
+      - ls -lh
+    deploy:
+      provider: releases
+      api_key:
+        secure: trt8Auk+LE7OzVEQuaMuS68zppvXgM6/XBxyxAJWTrsft+eMSR3obGqNrZL4CXab2XyrIHLj6wGpotO14/lpRcelp6gfTjPOrZMGcsXEas/pvwms8p5lwSi9vO/9LgoN37cLphkjn0cNbCh/kbRx3Z2wUVliyKAWypQdEI2Hlxw0sApVUYjbHFX2yH6H5yQinh33jXHA5i2w4BWDrPUQvnvwleqawJNgUUSCE3vg9aWZw0gs45c3ZF4/jUEvSecly1Lp8DLL66J9cII3NI8OMEZkSbZp45jgBT5dYf2SHvqu81uqbzlVK8yoJSCcoENRWd/qqIiATsANgRttXxF9lPmxzRKADhJgMk/rY8zvMT5t657vsRZ5bxG4kHEHzTc3IMMLtTbhCVNUlBef4eaD+Ng5K2+/08iJnn2hY6KKf8dp8ajIHY4jpXXWmFc9Q57SWJKKxplk+YpfZZ8Rta0RM5UTJ4O+zd9V4Zr5ivcSJeJ68zfXahzuBLuW3aMuBrxioafYzo6n+ZnmkvqEism9gsf+qgSwyBJpU78Z7i9gCsjszOE/Xai5RNJwjHzXMaPiw6/l17WapCELbPYI4Nhbh3Ez75lzrY84gHGynVxw+uuqx2vY04uotv3pVRvhIAoUeVrbb7iYyS+w07QmZIOK1Ol/lOByHjq7xi78Y/r2RUU=
+      file: yoda-sixsix-release.tar.gz
+      on:
+        repo: yodaos-project/edge-monitor
+        branch: optimize/compatitable
