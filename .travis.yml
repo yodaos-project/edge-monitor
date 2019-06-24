@@ -29,10 +29,10 @@ jobs:
   - stage: tests
     name: aarch64-linux-gnu
     script:
-      - tools/install-toolchain-sysroot.sh aarch64-linux-gnu
+      - source tools/install-toolchain-sysroot.sh aarch64-linux-gnu
       - tools/build.sh --host aarch64-linux-gnu --toolchain ${aarch64_toolchain_name}/bin --sysroot ${aarch64_sysroot_name} -j 8 -s
   - script:
-      - tools/install-toolchain-sysroot.sh arm-linux-gnueabi
+      - source tools/install-toolchain-sysroot.sh arm-linux-gnueabi
       - tools/build.sh --host arm-linux-gnueabi --toolchain ${armhf_toolchain_name}/bin --sysroot ${armhf_sysroot_name} -j 8 -s
     name: arm-linux-gnueabi
   - script: tools/build.sh -j 8 -s
@@ -41,7 +41,7 @@ jobs:
     name: Deploy to Github
     script:
       - echo "Deploying to GitHub releases ..."
-      - tools/install-toolchain-sysroot.sh
+      - source tools/install-toolchain-sysroot.sh
       - tools/build.sh --host aarch64-linux-gnu --toolchain ${aarch64_toolchain_name}/bin --sysroot ${aarch64_sysroot_name} -j 8 -s
       - tools/build.sh --host arm-linux-gnueabi --toolchain ${armhf_toolchain_name}/bin --sysroot ${armhf_sysroot_name} -j 8 -s
       - tools/build.sh -j 8 -s

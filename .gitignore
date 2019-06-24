@@ -10,3 +10,11 @@ xcode-cmake/
 .vscode/
 *.swp
 *.core
+gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu/
+gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu.*
+sysroot-glibc-linaro-2.21-2017.10-aarch64-linux-gnu/
+sysroot-glibc-linaro-2.21-2017.10-aarch64-linux-gnu.*
+gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi/
+gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi.*
+sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi/
+sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi.*
