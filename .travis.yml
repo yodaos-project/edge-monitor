@@ -20,8 +20,6 @@ cache:
   - sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi/
 install:
 - ls -lh
-- sudo apt-get update -q
-- sudo apt-get install wget -q -y
 - which gcc
 - which g++
 jobs:
@@ -51,12 +49,17 @@ jobs:
       - cp build-arm-linux-gnueabi/yoda-sixsix release/yoda-sixsix-arm-linux-gnueabi
       - tar -czf yoda-sixsix-release.tar.gz release/
       - ls -lh
+    before_deploy:
+      - export TRAVIS_TAG="last-master-commit-auto-release"
     deploy:
       provider: releases
+      skip_cleanup: true
       file_glob: true
+      overwrite: true
       api_key:
         secure: ZiH2XHj+TbagA/RqVzNpas8Wxqz9MzFzpWw13jzSXJ1HfVUT7f+gYA892wObok/zWBCYt1mB7CQy4Og7gPaI+IRCAr6vwn4zg/PJ9uYUD14gvVbsETLXSgzQjqXC27OjZGqeqL/dKZkTrzr1ZHg8BC6R8ZCNgeh0yerikzbKa3PCEMJrQtkIUnMIkNL5Na/+coSppWE4ulPF8KdHiIq8vLrkyztka/Oqex+D0jQF//KS13I+VkHBIFj8SGqC1/BQUfzxXIH7DNxwwusUfB1W0toUNAFXhFicJtwR6TISDtF0v6LK4l0TrczzPIXZ6XX8swk1aRhjAqMDUHaL57dc4eTgdbidkFHOeKWILuP8KvCqNg7ZTGOM/6GO/vH9dJ/0+mJTfIrHrqIPAWE8zVkya44dWeWrlsWoYx2iUdW4sT8BzPmePpfHLW27RJVkFXjJGKLehDZF42/juDT01chEXpykXjDXC1+lv+LxNdlVcLX2NeaCFuoY9PBNZGe1Oy7dNv/Dzly6dj5vn81UXG2DwdkecxqdZtEmrzpzvcJDlzlh6bHWFJUJaEiNhWxBdPUqoHfzcXHVzix8zKGs73X2epSbkT131PlTWk2gQk8ctyfOL+i8cCw69xyGBXAzTY/5jkhdtI3Wbq4651h4zqc4lNYiVVTu2VqfOaJpz3TdmrQ=
-      file: ./yoda-sixsix-release.tar.gz
+      file:
+        - "./yoda-sixsix-release.tar.gz"
       on:
         repo: yodaos-project/edge-monitor
         branch: optimize/compatitable
