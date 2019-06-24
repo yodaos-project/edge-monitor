@@ -10,8 +10,8 @@ git:
 os:
 - linux
 fast_finish: true
-# branches:
-  # only: master
+branches:
+  only: master
 cache:
   directories:
   - gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu/
