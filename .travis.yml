@@ -20,7 +20,6 @@ cache:
   - gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi/
   - sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi/
 install:
-- ls -lh
 - which gcc
 - which g++
 jobs:
@@ -41,10 +40,8 @@ jobs:
     script:
       - echo "Deploying to GitHub releases ..."
       - source tools/install-toolchain-sysroot.sh
-      - ls -lh
       - pwd
-      - ls -lh ${aarch64_toolchain_name}
-      - ls -lh ${aarch64_toolchain_name}/bin
+      - du -sh *
       - tools/build.sh --host aarch64-linux-gnu --toolchain ${aarch64_toolchain_name}/bin --sysroot ${aarch64_sysroot_name} -j 8 -s
       - tools/build.sh --host arm-linux-gnueabi --toolchain ${armhf_toolchain_name}/bin --sysroot ${armhf_sysroot_name} -j 8 -s
       - tools/build.sh -j 8 -s

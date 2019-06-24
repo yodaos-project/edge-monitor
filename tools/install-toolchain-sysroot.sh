@@ -10,14 +10,14 @@ download() {
   aarch=$1
   toolchain_name=$2
   sysroot_name=$3
-  if [ ! -d $toolchain_name ]; then
+  if [ ! -d $toolchain_name ] || [ ! -f $toolchain_name/bin/$aarch-gcc ] || [ ! -f $toolchain_name/bin/$aarch-g++ ]; then
     toolchain_url="https://releases.linaro.org/components/toolchain/binaries/latest-5/${aarch}/${toolchain_name}.tar.xz"
     wget $toolchain_url -O ${toolchain_name}.tar.xz
     xz -fd ${toolchain_name}.tar.xz && tar -xf ${toolchain_name}.tar && rm ${toolchain_name}.tar
   else
     echo "cached toolchain $toolchain_name"
   fi
-  if [ ! -d $sysroot_name ]; then
+  if [ ! -d $sysroot_name ] || [ ! -d $sysroot_name/lib ] || [ ! -d $sysroot_name/usr ]; then
     sysroot_url="https://releases.linaro.org/components/toolchain/binaries/latest-5/${aarch}/${sysroot_name}.tar.xz"
     wget $sysroot_url -O ${sysroot_name}.tar.xz
     xz -fd ${sysroot_name}.tar.xz && tar -xf ${sysroot_name}.tar && rm ${sysroot_name}.tar
