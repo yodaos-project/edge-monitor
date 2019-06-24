@@ -51,7 +51,8 @@ jobs:
     deploy:
       provider: releases
       file_glob: true
-      api_key: f9eb92eb513732843c2f543adf3fa5014442c966
+      api_key:
+        secure: ZiH2XHj+TbagA/RqVzNpas8Wxqz9MzFzpWw13jzSXJ1HfVUT7f+gYA892wObok/zWBCYt1mB7CQy4Og7gPaI+IRCAr6vwn4zg/PJ9uYUD14gvVbsETLXSgzQjqXC27OjZGqeqL/dKZkTrzr1ZHg8BC6R8ZCNgeh0yerikzbKa3PCEMJrQtkIUnMIkNL5Na/+coSppWE4ulPF8KdHiIq8vLrkyztka/Oqex+D0jQF//KS13I+VkHBIFj8SGqC1/BQUfzxXIH7DNxwwusUfB1W0toUNAFXhFicJtwR6TISDtF0v6LK4l0TrczzPIXZ6XX8swk1aRhjAqMDUHaL57dc4eTgdbidkFHOeKWILuP8KvCqNg7ZTGOM/6GO/vH9dJ/0+mJTfIrHrqIPAWE8zVkya44dWeWrlsWoYx2iUdW4sT8BzPmePpfHLW27RJVkFXjJGKLehDZF42/juDT01chEXpykXjDXC1+lv+LxNdlVcLX2NeaCFuoY9PBNZGe1Oy7dNv/Dzly6dj5vn81UXG2DwdkecxqdZtEmrzpzvcJDlzlh6bHWFJUJaEiNhWxBdPUqoHfzcXHVzix8zKGs73X2epSbkT131PlTWk2gQk8ctyfOL+i8cCw69xyGBXAzTY/5jkhdtI3Wbq4651h4zqc4lNYiVVTu2VqfOaJpz3TdmrQ=
       file: ./yoda-sixsix-release.tar.gz
       on:
         repo: yodaos-project/edge-monitor
