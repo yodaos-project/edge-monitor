@@ -72,7 +72,8 @@ namespace rokid {
     * setter 任务类型
     */
     inline void setTaskType(const char* v) {
-      if (!taskType)    taskType = std::make_shared<std::string>();  *taskType = v;
+      if (!taskType) taskType = std::make_shared<std::string>();
+      *taskType = v;
     }
     /*
     * setter 脚本id
@@ -90,7 +91,8 @@ namespace rokid {
     * setter 脚本类型
     */
     inline void setShellType(const char* v) {
-      if (!shellType)    shellType = std::make_shared<std::string>();  *shellType = v;
+      if (!shellType) shellType = std::make_shared<std::string>();
+      *shellType = v;
     }
     /*
     * setter 脚本内容
@@ -102,7 +104,8 @@ namespace rokid {
     * setter 脚本内容
     */
     inline void setShellContent(const char* v) {
-      if (!shellContent)    shellContent = std::make_shared<std::string>();  *shellContent = v;
+      if (!shellContent) shellContent = std::make_shared<std::string>();
+      *shellContent = v;
     }
     /*
     * setter 命令时间

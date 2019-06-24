@@ -40,7 +40,7 @@ typedef struct _sDataToSend{
 class WebSocketClient {
 private:
     uv_loop_t *uv = nullptr;
-    int32_t maxBufferSize = 100;
+    size_t maxBufferSize = 100;
     uv_timer_t timerHandle;
     string address;
     string path;

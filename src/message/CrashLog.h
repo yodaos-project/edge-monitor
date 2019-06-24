@@ -65,7 +65,8 @@ namespace rokid {
     * setter 进程名
     */
     inline void setName(const char* v) {
-      if (!pName)    pName = std::make_shared<std::string>();  *pName = v;
+      if (!pName) pName = std::make_shared<std::string>();
+      *pName = v;
     }
     /*
     * setter 进程运行参数
@@ -77,7 +78,8 @@ namespace rokid {
     * setter 进程运行参数
     */
     inline void setArgs(const char* v) {
-      if (!args)    args = std::make_shared<std::string>();  *args = v;
+      if (!args) args = std::make_shared<std::string>();
+      *args = v;
     }
     /*
     * setter 运行时长，单位s

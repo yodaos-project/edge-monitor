@@ -130,7 +130,8 @@ namespace rokid {
     * setter 充电状态
     */
     inline void setStatus(const char* v) {
-      if (!status)    status = std::make_shared<std::string>();  *status = v;
+      if (!status) status = std::make_shared<std::string>();
+      *status = v;
     }
     /*
     * setter online

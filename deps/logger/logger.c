@@ -9,11 +9,14 @@
 #include <errno.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 static const int file_max_count = 3;
 static int file_index = 0;
 static pthread_t adjust_th;
-static FILE *redirect_file = NULL;
+static int redirect_fd = -1;
 static char* log_file_directory = NULL;
 static log_level min_level = LOG_LEVEL_VERBOSE;
 
@@ -54,7 +57,7 @@ void do_log(log_level level, const char *file, int line, const char *fmt, ...) {
   const char *start_color;
   const char *end_color;
   const char *des = level_des[level];
-  if (redirect_file) {
+  if (redirect_fd > -1) {
     start_color = "";
     end_color = "";
   } else {
@@ -93,25 +96,37 @@ void update_log_file() {
   }
   char path[256];
   get_file_name(path, file_index);
-  FILE *new_redirect_file = fopen(path, "a+");
-  if(!new_redirect_file) {
+  int new_redirect_fd = open(path, O_RDWR | O_APPEND | O_CREAT,
+    S_IRWXU | S_IRWXG | S_IRWXO);
+  if(new_redirect_fd < 0) {
     LOG_ERROR("open log file %s error: %s\n", path, strerror(errno));
     return;
   }
-  int fd = fileno(new_redirect_file);
-  LOG_INFO("redirect 1,2 to %s, fd: %d", path, fd);
-  dup2(fd, 1);
-  dup2(fd, 2);
-  redirect_file = new_redirect_file;
+  LOG_INFO("redirect 1,2 to %s, fd: %d", path, new_redirect_fd);
+  dup2(new_redirect_fd, 1);
+  dup2(new_redirect_fd, 2);
+  redirect_fd = new_redirect_fd;
 }
 
 void* adjust_file_size(void *data) {
-  while(redirect_file) {
-    fseek(redirect_file, 0L, SEEK_END);
-    size_t file_size = ftell(redirect_file);
-    LOG_INFO("log file size %ld", file_size);
-    if (file_size >= log_max_size) {
-      update_log_file();
+  char file_name[256];
+  FILE *file = NULL;
+  while(redirect_fd > -1) {
+    if (file == NULL) {
+      get_file_name(file_name, file_index);
+      file = fopen(file_name, "r");
+    }
+    if (file) {
+      fseek(file, 0L, SEEK_END);
+      size_t file_size = ftell(file);
+      LOG_INFO("log file size %ld", file_size);
+      if (file_size >= log_max_size) {
+        fclose(file);
+        file = NULL;
+        update_log_file();
+      }
+    } else {
+      LOG_ERROR("create log file %s error: %s", file_name, strerror(errno));
     }
     sleep(1);
   }
@@ -135,7 +150,8 @@ void set_logger_file_directory(const char *directory) {
         abort();
       }
     }
-    log_file_directory = strdup(directory);
+    log_file_directory = malloc(strlen(directory) + 1);
+    strcpy(log_file_directory, directory);
     LOG_INFO("log file directory %s", directory);
     update_log_file();
     pthread_create(&adjust_th, NULL, adjust_file_size, NULL);

@@ -86,7 +86,8 @@ namespace rokid {
     * setter process command line
     */
     inline void setFullName(const char* v) {
-      if (!fullName)    fullName = std::make_shared<std::string>();  *fullName = v;
+      if (!fullName) fullName = std::make_shared<std::string>();
+      *fullName = v;
     }
     /*
     * setter shared clean memory
