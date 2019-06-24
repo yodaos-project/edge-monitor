@@ -1,7 +1,5 @@
 #!/bin/bash
 
-ls -lh
-
 PROJ_DIR=`echo $(cd $(dirname "$0")/../; pwd)`
 
 while [ $# -gt 0 ]; do
@@ -45,6 +43,7 @@ if [ ! $TOOLCHAIN ]; then
     HOST=`echo $(uname -m)`
   fi
 else
+  echo "toolchain: ${TOOLCHAIN}"
   TOOLCHAIN=`echo "$(cd ${TOOLCHAIN}; pwd)"`
   if [ ! $HOST ]; then
     echo "Please define host for toolchain."
@@ -53,6 +52,9 @@ else
   CC=$TOOLCHAIN/$HOST-gcc
   CXX=$TOOLCHAIN/$HOST-g++
   STRIP=$TOOLCHAIN/$HOST-strip
+  echo "CC: $CC"
+  echo "CXX: $XX"
+  echo "strip: $STRIP"
 fi
 
 if [ ! $SYSROOT ]; then
@@ -60,6 +62,7 @@ if [ ! $SYSROOT ]; then
 else
   SYSROOT=`echo "$(cd ${SYSROOT}; pwd)"`
 fi
+echo $SYSROOT
 
 if [ ! $PAR ]; then
   PAR=1
