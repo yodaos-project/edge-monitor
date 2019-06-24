@@ -44,6 +44,7 @@ if [ ! $TOOLCHAIN ]; then
   fi
 else
   echo "toolchain: ${TOOLCHAIN}"
+  ls $TOOLCHAIN
   TOOLCHAIN=`echo "$(cd ${TOOLCHAIN}; pwd)"`
   if [ ! $HOST ]; then
     echo "Please define host for toolchain."
