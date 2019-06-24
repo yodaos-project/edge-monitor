@@ -1,7 +1,8 @@
 stages:
-- test
+- name: test
+  if: branch != master
 - name: deploy
-  if: branch = optimize/compatitable
+  if: branch = master
 language: cpp
 sudo: required
 dist: trusty
@@ -62,4 +63,4 @@ jobs:
         - "./yoda-sixsix-release.tar.gz"
       on:
         repo: yodaos-project/edge-monitor
-        branch: optimize/compatitable
+        branch: master

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ls -lh
+
 PROJ_DIR=`echo $(cd $(dirname "$0")/../; pwd)`
 
 while [ $# -gt 0 ]; do
