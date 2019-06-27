@@ -30,17 +30,6 @@
 #define YODA_NS_BEGIN namespace yoda {
 #define YODA_NS_END }
 
-#define YODA_SINGLETON_IMPL(class_name)\
-  public:\
-    static class_name* getInstance() {\
-      static class_name *instance = nullptr;\
-      if (!instance) {\
-        instance = new class_name();\
-      }\
-      return instance;\
-    }\
-private:\
-
 #define _1 std::placeholders::_1
 #define _2 std::placeholders::_2
 
