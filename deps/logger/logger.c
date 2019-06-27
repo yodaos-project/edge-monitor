@@ -28,11 +28,7 @@ static const char *level_des[] = {
   "verbose", "info", "warn", "error", "fatal"
 };
 
-static FILE **log_files[] = {
-  &stdout, &stdout, &stdout, &stderr, &stderr,
-};
-
-static size_t log_max_size = 2 * 1024 * 1024;
+static size_t log_max_size = 1 * 1024 * 1024;
 
 void do_log(log_level level, const char *file, int line, const char *fmt, ...) {
   if (level < min_level) {
@@ -53,7 +49,12 @@ void do_log(log_level level, const char *file, int line, const char *fmt, ...) {
   int ms = cur_time.tv_usec / 1000;
   size_t fmt_len = 64 + strlen(fmt);
   char fmt_buf[fmt_len];
-  FILE *log_file = *(log_files[level]);
+  FILE *log_file;
+  if (level >= LOG_LEVEL_ERROR) {
+    log_file = stderr;
+  } else {
+    log_file = stdout;
+  }
   const char *start_color;
   const char *end_color;
   const char *des = level_des[level];
