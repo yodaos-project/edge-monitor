@@ -85,15 +85,17 @@ void CollectSmap::afterCollect(uv_work_t *, int status) {
         procMems->emplace_back();
         rokid::ProcMemInfo &mem = procMems->back();
         mem.setPss(smap->pss);
+        mem.setRss(smap->rss);
         mem.setFullName(smap->fullname.c_str());
         mem.setPid(smap->pid);
         mem.setPrivateClean(smap->private_clean);
         mem.setPrivateDirty(smap->private_dirty);
         mem.setSharedClean(smap->shared_clean);
         mem.setSharedDirty(smap->shared_dirty);
-        LOG_VERBOSE("pss %d %s: %" PRIi64,
+        LOG_VERBOSE("%d %s, rss: %" PRIi64, " pss %", PRIi64,
                          smap->pid,
                          smap->fullname.c_str(),
+                         smap->rss,
                          smap->pss);
       }
     }

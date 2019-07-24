@@ -39,10 +39,12 @@ int32_t DeviceInfo::init() {
     READ_PROP(typeId);
   }
 
-  turenVersion = Util::exec("turenproc --version | grep -Eo 'Version = .*' | sed 's/Version = \\(.*\\);/\\1/g'");
+  turenVersion = Util::exec("lothalproc -v | grep lothal.so | awk '{printf $3}'");
   if (turenVersion.empty()) {
-    LOG_INFO("get turen info error");
+    LOG_ERROR("get turen info error");
     turenVersion = "unknownTurenVersion";
+  } else {
+    LOG_INFO("turen version: %s", turenVersion.c_str());
   }
   return 0;
 }
