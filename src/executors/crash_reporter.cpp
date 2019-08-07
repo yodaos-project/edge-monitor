@@ -137,7 +137,7 @@ void CrashReporter::compressAndUpload(const std::string &dir,
       fullname = process->fullname;
     }
   }
-  LOG_INFO("%s %s %s\n", binName, fullname.c_str(), appPid);
+  LOG_INFO("%s %s %s", binName, fullname.c_str(), appPid);
   RestClient::Connection *conn = new RestClient::Connection(_uploadURL);
   conn->AppendHeader("Content-Type", "application/zip");
   conn->AppendHeader("Content-Length", std::to_string(size));
@@ -152,14 +152,18 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   conn->AppendHeader("APP-Fullname", fullname);
   conn->AppendHeader("APP-PID", appPid);
   conn->AppendHeader("APP-ARGS", "{}");
-  RestClient::Response res = conn->post(UPLOAD_PATH, buf);
-  if (200 <= res.code && res.code < 300) {
-    LOG_INFO("uploaded %s %s", filepath, res.body.c_str());
-    unlink(filepath);
-  } else {
-    LOG_ERROR(
-      "upload error: %s %d %s", zippath, res.code, res.body.c_str()
-    );
+  while (true) {
+    RestClient::Response res = conn->post(UPLOAD_PATH, buf);
+    if (200 <= res.code && res.code < 300) {
+      LOG_INFO("uploaded %s %s", filepath, res.body.c_str());
+      unlink(filepath);
+      break;
+    } else {
+      LOG_ERROR(
+        "upload error: %s %d %s", zippath, res.code, res.body.c_str()
+      );
+      sleep(30);
+    }
   }
   delete conn;
 }
