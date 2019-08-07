@@ -7,12 +7,12 @@
 
 YODA_NS_BEGIN
 
-std::string DeviceInfo::sn = "sn-test-001";
-std::string DeviceInfo::imageVersion = "version-test-001";
-std::string DeviceInfo::hardware = "hardware-test-001";
-std::string DeviceInfo::turenVersion = "turen-test-001";
-std::string DeviceInfo::vspVersion = "vsp-test-001";
-std::string DeviceInfo::typeId = "typeId-test-001";
+std::string DeviceInfo::sn = "sn-unknown";
+std::string DeviceInfo::imageVersion = "version-unknown";
+std::string DeviceInfo::hardware = "hardware-unknown";
+std::string DeviceInfo::turenVersion = "turen-unknown";
+std::string DeviceInfo::vspVersion = "vsp-unknown";
+std::string DeviceInfo::typeId = "typeId-unknown";
 const char *key_sn = "ro.boot.serialno";
 const char *key_imageVersion = "ro.build.version.release";
 const char *key_hardware = "ro.boot.hardware";
@@ -39,12 +39,13 @@ int32_t DeviceInfo::init() {
     READ_PROP(typeId);
   }
 
-  turenVersion = Util::exec("lothalproc -v | grep lothal.so | awk '{printf $3}'");
-  if (turenVersion.empty()) {
-    LOG_ERROR("get turen info error");
-    turenVersion = "unknownTurenVersion";
+  auto aifeVersion =
+    Util::exec("lothalproc -v | grep lothal.so | awk '{printf $3}'");
+  if (aifeVersion.empty()) {
+    LOG_ERROR("get aife version error");
   } else {
-    LOG_INFO("turen version: %s", turenVersion.c_str());
+    LOG_INFO("aife version: %s", aifeVersion.c_str());
+    turenVersion = aifeVersion;
   }
   return 0;
 }
