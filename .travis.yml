@@ -1,8 +1,6 @@
 stages:
 - name: test
-  if: branch != master
 - name: deploy
-  if: branch = master
 language: cpp
 sudo: required
 dist: trusty
@@ -24,14 +22,14 @@ install:
 - which g++
 jobs:
   include:
-  - stage: tests
+  - stage: test
     name: aarch64-linux-gnu
     script:
       - source tools/install-toolchain-sysroot.sh aarch64-linux-gnu
       - tools/build.sh --host aarch64-linux-gnu --toolchain ${aarch64_toolchain_name}/bin --sysroot ${aarch64_sysroot_name} -j 8 -s
   - script:
       - source tools/install-toolchain-sysroot.sh arm-linux-gnueabi
-      - tools/build.sh --host arm-linux-gnueabi --toolchain ${armhf_toolchain_name}/bin --sysroot ${armhf_sysroot_name} -j 8 -s
+      - tools/build.sh --host arm-linux-gnueabi --toolchain ${arm_toolchain_name}/bin --sysroot ${arm_sysroot_name} -j 8 -s
     name: arm-linux-gnueabi
   - script: tools/build.sh -j 8 -s
     name: linux x86_64
@@ -43,13 +41,13 @@ jobs:
       - pwd
       - du -sh *
       - tools/build.sh --host aarch64-linux-gnu --toolchain ${aarch64_toolchain_name}/bin --sysroot ${aarch64_sysroot_name} -j 8 -s
-      - tools/build.sh --host arm-linux-gnueabi --toolchain ${armhf_toolchain_name}/bin --sysroot ${armhf_sysroot_name} -j 8 -s
+      - tools/build.sh --host arm-linux-gnueabi --toolchain ${arm_toolchain_name}/bin --sysroot ${arm_sysroot_name} -j 8 -s
       - tools/build.sh -j 8 -s
       - mkdir release
       - cp build-x86_64/yoda-sixsix release/yoda-sixsix-linux_x86_64
       - cp build-aarch64-linux-gnu/yoda-sixsix release/yoda-sixsix-aarch64-linux-gnu
       - cp build-arm-linux-gnueabi/yoda-sixsix release/yoda-sixsix-arm-linux-gnueabi
-      - tar -czf yoda-sixsix-release.tar.gz release/
+      # - tar -czf yoda-sixsix-release.tar.gz release/
       - ls -lh
     before_deploy:
       - export TRAVIS_TAG="last-master-commit-auto-release"
@@ -61,7 +59,9 @@ jobs:
       api_key:
         secure: ZiH2XHj+TbagA/RqVzNpas8Wxqz9MzFzpWw13jzSXJ1HfVUT7f+gYA892wObok/zWBCYt1mB7CQy4Og7gPaI+IRCAr6vwn4zg/PJ9uYUD14gvVbsETLXSgzQjqXC27OjZGqeqL/dKZkTrzr1ZHg8BC6R8ZCNgeh0yerikzbKa3PCEMJrQtkIUnMIkNL5Na/+coSppWE4ulPF8KdHiIq8vLrkyztka/Oqex+D0jQF//KS13I+VkHBIFj8SGqC1/BQUfzxXIH7DNxwwusUfB1W0toUNAFXhFicJtwR6TISDtF0v6LK4l0TrczzPIXZ6XX8swk1aRhjAqMDUHaL57dc4eTgdbidkFHOeKWILuP8KvCqNg7ZTGOM/6GO/vH9dJ/0+mJTfIrHrqIPAWE8zVkya44dWeWrlsWoYx2iUdW4sT8BzPmePpfHLW27RJVkFXjJGKLehDZF42/juDT01chEXpykXjDXC1+lv+LxNdlVcLX2NeaCFuoY9PBNZGe1Oy7dNv/Dzly6dj5vn81UXG2DwdkecxqdZtEmrzpzvcJDlzlh6bHWFJUJaEiNhWxBdPUqoHfzcXHVzix8zKGs73X2epSbkT131PlTWk2gQk8ctyfOL+i8cCw69xyGBXAzTY/5jkhdtI3Wbq4651h4zqc4lNYiVVTu2VqfOaJpz3TdmrQ=
       file:
-        - "./yoda-sixsix-release.tar.gz"
+        - release/yoda-sixsix-linux_x86_64
+        - release/yoda-sixsix-aarch64-linux-gnu
+        - release/yoda-sixsix-arm-linux-gnueabi
       on:
         repo: yodaos-project/edge-monitor
         branch: master
