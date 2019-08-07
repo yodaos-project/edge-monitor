@@ -3,8 +3,8 @@ set -e
 arch_name=$1
 export aarch64_toolchain_name="gcc-linaro-5.5.0-2017.10-x86_64_aarch64-linux-gnu"
 export aarch64_sysroot_name="sysroot-glibc-linaro-2.21-2017.10-aarch64-linux-gnu"
-export armhf_toolchain_name="gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi"
-export armhf_sysroot_name="sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi"
+export arm_toolchain_name="gcc-linaro-5.5.0-2017.10-x86_64_arm-linux-gnueabi"
+export arm_sysroot_name="sysroot-glibc-linaro-2.21-2017.10-arm-linux-gnueabi"
 
 download() {
   aarch=$1
@@ -28,11 +28,11 @@ download() {
 
 if [ ! $arch_name ]; then
   download "aarch64-linux-gnu" $aarch64_toolchain_name $aarch64_sysroot_name
-  download "arm-linux-gnueabi" $armhf_toolchain_name $armhf_sysroot_name
+  download "arm-linux-gnueabi" $arm_toolchain_name $arm_sysroot_name
 elif [ "$arch_name" == "aarch64-linux-gnu" ]; then
   download "aarch64-linux-gnu" $aarch64_toolchain_name $aarch64_sysroot_name
 elif [ "$arch_name" == "arm-linux-gnueabi" ]; then
-  download "arm-linux-gnueabi" $armhf_toolchain_name $armhf_sysroot_name
+  download "arm-linux-gnueabi" $arm_toolchain_name $arm_sysroot_name
 else
   echo "unkown arch name $arch_name"
   exit 1
