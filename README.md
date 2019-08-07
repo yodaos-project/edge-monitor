@@ -1,6 +1,7 @@
 # Yoda Monitor
+
 [![License](https://img.shields.io/badge/licence-Apache%202.0-brightgreen.svg?style=flat)](LICENSE)
-[![Build Status](https://travis-ci.com/yodaos-project/edge-monitor.svg?branch=master)](https://travis-ci.org/yodaos-project/edge-monitor)
+[![Build Status](https://travis-ci.com/yodaos-project/edge-monitor.svg?branch=master)](https://travis-ci.com/yodaos-project/edge-monitor)
 
 Collect and upload system data in real time. Currently supports the following features:
 
@@ -12,6 +13,7 @@ Collect and upload system data in real time. Currently supports the following fe
 - Monitor comredump file, compress and upload automatically.
 
 ## Dependencies
+
 - libcurl android armeabi-v7a is built-in
 
 ## Build
@@ -36,6 +38,7 @@ The above builds an executable `yoda-sixsix` in your CMake build directory.
 | `-d`             | set log level, [verbose, info, warn, error, fatal] |
 
 ## Configure json structure
+
 | options          | description   |
 |------------------|---------------|
 | `unzipRoot`      | temporary file directory, default value is `/tmp/` |
