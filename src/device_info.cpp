@@ -13,10 +13,12 @@ std::string DeviceInfo::hardware = "hardware-unknown";
 std::string DeviceInfo::turenVersion = "turen-unknown";
 std::string DeviceInfo::vspVersion = "vsp-unknown";
 std::string DeviceInfo::typeId = "typeId-unknown";
+std::string DeviceInfo::productName = "productname-unknown";
 const char *key_sn = "ro.boot.serialno";
 const char *key_imageVersion = "ro.build.version.release";
 const char *key_hardware = "ro.boot.hardware";
 const char *key_vspVersion = "ro.rokid.build.vsp";
+const char *key_productName = "ro.rokid.build.productname";
 const char *key_typeId = "ro.boot.devicetypeid";
 
 int32_t DeviceInfo::init() {
@@ -37,6 +39,7 @@ int32_t DeviceInfo::init() {
     READ_PROP(hardware);
     READ_PROP(vspVersion);
     READ_PROP(typeId);
+    READ_PROP(productName);
   }
 
   auto aifeVersion =

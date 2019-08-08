@@ -18,6 +18,7 @@ public:
   static std::string turenVersion;
   static std::string vspVersion;
   static std::string typeId;
+  static std::string productName;
 };
 
 YODA_NS_END

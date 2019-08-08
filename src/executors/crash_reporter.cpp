@@ -145,6 +145,7 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   conn->AppendHeader("Device-Type-Id", DeviceInfo::typeId);
   conn->AppendHeader("Image-Version", DeviceInfo::imageVersion);
   conn->AppendHeader("Lothal-Version", DeviceInfo::turenVersion);
+  conn->AppendHeader("Product-Name", DeviceInfo::productName);
   conn->AppendHeader("VSP-Version", DeviceInfo::vspVersion);
   conn->AppendHeader("Report-Time", reportTime);
   conn->AppendHeader("Report-Type", std::to_string(0));
@@ -152,16 +153,15 @@ void CrashReporter::compressAndUpload(const std::string &dir,
   conn->AppendHeader("APP-Fullname", fullname);
   conn->AppendHeader("APP-PID", appPid);
   conn->AppendHeader("APP-ARGS", "{}");
+  LOG_INFO("uploading %s", zippath);
   while (true) {
     RestClient::Response res = conn->post(UPLOAD_PATH, buf);
     if (200 <= res.code && res.code < 300) {
-      LOG_INFO("uploaded %s %s", filepath, res.body.c_str());
+      LOG_INFO("upload finish %s %d %s", zippath, res.code, res.body.c_str());
       unlink(filepath);
       break;
     } else {
-      LOG_ERROR(
-        "upload error: %s %d %s", zippath, res.code, res.body.c_str()
-      );
+      LOG_ERROR("upload error: %s %d %s", zippath, res.code, res.body.c_str());
       sleep(30);
     }
   }
