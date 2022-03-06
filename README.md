@@ -1,7 +1,7 @@
 # Yoda Monitor
 
 [![License](https://img.shields.io/badge/licence-Apache%202.0-brightgreen.svg?style=flat)](LICENSE)
-[![Build Status](https://travis-ci.com/yodaos-project/edge-monitor.svg?branch=master)](https://travis-ci.com/yodaos-project/edge-monitor)
+[![Build Status](https://travis-ci.com/yodaos-project/edge-monitor.svg?branch=master)](https://app.travis-ci.com/yodaos-project/edge-monitor)
 
 Collect and upload system data in real time. Currently supports the following features:
 
